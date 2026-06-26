@@ -1,0 +1,1682 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>언어교환101 운영 투표</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #151a22;
+      --muted: #687588;
+      --line: #dbe3ec;
+      --bg: #f4f7fb;
+      --paper: #fff;
+      --teal: #0a8d7a;
+      --blue: #236ecb;
+      --yellow: #ffe100;
+      --red: #bf3e3e;
+      --shadow: 0 16px 42px rgba(34, 48, 70, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(130deg, rgba(35, 110, 203, 0.13), transparent 36%),
+        linear-gradient(320deg, rgba(10, 141, 122, 0.12), transparent 32%),
+        var(--bg);
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      width: min(1220px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 48px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 13px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 54px;
+      height: 54px;
+      place-items: center;
+      border: 2px solid #111;
+      border-radius: 8px;
+      background: var(--yellow);
+      color: #111;
+      font-weight: 900;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      margin-bottom: 5px;
+      font-size: clamp(27px, 4vw, 44px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .hero p, .helper {
+      margin-bottom: 0;
+      color: var(--muted);
+      line-height: 1.48;
+      font-size: 13px;
+    }
+
+    .hero-actions, .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .language-select {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 10px;
+      color: var(--ink);
+      background: #fff;
+      font-weight: 800;
+    }
+
+    .btn {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 14px;
+      color: var(--ink);
+      background: var(--paper);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .btn.primary {
+      border-color: var(--teal);
+      color: #fff;
+      background: var(--teal);
+    }
+
+    .btn.danger { color: var(--red); }
+    .btn:disabled { cursor: default; opacity: 0.55; }
+    .btn:hover:not(:disabled), .btn:focus-visible {
+      border-color: var(--teal);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(10, 141, 122, 0.12);
+    }
+
+    .notice {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #e3ca00;
+      border-radius: 8px;
+      padding: 15px 16px;
+      background: var(--yellow);
+    }
+
+    .notice strong { font-size: 18px; }
+    .notice p { margin-bottom: 0; line-height: 1.5; }
+
+    .pinned-post, .materials {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(219, 227, 236, 0.96);
+      border-radius: 8px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: var(--shadow);
+    }
+
+    .pinned-post {
+      border-color: rgba(10, 141, 122, 0.35);
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .section-title h2 {
+      margin-bottom: 0;
+      font-size: 21px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .pinned-content {
+      white-space: pre-line;
+      color: #263244;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .material-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .material-tab {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 13px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .material-tab.active {
+      border-color: var(--blue);
+      color: #fff;
+      background: var(--blue);
+    }
+
+    .material-groups {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .material-group {
+      display: grid;
+      gap: 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px;
+      background: #fff;
+    }
+
+    .material-group h3 {
+      margin-bottom: 0;
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .material-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .material-list a {
+      color: var(--blue);
+      font-weight: 800;
+      overflow-wrap: anywhere;
+      text-decoration: none;
+    }
+
+    .material-list a:hover,
+    .material-list a:focus-visible {
+      text-decoration: underline;
+      outline: none;
+    }
+
+    .view-panel.hidden {
+      display: none;
+    }
+
+    .kakao-widget {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      border: 1px solid #111;
+      border-radius: 14px;
+      padding: 6px;
+      color: #111;
+      background: var(--yellow);
+      font-weight: 900;
+      box-shadow: 0 14px 32px rgba(34, 48, 70, 0.2);
+    }
+
+    .kakao-widget.hidden {
+      display: none;
+    }
+
+    .kakao-link {
+      display: grid;
+      place-items: center;
+      color: inherit;
+      text-decoration: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .kakao-link img {
+      width: 46px;
+      height: 46px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .kakao-link:hover,
+    .kakao-link:focus-visible {
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    .kakao-dismiss {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      display: grid;
+      width: 22px;
+      height: 22px;
+      place-items: center;
+      border: 1px solid #111;
+      border-radius: 999px;
+      color: #111;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .kakao-dismiss:hover,
+    .kakao-dismiss:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(10, 141, 122, 0.18);
+    }
+
+    .login-panel {
+      display: grid;
+      grid-template-columns: minmax(240px, 360px) auto auto auto minmax(260px, 1fr);
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .field { display: grid; gap: 7px; }
+    label {
+      color: #364254;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 12px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 4px rgba(10, 141, 122, 0.12);
+    }
+
+    .message {
+      min-height: 22px;
+      margin-bottom: 12px;
+      color: var(--teal);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .level-strip {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .level-num {
+      display: grid;
+      width: 52px;
+      height: 52px;
+      place-items: center;
+      border-radius: 8px;
+      background: #111;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .xp-bar {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #edf1f5;
+    }
+
+    .xp-bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--yellow);
+    }
+
+    .filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tab {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 13px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .tab.active {
+      border-color: var(--teal);
+      color: #fff;
+      background: var(--teal);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card, .admin {
+      border: 1px solid rgba(219, 227, 236, 0.96);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: var(--shadow);
+    }
+
+    .card {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .card.closed {
+      background: rgba(247, 249, 252, 0.96);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card h2 {
+      margin-bottom: 7px;
+      font-size: 20px;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 27px;
+      border-radius: 999px;
+      padding: 0 9px;
+      color: #fff;
+      background: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .badge.offline { background: var(--teal); }
+    .badge.online { background: var(--blue); }
+    .badge.language { background: #7b55c7; }
+    .badge.closed { background: #6d7786; }
+
+    .meta {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .meta a { color: var(--blue); overflow-wrap: anywhere; }
+
+    .vote-options, .results, .people-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .level-btn {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 11px;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+    }
+
+    .level-btn.selected {
+      border-color: var(--teal);
+      background: rgba(10, 141, 122, 0.1);
+    }
+
+    .level-btn:disabled {
+      cursor: default;
+      opacity: 0.78;
+    }
+
+    .level-name { font-weight: 900; overflow-wrap: anywhere; }
+    .level-count { color: var(--teal); font-weight: 900; white-space: nowrap; }
+
+    .result-row { display: grid; gap: 5px; }
+    .result-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .result-meta strong { color: var(--ink); }
+
+    .bar {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #edf1f5;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--teal);
+      transition: width 260ms ease;
+    }
+
+    .people-list {
+      padding-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .people-list strong { color: var(--ink); }
+
+    .card-foot {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .admin {
+      margin-top: 18px;
+      overflow: hidden;
+    }
+
+    .admin summary {
+      padding: 17px 18px;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .admin-body {
+      display: grid;
+      gap: 18px;
+      border-top: 1px solid var(--line);
+      padding: 18px;
+    }
+
+    .admin-locked {
+      display: grid;
+      grid-template-columns: minmax(220px, 360px) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .admin-card {
+      display: grid;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .admin-card h3 { margin-bottom: 0; font-size: 16px; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1040px) {
+      .grid, .admin-grid, .material-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      .hero, .login-panel, .grid, .admin-grid, .material-groups, .form-row, .admin-locked {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions, .row-actions { justify-content: stretch; }
+      .hero-actions .btn, .login-panel .btn, .row-actions .btn, .admin-locked .btn { width: 100%; }
+      .card { padding: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div class="brand">
+        <div class="brand-mark">101</div>
+        <div>
+          <h1>언어교환101 운영 투표</h1>
+          <p>오프라인, 온라인, 일본어, 중국어 스터디 투표를 자동으로 열고 마감하는 운영용 시안입니다.</p>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <select class="language-select" id="languageSelect" aria-label="번역 언어 선택">
+          <option value="ko">한국어</option>
+          <option value="en">English</option>
+          <option value="ja">日本語</option>
+          <option value="zh">中文</option>
+        </select>
+        <button type="button" class="btn" id="toggleResults">결과 숨기기</button>
+        <button type="button" class="btn primary" id="adminJump">관리자</button>
+      </div>
+    </header>
+
+    <section class="notice" aria-label="투표 안내">
+      <strong>투표 이름은 꼭 이름+영어이름 형식으로 입력해주세요.</strong>
+      <p>예: 김도원(LIA), 김도현(david). 각 스터디는 시작 4시간 전까지 투표와 취소가 가능하고, 마감 이후에는 자동으로 다음 주 일정이 열립니다.</p>
+    </section>
+
+    <section class="pinned-post" aria-label="상단 고정 공지">
+      <div class="section-title">
+        <h2>📌 고정 공지</h2>
+        <span class="badge event">관리자 공지</span>
+      </div>
+      <div class="pinned-content" id="pinnedNotice"></div>
+    </section>
+
+    <section class="login-panel" aria-label="참여자 로그인">
+      <div class="field">
+        <label for="memberName">참여자 이름</label>
+        <input id="memberName" autocomplete="name" placeholder="예: 김도원(LIA)">
+      </div>
+      <button type="button" class="btn primary" id="saveMember">참여자로 시작</button>
+      <button type="button" class="btn" id="googleLogin">Google 로그인 연결</button>
+      <button type="button" class="btn" id="kakaoLogin">Kakao 로그인 연결</button>
+      <p class="helper">지금은 시안이라 이름 입력으로 작동합니다. 실제 배포 때 Google/Kakao OAuth를 붙이면 본인 확인, 중복 방지, 레벨 기록을 계정별로 저장할 수 있습니다.</p>
+    </section>
+
+    <section class="level-strip" id="levelStrip" aria-label="참여자 레벨">
+      <div class="level-num" id="levelNumber">Lv.1</div>
+      <div>
+        <strong id="levelTitle">참석 기록 기반 레벨</strong>
+        <p class="helper" id="levelText">투표/참석 기록이 쌓이면 경험치가 올라갑니다. 실제 운영에서는 출석 확정 시 Exp를 지급하면 좋아요.</p>
+        <div class="xp-bar" aria-hidden="true"><span id="xpFill" style="width:0%"></span></div>
+      </div>
+      <strong id="xpText">0 Exp</strong>
+    </section>
+
+    <div class="message" id="message" role="status" aria-live="polite"></div>
+
+    <nav class="filter-tabs" aria-label="투표 분류">
+      <button type="button" class="tab active" data-filter="all">전체</button>
+      <button type="button" class="tab" data-filter="offline">오프라인 영어</button>
+      <button type="button" class="tab" data-filter="online">온라인 영어</button>
+      <button type="button" class="tab" data-filter="language">일본어/중국어</button>
+      <button type="button" class="tab" data-filter="event">공지/이벤트</button>
+      <button type="button" class="tab" id="materialsToggle">자료 메뉴</button>
+    </nav>
+
+    <section class="materials view-panel hidden" id="materialsPanel" aria-label="스터디 자료 메뉴">
+      <div class="section-title">
+        <h2>자료 메뉴</h2>
+        <p class="helper">영어, 일본어, 중국어 그룹스터디 자료를 바로 열어볼 수 있습니다.</p>
+      </div>
+      <div class="material-tabs" id="materialTabs">
+        <button type="button" class="material-tab active" data-material="english">영어</button>
+        <button type="button" class="material-tab" data-material="japanese">일본어</button>
+        <button type="button" class="material-tab" data-material="chinese">중국어</button>
+      </div>
+      <div class="material-groups" id="materialGroups"></div>
+    </section>
+
+    <section class="grid" id="eventCards" aria-label="스터디 투표"></section>
+
+    <details class="admin" id="adminPanel">
+      <summary>관리자 설정, 인원 추가, 공유 문구</summary>
+      <div class="admin-body">
+        <section class="admin-locked" id="adminLogin">
+          <div class="field">
+            <label for="adminPassword">관리자 비밀번호</label>
+            <input id="adminPassword" type="password" placeholder="기본값: 101manager">
+          </div>
+          <button type="button" class="btn primary" id="loginAdmin">관리자로 접속</button>
+        </section>
+
+        <section class="admin-grid hidden" id="adminTools">
+          <div class="admin-card">
+            <h3>상단 고정 공지 작성</h3>
+            <div class="field">
+              <label for="pinnedNoticeInput">공지 내용</label>
+              <textarea id="pinnedNoticeInput"></textarea>
+            </div>
+            <button type="button" class="btn primary" id="savePinnedNotice">공지 저장</button>
+          </div>
+
+          <div class="admin-card">
+            <h3>수동 인원 추가</h3>
+            <div class="field">
+              <label for="manualEvent">일정</label>
+              <select id="manualEvent"></select>
+            </div>
+            <div class="field">
+              <label for="manualOption">선택 항목</label>
+              <select id="manualOption"></select>
+            </div>
+            <div class="field">
+              <label for="manualName">참여자 이름</label>
+              <input id="manualName" placeholder="예: 김도현(david)">
+            </div>
+            <button type="button" class="btn primary" id="addManual">인원 추가</button>
+          </div>
+
+          <div class="admin-card">
+            <h3>공지/이벤트 투표 추가</h3>
+            <div class="field">
+              <label for="customTitle">투표 제목</label>
+              <input id="customTitle" placeholder="예: 6월 Drinking Party 🍻">
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="customDate">날짜</label>
+                <input id="customDate" type="date">
+              </div>
+              <div class="field">
+                <label for="customTime">시간</label>
+                <input id="customTime" type="time">
+              </div>
+            </div>
+            <div class="field">
+              <label for="customPlace">장소</label>
+              <input id="customPlace" placeholder="예: 서울 서초구 신반포로 332 1층">
+            </div>
+            <div class="field">
+              <label for="customOptions">선택지</label>
+              <input id="customOptions" placeholder="참석 가능, 참석 어려움, 고민 중">
+            </div>
+            <button type="button" class="btn primary" id="addCustomPoll">투표 추가</button>
+          </div>
+
+          <div class="admin-card">
+            <h3>운영 관리</h3>
+            <p class="helper">이 시안의 관리자 비밀번호는 화면 안에 있는 데모용입니다. 실제 사이트로 배포할 때는 서버 로그인으로 바꿔야 합니다.</p>
+            <div class="row-actions">
+              <button type="button" class="btn" id="rebuildWeek">이번 주/다음 주 다시 계산</button>
+              <button type="button" class="btn danger" id="resetVotes">투표 전체 초기화</button>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <h3>단톡방 공유 문구</h3>
+            <div class="field">
+              <label for="shareText">공유 문구</label>
+              <textarea id="shareText" readonly></textarea>
+            </div>
+            <button type="button" class="btn primary" id="copyShare">공유 문구 복사</button>
+          </div>
+
+          <div class="admin-card">
+            <h3>마감 요약 이메일</h3>
+            <p class="helper">정적 시안에서는 자동 발송 대신 메일 작성창을 열어줍니다. 실제 배포 때는 서버 작업으로 자동 발송을 연결할 수 있습니다.</p>
+            <div class="field">
+              <label for="emailSummary">신청자 요약</label>
+              <textarea id="emailSummary" readonly></textarea>
+            </div>
+            <div class="row-actions">
+              <button type="button" class="btn" id="refreshEmailSummary">요약 새로고침</button>
+              <a class="btn primary" id="emailSummaryLink" href="mailto:whdudgns91@gmail.com">이메일 작성</a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </details>
+    <div class="kakao-widget" id="kakaoWidget">
+      <a class="kakao-link" href="https://pf.kakao.com/_xbMxiVxb" target="_blank" rel="noreferrer" aria-label="카카오톡 채팅 문의 열기">
+        <img src="2026-06-25-kakao-talk-contact-icon.png" alt="카카오톡 문의">
+      </a>
+      <button type="button" class="kakao-dismiss" id="kakaoDismiss" aria-label="카카오톡 문의 버튼 숨기기">×</button>
+    </div>
+  </main>
+
+  <script>
+    const MEMBER_KEY = "le101OpsMember";
+    const VOTES_KEY = "le101OpsVotes";
+    const RESULTS_KEY = "le101OpsShowResults";
+    const ADMIN_KEY = "le101OpsAdmin";
+    const CUSTOM_POLLS_KEY = "le101OpsCustomPolls";
+    const PINNED_NOTICE_KEY = "le101OpsPinnedNotice";
+    const ADMIN_PASSWORD = "101manager";
+    const JONGGAK_PLACE = "종각 드람브르 5층 (종로구 종로 80)";
+    const NONHYEON_PLACE = "서울 서초구 신반포로 332 1층 (오켈리논현점 건물)";
+
+    const templates = [
+      { id: "offline-tue", category: "offline", title: "OFFLINE ENGLISH", dow: 2, hour: 19, minute: 30, place: JONGGAK_PLACE, options: ["Beginner", "Intermediate", "Upper Intermediate"] },
+      { id: "offline-wed", category: "offline", title: "OFFLINE ENGLISH", dow: 3, hour: 19, minute: 30, place: JONGGAK_PLACE, options: ["Beginner", "Intermediate", "Upper Intermediate"] },
+      { id: "offline-thu", category: "offline", title: "OFFLINE ENGLISH", dow: 4, hour: 19, minute: 30, place: JONGGAK_PLACE, options: ["Beginner", "Intermediate", "Upper Intermediate"] },
+      { id: "offline-fri", category: "offline", title: "OFFLINE ENGLISH", dow: 5, hour: 19, minute: 30, place: NONHYEON_PLACE, options: ["Beginner", "Intermediate", "Upper Intermediate"] },
+      { id: "offline-sat", category: "offline", title: "OFFLINE ENGLISH", dow: 6, hour: 19, minute: 30, place: JONGGAK_PLACE, options: ["Beginner", "Intermediate", "Upper Intermediate"] },
+      { id: "offline-sun", category: "offline", title: "OFFLINE ENGLISH", dow: 0, hour: 19, minute: 30, place: NONHYEON_PLACE, options: ["Beginner", "Intermediate", "Upper Intermediate"] },
+      { id: "online-tue", category: "online", title: "ONLINE ENGLISH", dow: 2, hour: 20, minute: 30, place: "온라인", options: ["Beginner", "Intermediate"] },
+      { id: "online-sat", category: "online", title: "ONLINE ENGLISH", dow: 6, hour: 13, minute: 0, place: "온라인", options: ["Beginner", "Intermediate"] },
+      { id: "online-sun", category: "online", title: "ONLINE ENGLISH", dow: 0, hour: 13, minute: 0, place: "온라인", options: ["Beginner", "Intermediate"] },
+      { id: "japanese-tue", category: "language", title: "일본어스터디♥", dow: 2, hour: 19, minute: 30, place: JONGGAK_PLACE, options: ["일본어 초급", "일본어 중급이상"] },
+      { id: "jp-cn-sat", category: "language", title: "일본어&중국어스터디♥", dow: 6, hour: 16, minute: 0, place: JONGGAK_PLACE, multiple: true, options: ["일본어 초급", "일본어 중급이상", "중국어 초급", "중국어 중급이상"] }
+    ];
+
+    const categoryLabels = {
+      offline: "오프라인 영어",
+      online: "온라인 영어",
+      language: "일본어/중국어",
+      event: "공지/이벤트"
+    };
+
+    const defaultPinnedNotice = "클래스 시작 4시간 전까지 투표 가능하며 그 이후에는 자동으로 투표가 종료됩니다. 원하는 일정과 레벨을 놓치지 않게 미리 신청해주세요.";
+
+    const materials = {
+      english: [
+        {
+          title: "🔰 All Level · Ice-breaking",
+          items: [
+            ["True or False 자기소개 & 일상 공유", "https://cafe.naver.com/language101/1750"],
+            ["30 Second Speaking", "https://v0-101class.vercel.app/"],
+            ["20 Questions", "https://v0-101languagegame.vercel.app/"],
+            ["What If Challenge", "https://v0-iflanguage101.vercel.app/"],
+            ["Funny Questions", "https://cafe.naver.com/language101/2402"],
+            ["Ice Breaking 3", "https://cafe.naver.com/language101/3186"]
+          ]
+        },
+        {
+          title: "✔ Game & Activity",
+          items: [
+            ["Fun Discuss", "https://v0-101language.vercel.app/"],
+            ["Guessing Words", "https://v0-101language101.vercel.app/"],
+            ["Word Battle", "https://v0-101languagewords.vercel.app/"],
+            ["Balance Game", "https://cafe.naver.com/language101/3835"],
+            ["Balance Game 2", "https://cafe.naver.com/language101/2025"],
+            ["Words Game", "https://cafe.naver.com/language101/3122"]
+          ]
+        },
+        {
+          title: "🔶 Intermediate & Upper-Intermediate",
+          items: [
+            ["Debate : Pros & Cons", "https://m.cafe.naver.com/language101/2234"],
+            ["Choose One Out of Three", "https://cafe.naver.com/language101/3396"]
+          ]
+        },
+        {
+          title: "💬 Expression Practice",
+          items: [
+            ["Useful Expressions", "https://cafe.naver.com/language101/4285"],
+            ["Practice of Expressing", "https://cafe.naver.com/language101/4408"],
+            ["Describing Picture Game", "https://cafe.naver.com/language101/2750"]
+          ]
+        }
+      ],
+      japanese: [
+        {
+          title: "🇯🇵 All Level · Ice Breaking",
+          items: [
+            ["자기소개 & 일상 공유", "https://cafe.naver.com/language101/2790"],
+            ["아이스브레이킹 질문", "https://cafe.naver.com/language101/3671"],
+            ["롤플레이 활동", "https://cafe.naver.com/language101/4557"]
+          ]
+        },
+        {
+          title: "🎮 Game Activity",
+          items: [
+            ["재밌는 토론", "https://v0-101language.vercel.app/"],
+            ["단어 맞추기 게임", "https://v0-101language101.vercel.app/"],
+            ["스무고개", "https://v0-101languagegame.vercel.app/"],
+            ["단어 배틀", "https://v0-101languagewords.vercel.app/"],
+            ["만약에 게임", "https://v0-iflanguage101.vercel.app/"],
+            ["밸런스 게임", "https://cafe.naver.com/language101/3397"],
+            ["밸런스 게임 2", "https://cafe.naver.com/language101/2791"]
+          ]
+        },
+        {
+          title: "💬 실전 일본어 표현",
+          items: [
+            ["일본어 실전 표현 모음 (텍스트)", "https://cafe.naver.com/language101/4413"],
+            ["일본어 실전 표현 모음 (회화 연습)", "https://cafe.naver.com/language101/4409"]
+          ]
+        }
+      ],
+      chinese: [
+        {
+          title: "🇨🇳 중국어 스터디 · Ice Breaking",
+          items: [
+            ["자기소개 & 일상 공유", "https://cafe.naver.com/language101/2497"],
+            ["스무고개", "https://v0-101languagegame.vercel.app/"],
+            ["아이스브레이킹 질문 (초보자용)", "https://cafe.naver.com/language101/3732"]
+          ]
+        },
+        {
+          title: "🎮 Game Activity",
+          items: [
+            ["재밌는 토론", "https://v0-101language.vercel.app/"],
+            ["단어 맞추기", "https://v0-101language101.vercel.app/"],
+            ["단어 배틀", "https://v0-101languagewords.vercel.app/"],
+            ["30초 말하기 연습", "https://v0-101class.vercel.app/"],
+            ["만약에 게임", "https://v0-iflanguage101.vercel.app/"],
+            ["단어 추측 & 스토리텔링 게임", "https://cafe.naver.com/language101/4552"],
+            ["밸런스 게임", "https://cafe.naver.com/language101/2496"],
+            ["업그레이드 밸런스 게임", "https://cafe.naver.com/language101/3437"]
+          ]
+        },
+        {
+          title: "💬 Discussion",
+          items: [
+            ["디베이트 : 찬성 & 반대", "https://cafe.naver.com/language101/3717"]
+          ]
+        }
+      ]
+    };
+
+    const eventCardsEl = document.querySelector("#eventCards");
+    const pinnedNoticeEl = document.querySelector("#pinnedNotice");
+    const materialsPanelEl = document.querySelector("#materialsPanel");
+    const materialsToggleEl = document.querySelector("#materialsToggle");
+    const materialGroupsEl = document.querySelector("#materialGroups");
+    const memberNameEl = document.querySelector("#memberName");
+    const saveMemberEl = document.querySelector("#saveMember");
+    const messageEl = document.querySelector("#message");
+    const toggleResultsEl = document.querySelector("#toggleResults");
+    const adminPanelEl = document.querySelector("#adminPanel");
+    const adminJumpEl = document.querySelector("#adminJump");
+    const adminLoginEl = document.querySelector("#adminLogin");
+    const adminToolsEl = document.querySelector("#adminTools");
+    const adminPasswordEl = document.querySelector("#adminPassword");
+    const loginAdminEl = document.querySelector("#loginAdmin");
+    const manualEventEl = document.querySelector("#manualEvent");
+    const manualOptionEl = document.querySelector("#manualOption");
+    const manualNameEl = document.querySelector("#manualName");
+    const addManualEl = document.querySelector("#addManual");
+    const rebuildWeekEl = document.querySelector("#rebuildWeek");
+    const resetVotesEl = document.querySelector("#resetVotes");
+    const shareTextEl = document.querySelector("#shareText");
+    const copyShareEl = document.querySelector("#copyShare");
+    const googleLoginEl = document.querySelector("#googleLogin");
+    const kakaoLoginEl = document.querySelector("#kakaoLogin");
+    const levelNumberEl = document.querySelector("#levelNumber");
+    const levelTitleEl = document.querySelector("#levelTitle");
+    const levelTextEl = document.querySelector("#levelText");
+    const xpFillEl = document.querySelector("#xpFill");
+    const xpTextEl = document.querySelector("#xpText");
+    const customTitleEl = document.querySelector("#customTitle");
+    const customDateEl = document.querySelector("#customDate");
+    const customTimeEl = document.querySelector("#customTime");
+    const customPlaceEl = document.querySelector("#customPlace");
+    const customOptionsEl = document.querySelector("#customOptions");
+    const addCustomPollEl = document.querySelector("#addCustomPoll");
+    const pinnedNoticeInputEl = document.querySelector("#pinnedNoticeInput");
+    const savePinnedNoticeEl = document.querySelector("#savePinnedNotice");
+    const languageSelectEl = document.querySelector("#languageSelect");
+    const kakaoWidgetEl = document.querySelector("#kakaoWidget");
+    const kakaoDismissEl = document.querySelector("#kakaoDismiss");
+    const emailSummaryEl = document.querySelector("#emailSummary");
+    const refreshEmailSummaryEl = document.querySelector("#refreshEmailSummary");
+    const emailSummaryLinkEl = document.querySelector("#emailSummaryLink");
+
+    let activeFilter = "all";
+    let activeMaterial = "english";
+
+    const languageMessages = {
+      ko: "한국어 보기로 설정했습니다.",
+      en: "English view selected. Full automatic translation can be connected after deployment.",
+      ja: "日本語表示を選択しました。正式な自動翻訳は配信後に接続できます。",
+      zh: "已选择中文显示。正式自动翻译可在部署后连接。"
+    };
+
+    function showVoteView() {
+      eventCardsEl.classList.remove("hidden");
+      materialsPanelEl.classList.add("hidden");
+      materialsToggleEl.classList.remove("active");
+    }
+
+    function showMaterialsView() {
+      eventCardsEl.classList.add("hidden");
+      materialsPanelEl.classList.remove("hidden");
+      document.querySelectorAll(".tab").forEach((item) => item.classList.remove("active"));
+      materialsToggleEl.classList.add("active");
+      renderMaterials();
+    }
+
+    function readJson(key, fallback) {
+      const saved = localStorage.getItem(key);
+      if (!saved) return fallback;
+      try { return JSON.parse(saved); } catch { return fallback; }
+    }
+
+    function writeJson(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function isNameValid(name) {
+      return /^[가-힣]{2,}\([A-Za-z][A-Za-z0-9 ._-]{1,20}\)$/.test(name.trim());
+    }
+
+    function formatDate(date) {
+      const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUNE", "JULY", "AUG", "SEP", "OCT", "NOV", "DEC"];
+      const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+      return `${months[date.getMonth()]} ${date.getDate()} (${days[date.getDay()]})`;
+    }
+
+    function formatKoreanDate(date) {
+      const days = ["일", "월", "화", "수", "목", "금", "토"];
+      return `${date.getMonth() + 1}월 ${date.getDate()}일(${days[date.getDay()]})`;
+    }
+
+    function formatTime(date) {
+      let hours = date.getHours();
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12 || 12;
+      return `${hours}:${minutes} ${ampm}`;
+    }
+
+    function formatKoreanTime(date) {
+      const ampm = date.getHours() >= 12 ? "오후" : "오전";
+      let hours = date.getHours() % 12 || 12;
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      return `${ampm} ${hours}:${minutes}`;
+    }
+
+    function nextOccurrence(template, now = new Date()) {
+      const date = new Date(now);
+      date.setHours(template.hour, template.minute, 0, 0);
+      const diff = (template.dow - date.getDay() + 7) % 7;
+      date.setDate(date.getDate() + diff);
+
+      const closeAt = new Date(date.getTime() - 4 * 60 * 60 * 1000);
+      if (now > closeAt) {
+        date.setDate(date.getDate() + 7);
+      }
+
+      return date;
+    }
+
+    function getLastSaturday(year, month) {
+      const date = new Date(year, month + 1, 0, 19, 30, 0, 0);
+      while (date.getDay() !== 6) date.setDate(date.getDate() - 1);
+      return date;
+    }
+
+    function getMonthlyParty(now = new Date()) {
+      let startsAt = getLastSaturday(now.getFullYear(), now.getMonth());
+      let closesAt = new Date(startsAt.getTime() - 4 * 60 * 60 * 1000);
+      if (now > closesAt) {
+        const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        startsAt = getLastSaturday(nextMonth.getFullYear(), nextMonth.getMonth());
+        closesAt = new Date(startsAt.getTime() - 4 * 60 * 60 * 1000);
+      }
+      return {
+        id: "monthly-party",
+        category: "event",
+        title: `${startsAt.getMonth() + 1}월 Drinking Party 🍻`,
+        place: NONHYEON_PLACE,
+        options: ["참석 가능", "참석 어려움", "고민 중"],
+        key: `monthly-party-${startsAt.toISOString().slice(0, 10)}`,
+        startsAt,
+        closesAt,
+        closed: now > closesAt,
+        dateText: formatDate(startsAt),
+        koreanDateText: formatKoreanDate(startsAt),
+        timeText: formatTime(startsAt),
+        koreanTimeText: formatKoreanTime(startsAt),
+        closeText: `투표 마감: ${formatKoreanDate(closesAt)} ${formatKoreanTime(closesAt)}`
+      };
+    }
+
+    function getCustomPolls() {
+      return readJson(CUSTOM_POLLS_KEY, []).map((poll) => {
+        const startsAt = new Date(poll.startsAt);
+        const closesAt = new Date(startsAt.getTime() - 4 * 60 * 60 * 1000);
+        const now = new Date();
+        return {
+          ...poll,
+          category: "event",
+          startsAt,
+          closesAt,
+          closed: now > closesAt,
+          dateText: formatDate(startsAt),
+          koreanDateText: formatKoreanDate(startsAt),
+          timeText: formatTime(startsAt),
+          koreanTimeText: formatKoreanTime(startsAt),
+          closeText: `투표 마감: ${formatKoreanDate(closesAt)} ${formatKoreanTime(closesAt)}`
+        };
+      });
+    }
+
+    function getEvents() {
+      const recurringEvents = templates.map((template) => {
+        const startsAt = nextOccurrence(template);
+        const closesAt = new Date(startsAt.getTime() - 4 * 60 * 60 * 1000);
+        const key = `${template.id}-${startsAt.toISOString().slice(0, 10)}`;
+        const now = new Date();
+        return {
+          ...template,
+          key,
+          startsAt,
+          closesAt,
+          closed: now > closesAt,
+          dateText: formatDate(startsAt),
+          koreanDateText: formatKoreanDate(startsAt),
+          timeText: formatTime(startsAt),
+          koreanTimeText: formatKoreanTime(startsAt),
+          closeText: `투표 마감: ${formatKoreanDate(closesAt)} ${formatKoreanTime(closesAt)}`
+        };
+      });
+      return [...recurringEvents, getMonthlyParty(), ...getCustomPolls()]
+        .sort((a, b) => a.startsAt - b.startsAt || a.title.localeCompare(b.title));
+    }
+
+    function getVotes() {
+      return readJson(VOTES_KEY, {});
+    }
+
+    function getEventVotes(votes, event) {
+      if (!votes[event.key]) {
+        votes[event.key] = {};
+      }
+      event.options.forEach((option) => {
+        if (!votes[event.key][option]) votes[event.key][option] = [];
+      });
+      return votes[event.key];
+    }
+
+    function getMember() {
+      return localStorage.getItem(MEMBER_KEY) || "";
+    }
+
+    function getShowResults() {
+      return localStorage.getItem(RESULTS_KEY) !== "hidden";
+    }
+
+    function setShowResults(show) {
+      localStorage.setItem(RESULTS_KEY, show ? "visible" : "hidden");
+    }
+
+    function getSelectedOptions(eventVotes, member) {
+      if (!member) return [];
+      return Object.entries(eventVotes)
+        .filter(([, names]) => names.includes(member))
+        .map(([option]) => option);
+    }
+
+    function totalPeople(eventVotes) {
+      return new Set(Object.values(eventVotes).flat()).size;
+    }
+
+    function getMemberStats(member) {
+      if (!member) return { exp: 0, level: 1, progress: 0, votes: 0 };
+      const votes = getVotes();
+      let joined = 0;
+      Object.values(votes).forEach((eventVotes) => {
+        Object.values(eventVotes).forEach((names) => {
+          if (Array.isArray(names) && names.includes(member)) joined += 1;
+        });
+      });
+      const exp = joined * 25;
+      const level = Math.min(99, Math.max(1, Math.floor(exp / 100) + 1));
+      const progress = exp % 100;
+      return { exp, level, progress, votes: joined };
+    }
+
+    function renderLevel() {
+      const member = getMember();
+      const stats = getMemberStats(member);
+      levelNumberEl.textContent = `Lv.${stats.level}`;
+      xpTextEl.textContent = `${stats.exp} Exp`;
+      xpFillEl.style.width = `${stats.progress}%`;
+      levelTitleEl.textContent = member ? `${member}님의 언어교환101 레벨` : "참석 기록 기반 레벨";
+      levelTextEl.textContent = member
+        ? `현재 ${stats.votes}개 참여 기록이 반영되었습니다. 운영 버전에서는 실제 출석 확인 시 Exp를 지급하면 정확합니다.`
+        : "로그인하면 투표/참석 기록을 바탕으로 Level 1-99 성장을 보여줄 수 있습니다.";
+    }
+
+    function getPinnedNotice() {
+      return localStorage.getItem(PINNED_NOTICE_KEY) || defaultPinnedNotice;
+    }
+
+    function renderPinnedNotice() {
+      const notice = getPinnedNotice();
+      pinnedNoticeEl.textContent = notice;
+      if (pinnedNoticeInputEl) pinnedNoticeInputEl.value = notice;
+    }
+
+    function renderMaterials() {
+      materialGroupsEl.innerHTML = "";
+      materials[activeMaterial].forEach((group) => {
+        const section = document.createElement("section");
+        section.className = "material-group";
+        section.innerHTML = `
+          <h3>${group.title}</h3>
+          <ul class="material-list"></ul>
+        `;
+        const list = section.querySelector(".material-list");
+        group.items.forEach(([label, url]) => {
+          const item = document.createElement("li");
+          item.innerHTML = `<a href="${url}" target="_blank" rel="noreferrer">${label}</a>`;
+          list.appendChild(item);
+        });
+        materialGroupsEl.appendChild(section);
+      });
+    }
+
+    function renderCards() {
+      const events = getEvents();
+      const votes = getVotes();
+      const member = getMember();
+      const showResults = getShowResults();
+      const visibleEvents = activeFilter === "all" ? events : events.filter((event) => event.category === activeFilter);
+
+      eventCardsEl.innerHTML = "";
+
+      visibleEvents.forEach((event) => {
+        const eventVotes = getEventVotes(votes, event);
+        const total = totalPeople(eventVotes);
+        const selected = getSelectedOptions(eventVotes, member);
+        const locked = event.closed;
+        const card = document.createElement("article");
+        card.className = `card ${locked ? "closed" : ""}`;
+        card.innerHTML = `
+          <div class="card-head">
+            <div>
+              <h2>${event.title} ${event.dateText} ${event.timeText}</h2>
+              <div class="meta">
+                <span>분류: ${categoryLabels[event.category]}</span>
+                <span>장소: ${event.place}</span>
+                <span>빠른 신청 권장: 클래스 시작 4시간 전까지 투표 가능하며 그 이후에는 자동 투표 종료됩니다.</span>
+                <span>${event.closeText}</span>
+              </div>
+            </div>
+            <span class="badge ${locked ? "closed" : event.category}">${locked ? "마감" : categoryLabels[event.category]}</span>
+          </div>
+          <div class="vote-options"></div>
+          <div class="results"></div>
+          <div class="people-list"></div>
+          <div class="row-actions"></div>
+          <div class="card-foot">
+            <span>${total}명 참여</span>
+            <span>${event.multiple ? "복수선택 가능" : "1개 선택"}</span>
+          </div>
+        `;
+
+        const optionsEl = card.querySelector(".vote-options");
+        event.options.forEach((option) => {
+          const isSelected = selected.includes(option);
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.dataset.eventKey = event.key;
+          btn.dataset.option = option;
+          btn.className = isSelected ? "level-btn selected" : "level-btn";
+          btn.disabled = locked || !member || (!event.multiple && selected.length > 0 && !isSelected);
+          btn.innerHTML = `
+            <span class="level-name">${isSelected ? "✓ " : ""}${option}</span>
+            <span class="level-count">${eventVotes[option].length}명</span>
+          `;
+          btn.addEventListener("click", () => toggleVote(event, option));
+          optionsEl.appendChild(btn);
+        });
+
+        const resultsEl = card.querySelector(".results");
+        resultsEl.style.display = showResults ? "grid" : "none";
+        event.options.forEach((option) => {
+          const count = eventVotes[option].length;
+          const percent = total === 0 ? 0 : Math.round((count / total) * 100);
+          const row = document.createElement("div");
+          row.className = "result-row";
+          row.innerHTML = `
+            <div class="result-meta">
+              <strong>${option}</strong>
+              <span>${count}명 · ${percent}%</span>
+            </div>
+            <div class="bar" aria-hidden="true"><span style="width:${percent}%"></span></div>
+          `;
+          resultsEl.appendChild(row);
+        });
+
+        const peopleEl = card.querySelector(".people-list");
+        peopleEl.style.display = showResults ? "grid" : "none";
+        event.options.forEach((option) => {
+          const names = eventVotes[option];
+          if (!names.length) return;
+          const line = document.createElement("div");
+          line.innerHTML = `<strong>${option}</strong>: ${names.join(", ")}`;
+          peopleEl.appendChild(line);
+        });
+
+        const actionsEl = card.querySelector(".row-actions");
+        const cancelBtn = document.createElement("button");
+        cancelBtn.type = "button";
+        cancelBtn.className = "btn danger";
+        cancelBtn.textContent = "내 투표 취소";
+        cancelBtn.disabled = locked || !member || selected.length === 0;
+        cancelBtn.addEventListener("click", () => cancelVote(event));
+        actionsEl.appendChild(cancelBtn);
+
+        eventCardsEl.appendChild(card);
+      });
+
+      writeJson(VOTES_KEY, votes);
+      renderAdminSelects(events);
+      renderShare(events);
+      renderEmailSummary();
+      renderLevel();
+    }
+
+    function saveMember() {
+      const name = memberNameEl.value.trim();
+      if (!isNameValid(name)) {
+        messageEl.textContent = "이름은 김도원(LIA)처럼 한글 이름+괄호 안 영어이름 형식으로 입력해주세요.";
+        memberNameEl.focus();
+        return null;
+      }
+      localStorage.setItem(MEMBER_KEY, name);
+      messageEl.textContent = `${name}님으로 접속했습니다.`;
+      renderCards();
+      return name;
+    }
+
+    function toggleVote(event, option) {
+      const member = getMember() || saveMember();
+      if (!member) return;
+      if (event.closed) {
+        messageEl.textContent = "이 투표는 마감되어 투표하거나 취소할 수 없습니다.";
+        return;
+      }
+
+      const votes = getVotes();
+      const eventVotes = getEventVotes(votes, event);
+      const selected = getSelectedOptions(eventVotes, member);
+
+      if (eventVotes[option].includes(member)) {
+        eventVotes[option] = eventVotes[option].filter((name) => name !== member);
+        messageEl.textContent = `${event.title} ${option} 투표를 취소했습니다.`;
+      } else {
+        if (!event.multiple) {
+          selected.forEach((selectedOption) => {
+            eventVotes[selectedOption] = eventVotes[selectedOption].filter((name) => name !== member);
+          });
+        }
+        eventVotes[option].push(member);
+        messageEl.textContent = `${event.title} ${option}에 투표했습니다.`;
+      }
+
+      writeJson(VOTES_KEY, votes);
+      renderCards();
+    }
+
+    function cancelVote(event) {
+      const member = getMember();
+      if (!member) return;
+      if (event.closed) {
+        messageEl.textContent = "마감 이후에는 취소할 수 없습니다.";
+        return;
+      }
+
+      const votes = getVotes();
+      const eventVotes = getEventVotes(votes, event);
+      event.options.forEach((option) => {
+        eventVotes[option] = eventVotes[option].filter((name) => name !== member);
+      });
+      writeJson(VOTES_KEY, votes);
+      messageEl.textContent = `${event.title} 투표를 취소했습니다.`;
+      renderCards();
+    }
+
+    function renderAdminState() {
+      const isAdmin = localStorage.getItem(ADMIN_KEY) === "yes";
+      adminLoginEl.classList.toggle("hidden", isAdmin);
+      adminToolsEl.classList.toggle("hidden", !isAdmin);
+    }
+
+    function renderAdminSelects(events) {
+      const currentEvent = manualEventEl.value;
+      manualEventEl.innerHTML = "";
+      events.forEach((event) => {
+        const option = document.createElement("option");
+        option.value = event.key;
+        option.textContent = `${event.koreanDateText} ${event.koreanTimeText} ${event.title}`;
+        manualEventEl.appendChild(option);
+      });
+      if ([...manualEventEl.options].some((option) => option.value === currentEvent)) {
+        manualEventEl.value = currentEvent;
+      }
+      renderManualOptions(events);
+    }
+
+    function renderManualOptions(events) {
+      const event = events.find((item) => item.key === manualEventEl.value) || events[0];
+      manualOptionEl.innerHTML = "";
+      if (!event) return;
+      event.options.forEach((optionName) => {
+        const option = document.createElement("option");
+        option.value = optionName;
+        option.textContent = optionName;
+        manualOptionEl.appendChild(option);
+      });
+    }
+
+    function addManualMember() {
+      const events = getEvents();
+      const event = events.find((item) => item.key === manualEventEl.value);
+      const option = manualOptionEl.value;
+      const name = manualNameEl.value.trim();
+      if (!event || !option) return;
+      if (!isNameValid(name)) {
+        messageEl.textContent = "관리자 인원 추가도 김도원(LIA) 형식으로 입력해주세요.";
+        manualNameEl.focus();
+        return;
+      }
+
+      const votes = getVotes();
+      const eventVotes = getEventVotes(votes, event);
+      if (!event.multiple) {
+        event.options.forEach((optionName) => {
+          eventVotes[optionName] = eventVotes[optionName].filter((member) => member !== name);
+        });
+      }
+      if (!eventVotes[option].includes(name)) eventVotes[option].push(name);
+      writeJson(VOTES_KEY, votes);
+      manualNameEl.value = "";
+      messageEl.textContent = `${name}님을 ${event.title} ${option}에 추가했습니다.`;
+      renderCards();
+    }
+
+    function addCustomPoll() {
+      const title = customTitleEl.value.trim();
+      const date = customDateEl.value;
+      const time = customTimeEl.value;
+      const place = customPlaceEl.value.trim() || NONHYEON_PLACE;
+      const options = customOptionsEl.value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+      if (!title || !date || !time || options.length < 2) {
+        messageEl.textContent = "투표 제목, 날짜, 시간, 선택지 2개 이상을 입력해주세요.";
+        return;
+      }
+
+      const polls = readJson(CUSTOM_POLLS_KEY, []);
+      const startsAt = new Date(`${date}T${time}:00`);
+      polls.push({
+        id: `custom-${Date.now()}`,
+        key: `custom-${Date.now()}`,
+        title,
+        place,
+        options,
+        startsAt: startsAt.toISOString()
+      });
+      writeJson(CUSTOM_POLLS_KEY, polls);
+      customTitleEl.value = "";
+      customDateEl.value = "";
+      customTimeEl.value = "";
+      customPlaceEl.value = "";
+      customOptionsEl.value = "";
+      messageEl.textContent = `${title} 투표를 추가했습니다.`;
+      renderCards();
+    }
+
+    function getShareText(events) {
+      const lines = [
+        "📢 스터디 일정 신청 안내 & 이벤트 Lists 🎉",
+        "",
+        "투표는 이름+영어이름 형식으로 입력해주세요.",
+        "예: 김도원(LIA), 김도현(david)",
+        "",
+        "클래스 시작 4시간 전까지 투표 가능하며 그 이후에는 자동 투표 종료됩니다.",
+        "빠르게 신청해야 원하는 레벨/일정 참여가 쉬워요!",
+        "",
+        "🗓 이번 주 투표 일정"
+      ];
+
+      events.forEach((event) => {
+        lines.push(`- ${event.koreanDateText} ${event.koreanTimeText} ${event.title} / ${categoryLabels[event.category]} / ${event.place}`);
+      });
+
+      lines.push("");
+      lines.push("👉 투표 링크: 여기에 사이트 링크를 붙여넣기");
+      return lines.join("\n");
+    }
+
+    function renderShare(events) {
+      shareTextEl.value = getShareText(events);
+    }
+
+    function getEmailSummaryText() {
+      const events = getEvents();
+      const votes = getVotes();
+      const lines = [
+        "[언어교환101 투표 신청자 요약]",
+        "",
+        `생성 시간: ${new Date().toLocaleString("ko-KR")}`,
+        ""
+      ];
+
+      events.forEach((event) => {
+        const eventVotes = getEventVotes(votes, event);
+        const total = totalPeople(eventVotes);
+        lines.push(`${event.closed ? "[마감]" : "[진행중]"} ${event.koreanDateText} ${event.koreanTimeText} ${event.title}`);
+        lines.push(`장소: ${event.place}`);
+        lines.push(`총 신청: ${total}명`);
+        event.options.forEach((option) => {
+          const names = eventVotes[option] || [];
+          lines.push(`- ${option}: ${names.length}명${names.length ? ` (${names.join(", ")})` : ""}`);
+        });
+        lines.push("");
+      });
+
+      return lines.join("\n");
+    }
+
+    function renderEmailSummary() {
+      const summary = getEmailSummaryText();
+      emailSummaryEl.value = summary;
+      const subject = encodeURIComponent("[언어교환101] 투표 마감 신청자 요약");
+      const body = encodeURIComponent(summary);
+      emailSummaryLinkEl.href = `mailto:whdudgns91@gmail.com?subject=${subject}&body=${body}`;
+    }
+
+    function renderMessage() {
+      const member = getMember();
+      memberNameEl.value = member;
+      messageEl.textContent = member
+        ? `${member}님으로 접속 중입니다.`
+        : "참여자 이름을 김도원(LIA) 형식으로 입력하고 투표를 시작해주세요.";
+      renderLevel();
+    }
+
+    document.querySelectorAll(".tab").forEach((tab) => {
+      if (tab.id === "materialsToggle") return;
+      tab.addEventListener("click", () => {
+        activeFilter = tab.dataset.filter;
+        document.querySelectorAll(".tab").forEach((item) => item.classList.toggle("active", item === tab));
+        showVoteView();
+        tab.classList.add("active");
+        renderCards();
+      });
+    });
+
+    materialsToggleEl.addEventListener("click", showMaterialsView);
+
+    document.querySelectorAll(".material-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        activeMaterial = tab.dataset.material;
+        document.querySelectorAll(".material-tab").forEach((item) => item.classList.toggle("active", item === tab));
+        renderMaterials();
+      });
+    });
+
+    saveMemberEl.addEventListener("click", saveMember);
+    memberNameEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") saveMember();
+    });
+
+    googleLoginEl.addEventListener("click", () => {
+      messageEl.textContent = "Google 로그인은 실제 배포 때 Firebase Auth 또는 Supabase Auth의 Google OAuth 설정을 연결하면 됩니다. 지금은 이름 입력으로 시뮬레이션합니다.";
+    });
+
+    kakaoLoginEl.addEventListener("click", () => {
+      messageEl.textContent = "Kakao 로그인은 카카오 개발자 앱과 Redirect URI 설정이 필요합니다. 실제 배포 때 연결하면 카카오 계정으로 본인 확인이 가능합니다.";
+    });
+
+    languageSelectEl.addEventListener("change", () => {
+      document.documentElement.lang = languageSelectEl.value;
+      messageEl.textContent = languageMessages[languageSelectEl.value];
+    });
+
+    kakaoDismissEl.addEventListener("click", () => {
+      kakaoWidgetEl.classList.add("hidden");
+    });
+
+    toggleResultsEl.addEventListener("click", () => {
+      setShowResults(!getShowResults());
+      toggleResultsEl.textContent = getShowResults() ? "결과 숨기기" : "결과 보이기";
+      renderCards();
+    });
+
+    adminJumpEl.addEventListener("click", () => {
+      adminPanelEl.open = true;
+      adminPanelEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    loginAdminEl.addEventListener("click", () => {
+      if (adminPasswordEl.value !== ADMIN_PASSWORD) {
+        messageEl.textContent = "관리자 비밀번호가 맞지 않습니다.";
+        adminPasswordEl.focus();
+        return;
+      }
+      localStorage.setItem(ADMIN_KEY, "yes");
+      adminPasswordEl.value = "";
+      messageEl.textContent = "관리자 모드로 접속했습니다.";
+      renderAdminState();
+      renderCards();
+    });
+
+    manualEventEl.addEventListener("change", () => renderManualOptions(getEvents()));
+    addManualEl.addEventListener("click", addManualMember);
+    addCustomPollEl.addEventListener("click", addCustomPoll);
+    refreshEmailSummaryEl.addEventListener("click", () => {
+      renderEmailSummary();
+      messageEl.textContent = "이메일 요약을 새로 만들었습니다.";
+    });
+    savePinnedNoticeEl.addEventListener("click", () => {
+      localStorage.setItem(PINNED_NOTICE_KEY, pinnedNoticeInputEl.value.trim() || defaultPinnedNotice);
+      renderPinnedNotice();
+      messageEl.textContent = "상단 고정 공지를 저장했습니다.";
+    });
+
+    rebuildWeekEl.addEventListener("click", () => {
+      messageEl.textContent = "현재 시간 기준으로 열린 다음 일정을 다시 계산했습니다.";
+      renderCards();
+    });
+
+    resetVotesEl.addEventListener("click", () => {
+      const ok = window.confirm("모든 투표와 수동 추가 인원을 초기화할까요?");
+      if (!ok) return;
+      localStorage.removeItem(VOTES_KEY);
+      messageEl.textContent = "투표가 초기화되었습니다.";
+      renderCards();
+    });
+
+    copyShareEl.addEventListener("click", async () => {
+      shareTextEl.select();
+      try {
+        await navigator.clipboard.writeText(shareTextEl.value);
+        messageEl.textContent = "공유 문구를 복사했습니다.";
+      } catch {
+        document.execCommand("copy");
+        messageEl.textContent = "공유 문구를 선택했습니다. 복사가 안 되면 직접 복사해주세요.";
+      }
+    });
+
+    renderMessage();
+    renderPinnedNotice();
+    renderMaterials();
+    renderAdminState();
+    toggleResultsEl.textContent = getShowResults() ? "결과 숨기기" : "결과 보이기";
+    renderCards();
+  </script>
+</body>
+</html>

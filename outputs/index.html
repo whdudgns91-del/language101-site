@@ -1,0 +1,4270 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>언어교환101 투표 & 레벨</title>
+  <meta name="description" content="언어교환101 스터디 투표, 참석 기록, 좋아요, 레벨을 확인하세요.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="언어교환101 투표 & 레벨">
+  <meta property="og:description" content="스터디 투표하고 참석 기록과 레벨을 확인하세요.">
+  <meta property="og:url" content="https://language101-votevercelapp.vercel.app/">
+  <meta property="og:image" content="https://language101-votevercelapp.vercel.app/2026-06-25-language101-link-preview.png">
+  <meta property="og:image:width" content="807">
+  <meta property="og:image:height" content="796">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="언어교환101 투표 & 레벨">
+  <meta name="twitter:description" content="스터디 투표하고 참석 기록과 레벨을 확인하세요.">
+  <meta name="twitter:image" content="https://language101-votevercelapp.vercel.app/2026-06-25-language101-link-preview.png">
+  <link rel="icon" type="image/png" href="2026-06-25-language101-link-preview.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #151a22;
+      --muted: #657184;
+      --line: #dce4ee;
+      --bg: #f5f8fb;
+      --paper: #fff;
+      --teal: #07927e;
+      --blue: #246fcf;
+      --yellow: #ffe100;
+      --heart: #e84b6a;
+      --shadow: 0 16px 42px rgba(34, 48, 70, 0.11);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(135deg, rgba(7, 146, 126, 0.13), transparent 36%), var(--bg);
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      width: min(1120px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 44px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .social-link {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .social-link img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      margin-bottom: 4px;
+      font-size: clamp(27px, 4vw, 42px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .hero p, .helper {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .language-menu {
+      position: relative;
+    }
+
+    .language-buttons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .language-popover {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 20;
+      display: flex;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .icon-btn, .flag-btn {
+      display: grid;
+      min-width: 40px;
+      height: 40px;
+      place-items: center;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .flag-btn.active {
+      border-color: var(--teal);
+      background: rgba(7, 146, 126, 0.1);
+    }
+
+    .icon-btn {
+      font-size: 24px;
+    }
+
+    .hero-tools {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .panel, .card {
+      border: 1px solid rgba(220, 228, 238, 0.95);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: var(--shadow);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .login {
+      display: grid;
+      grid-template-columns: minmax(220px, 300px) minmax(150px, 190px) auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 14px;
+      padding: 14px;
+    }
+
+    .login-actions {
+      display: grid;
+      gap: 8px;
+    }
+
+    .admin-footer {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .admin-footer .btn {
+      width: auto;
+      min-height: 34px;
+      padding: 7px 12px;
+      border-color: transparent;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      box-shadow: none;
+    }
+
+    .admin-footer .btn:hover {
+      border-color: var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--ink);
+    }
+
+    .login-guide {
+      white-space: pre-line;
+    }
+
+    .name-suggestion {
+      min-height: 0;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 900;
+      text-align: left;
+      white-space: normal;
+    }
+
+    .field { display: grid; gap: 7px; }
+    label {
+      color: #354254;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 4px rgba(7, 146, 126, 0.12);
+    }
+
+    .btn {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 14px;
+      color: var(--ink);
+      background: #fff;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .btn.primary {
+      border-color: var(--teal);
+      color: #fff;
+      background: var(--teal);
+    }
+
+    .btn.heart {
+      border-color: var(--heart);
+      color: #fff;
+      background: var(--heart);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #toggleLikePanel {
+      min-height: 38px;
+      margin-top: 10px;
+      padding: 0 12px;
+      font-size: 13px;
+    }
+
+    .heart-burst {
+      pointer-events: none;
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      z-index: 60;
+      width: 1px;
+      height: 1px;
+    }
+
+    .heart-burst span {
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--heart);
+      font-size: 28px;
+      font-weight: 900;
+      text-shadow: 0 8px 20px rgba(232, 75, 106, 0.28);
+      animation: float-heart 950ms cubic-bezier(0.17, 0.67, 0.33, 1) forwards;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    @keyframes float-heart {
+      0% { opacity: 0; transform: translate(-50%, -40%) scale(0.5) rotate(0deg); }
+      18% { opacity: 1; transform: translate(calc(-50% + var(--x) * 0.2), calc(-50% - 24px)) scale(1.25) rotate(var(--r)); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--x)), calc(-50% - var(--y))) scale(1.8) rotate(var(--r)); }
+    }
+
+    .btn:disabled {
+      cursor: default;
+      opacity: 0.55;
+    }
+
+    .message {
+      min-height: 22px;
+      margin: 0 0 12px;
+      color: var(--teal);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .notice {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 14px;
+      border-color: rgba(7, 146, 126, 0.24);
+    }
+
+    .notice h2 {
+      margin-bottom: 0;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .notice p {
+      margin-bottom: 0;
+      color: #354254;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+
+    .admin-panel.hidden {
+      display: none;
+    }
+
+    .admin-panel {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 14px;
+      padding: 16px;
+      border-color: rgba(7, 146, 126, 0.28);
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .admin-card {
+      display: grid;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .admin-card h3 {
+      margin-bottom: 0;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .admin-lock {
+      display: grid;
+      grid-template-columns: minmax(180px, 280px) auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: end;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 94px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+      color: var(--ink);
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 4px rgba(7, 146, 126, 0.12);
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.7fr);
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .level-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .level-number {
+      display: grid;
+      width: 72px;
+      height: 72px;
+      place-items: center;
+      border-radius: 10px;
+      background: #111;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .rank-emblem {
+      display: inline-grid;
+      width: 72px;
+      min-height: 42px;
+      place-items: center;
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .level-guide-toggle {
+      min-height: 36px;
+      margin: 10px 0 0;
+      padding: 0 12px;
+      font-size: 13px;
+    }
+
+    .level-guide {
+      display: grid;
+      gap: 6px;
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #f8fafc;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.45;
+    }
+
+    .xp-bar {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #edf1f5;
+    }
+
+    .xp-bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--yellow);
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .pill.clickable {
+      cursor: pointer;
+    }
+
+    .profile-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .profile-actions .btn {
+      min-height: 36px;
+      padding: 0 11px;
+      font-size: 12px;
+    }
+
+    .profile-detail {
+      grid-column: 1 / -1;
+      display: grid;
+      gap: 6px;
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-line;
+    }
+
+    .ranking {
+      padding: 16px;
+    }
+
+    .ranking h2, .section h2 {
+      margin-bottom: 10px;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .rank-list {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .rank-list li {
+      display: grid;
+      gap: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      font-weight: 900;
+    }
+
+    .rank-list strong {
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .rank-list small {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .section {
+      margin-bottom: 14px;
+      padding: 16px;
+    }
+
+    .category-tabs, .material-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tab, .material-tab {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 13px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .tab.active, .material-tab.active {
+      border-color: var(--teal);
+      color: #fff;
+      background: var(--teal);
+    }
+
+    .materials.hidden, .polls.hidden {
+      display: none;
+    }
+
+    .event-panel.hidden {
+      display: none;
+    }
+
+    .event-panel {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .event-post {
+      display: grid;
+      gap: 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .event-post h3 {
+      margin-bottom: 0;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .event-post p {
+      margin-bottom: 0;
+      color: #354254;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+
+    .post-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn.danger {
+      border-color: #d84646;
+      color: #b42323;
+      background: #fff5f5;
+    }
+
+    .materials {
+      display: grid;
+      gap: 12px;
+    }
+
+    .material-groups {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .material-group {
+      display: grid;
+      gap: 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px;
+      background: #fff;
+    }
+
+    .material-group h3 {
+      margin-bottom: 0;
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .material-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .material-list a {
+      color: var(--blue);
+      font-weight: 900;
+      overflow-wrap: anywhere;
+      text-decoration: none;
+    }
+
+    .polls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .card h3 {
+      margin-bottom: 4px;
+      font-size: 18px;
+      line-height: 1.22;
+    }
+
+    .card-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .deadline-badge {
+      display: inline-flex;
+      min-height: 30px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 0 10px;
+      background: #d82132;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .meta {
+      display: grid;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .option-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .voter-list {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-line;
+    }
+
+    .my-vote-note {
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .poll-detail {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+
+    .apply-toggle {
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .bonus-banner {
+      display: grid;
+      gap: 3px;
+      border: 1px solid rgba(7, 146, 126, 0.28);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #ecfdf5;
+      color: #076b5e;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .bonus-banner.closed {
+      border-color: rgba(216, 33, 50, 0.25);
+      background: #fff5f5;
+      color: #b42323;
+    }
+
+    .logout-panel {
+      display: grid;
+      margin-top: 14px;
+    }
+
+    .option-btn {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      font-weight: 900;
+    }
+
+    .option-btn.selected {
+      border-color: var(--teal);
+      background: rgba(7, 146, 126, 0.1);
+    }
+
+    .option-btn.level-green {
+      border-color: rgba(34, 197, 94, 0.45);
+    }
+
+    .option-btn.level-green.selected {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.12);
+    }
+
+    .option-btn.level-yellow {
+      border-color: rgba(251, 191, 36, 0.58);
+    }
+
+    .option-btn.level-yellow.selected {
+      border-color: #fbbf24;
+      background: rgba(251, 191, 36, 0.18);
+    }
+
+    .option-btn.level-blue {
+      border-color: rgba(59, 130, 246, 0.48);
+    }
+
+    .option-btn.level-blue.selected {
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.12);
+    }
+
+    .option-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .like-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .like-panel {
+      grid-column: 1 / -1;
+      display: grid;
+      gap: 10px;
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+
+    .like-target-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .like-event-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .like-event {
+      display: grid;
+      gap: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      font-weight: 900;
+    }
+
+    .like-event.selected {
+      border-color: var(--teal);
+      background: rgba(7, 146, 126, 0.1);
+    }
+
+    .like-event small {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .like-target {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 900;
+      text-align: left;
+    }
+
+    .like-target.selected {
+      border-color: var(--heart);
+      background: rgba(232, 75, 106, 0.1);
+      color: #b42346;
+    }
+
+    .small-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-line;
+    }
+
+    .small-note.warning {
+      border: 1px solid rgba(216, 70, 70, 0.25);
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: #fff5f5;
+      color: #b42323;
+      font-weight: 900;
+    }
+
+    .admin-card details {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin: 8px 0;
+      padding: 9px 10px;
+      background: #fff;
+    }
+
+    .admin-card summary {
+      cursor: pointer;
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    .kakao-widget {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      border: 1px solid #111;
+      border-radius: 14px;
+      padding: 6px;
+      background: var(--yellow);
+      box-shadow: 0 14px 32px rgba(34, 48, 70, 0.2);
+    }
+
+    .kakao-widget.hidden { display: none; }
+
+    .kakao-link {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .kakao-link img {
+      width: 46px;
+      height: 46px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .kakao-dismiss {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      display: grid;
+      width: 22px;
+      height: 22px;
+      place-items: center;
+      border: 1px solid #111;
+      border-radius: 999px;
+      background: #fff;
+      color: #111;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard, .polls, .material-groups, .admin-grid, .event-panel, .like-target-list, .like-event-list { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .hero, .login, .like-grid, .admin-lock { grid-template-columns: 1fr; }
+      .brand-row { flex-wrap: wrap; }
+      .btn, .language-buttons, .hero-tools { width: 100%; }
+      .hero-tools { justify-content: stretch; }
+      .language-menu { flex: 0 0 auto; }
+      .language-popover {
+        position: fixed;
+        top: 112px;
+        right: 14px;
+        left: auto;
+        z-index: 100;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div class="brand">
+        <div>
+          <div class="brand-row">
+            <h1 data-i18n="appTitle">🌍 언어교환101</h1>
+            <div class="social-links" aria-label="언어교환101 소셜 링크">
+              <a class="social-link" href="https://www.instagram.com/language___class/" target="_blank" rel="noreferrer" aria-label="Instagram">
+                <img src="2026-06-25-instagram-icon.png" alt="">
+              </a>
+              <a class="social-link" href="https://www.youtube.com/@LanguageExchange-mq3sh" target="_blank" rel="noreferrer" aria-label="YouTube">
+                <img src="2026-06-25-youtube-icon.png" alt="">
+              </a>
+              <a class="social-link" href="https://pf.kakao.com/_xbMxiVxb" target="_blank" rel="noreferrer" aria-label="KakaoTalk">
+                <img src="2026-06-25-kakao-talk-contact-icon.png" alt="">
+              </a>
+            </div>
+          </div>
+          <p data-i18n="tagline">투표하고, 참석하고, 좋아요를 받으면 레벨이 올라갑니다.</p>
+        </div>
+      </div>
+      <div class="hero-tools">
+        <div class="language-menu" aria-label="번역 언어 선택">
+          <button type="button" class="icon-btn" id="languageToggle" aria-label="번역 언어 선택" title="번역 언어 선택">🌐</button>
+          <div class="language-popover hidden" id="languagePopover">
+            <button type="button" class="flag-btn active" data-lang="ko" aria-label="한국어">🇰🇷</button>
+            <button type="button" class="flag-btn" data-lang="en" aria-label="English">🇺🇸</button>
+            <button type="button" class="flag-btn" data-lang="ja" aria-label="日本語">🇯🇵</button>
+            <button type="button" class="flag-btn" data-lang="zh" aria-label="中文">🇨🇳</button>
+          </div>
+        </div>
+        <button type="button" class="icon-btn" id="refreshButton" aria-label="새로고침" title="새로고침">↻</button>
+      </div>
+    </header>
+
+    <section class="panel notice hidden" id="noticePanel" aria-label="고정 공지">
+      <h2 data-i18n="noticeTitle">고정 공지</h2>
+      <p id="noticeText"></p>
+    </section>
+
+    <section class="panel admin-panel hidden" id="adminPanel" aria-label="관리자 페이지">
+      <div>
+        <h2 data-i18n="adminTitle">관리자 페이지</h2>
+      </div>
+      <div class="admin-lock" id="adminLock">
+        <div class="field">
+          <label for="adminPassword" data-i18n="adminPassword">관리자 아이디</label>
+          <input id="adminPassword" type="password" autocomplete="current-password">
+        </div>
+        <button type="button" class="btn primary" id="adminLogin" data-i18n="adminLogin">관리 시작</button>
+        <button type="button" class="btn" id="adminGoLogin" data-i18n="adminGoLogin">로그인 페이지로 이동</button>
+      </div>
+      <div class="admin-grid hidden" id="adminTools">
+        <section class="admin-card">
+          <h3 data-i18n="adminNoticeTitle">공지 수정</h3>
+          <div class="field">
+            <label for="adminNoticeInput" data-i18n="adminNoticeLabel">회원 화면 상단 공지</label>
+            <textarea id="adminNoticeInput"></textarea>
+          </div>
+          <button type="button" class="btn primary" id="saveNotice" data-i18n="adminSaveNotice">공지 저장</button>
+        </section>
+
+        <section class="admin-card">
+          <h3 data-i18n="adminManualTitle">투표 인원 추가</h3>
+          <div class="field">
+            <label for="adminEventSelect" data-i18n="adminEvent">일정</label>
+            <select id="adminEventSelect"></select>
+          </div>
+          <div class="field">
+            <label for="adminOptionSelect" data-i18n="adminOption">레벨/선택지</label>
+            <select id="adminOptionSelect"></select>
+          </div>
+          <div class="field">
+            <label for="adminCountSelect" data-i18n="adminCountLabel">추가 인원</label>
+            <select id="adminCountSelect">
+              <option value="1">1명</option>
+              <option value="2">2명</option>
+              <option value="3">3명</option>
+              <option value="4">4명</option>
+              <option value="5">5명</option>
+            </select>
+          </div>
+          <p class="helper" data-i18n="adminRandomHelp">선택한 인원만큼 단발성 랜덤 이름으로 추가됩니다.</p>
+          <button type="button" class="btn primary" id="adminAddVote" data-i18n="adminAdd">투표자 추가</button>
+        </section>
+
+        <section class="admin-card">
+          <h3 data-i18n="adminRealAddTitle">실제 회원 추가</h3>
+          <p class="helper" data-i18n="adminRealAddHelp">투표 시간을 놓친 실제 회원만 이름이 기록에 있을 때 추가할 수 있습니다.</p>
+          <div class="field">
+            <label for="adminRealEventSelect" data-i18n="adminEvent">일정</label>
+            <select id="adminRealEventSelect"></select>
+          </div>
+          <div class="field">
+            <label for="adminRealOptionSelect" data-i18n="adminOption">레벨/선택지</label>
+            <select id="adminRealOptionSelect"></select>
+          </div>
+          <div class="field">
+            <label for="adminRealNameInput" data-i18n="adminRealNameLabel">회원 이름</label>
+            <input id="adminRealNameInput" placeholder="예: 데오(deo)">
+          </div>
+          <button type="button" class="btn primary" id="adminAddRealVote" data-i18n="adminAddReal">실제 회원 추가</button>
+        </section>
+
+        <section class="admin-card">
+          <h3 data-i18n="sheetSyncTitle">구글시트 연결</h3>
+          <p class="helper" data-i18n="sheetSyncHelp">Apps Script 웹앱 URL을 넣으면 로그인, 투표, 좋아요 기록이 로그인 로그 탭으로 전송됩니다.</p>
+          <div class="field">
+            <label for="sheetWebhookInput" data-i18n="sheetWebhookLabel">Apps Script URL</label>
+            <input id="sheetWebhookInput" placeholder="https://script.google.com/macros/s/.../exec">
+          </div>
+          <button type="button" class="btn primary" id="saveSheetWebhook" data-i18n="saveSheetWebhook">연결 URL 저장</button>
+          <p class="small-note" id="sheetSyncStatus"></p>
+        </section>
+
+        <section class="admin-card">
+          <h3 data-i18n="adminScheduleTitle">투표 일정 수정</h3>
+          <div class="field">
+            <label for="adminScheduleEventSelect" data-i18n="adminEvent">일정</label>
+            <select id="adminScheduleEventSelect"></select>
+          </div>
+          <div class="field">
+            <label for="adminStartInput" data-i18n="adminStartTime">시작 시간</label>
+            <input id="adminStartInput" type="datetime-local">
+          </div>
+          <div class="field">
+            <label for="adminEndInput" data-i18n="adminEndTime">종료 시간</label>
+            <input id="adminEndInput" type="datetime-local">
+          </div>
+          <div class="field">
+            <label for="adminPlaceInput" data-i18n="adminPlace">장소</label>
+            <input id="adminPlaceInput" placeholder="예: 종각 드람브르 5층">
+          </div>
+          <button type="button" class="btn primary" id="saveSchedule" data-i18n="saveSchedule">일정 저장</button>
+        </section>
+
+        <section class="admin-card">
+          <h3 data-i18n="adminAutoTitle">자동 샘플 투표</h3>
+          <p class="helper" data-i18n="adminAutoHelp">버튼을 누르면 모든 투표에 자동 투표가 즉시 들어갑니다.</p>
+          <button type="button" class="btn primary" id="setUploadTime" data-i18n="adminUploadNow">지금 업로드 시간으로 저장</button>
+          <button type="button" class="btn" id="applyAutoNow" data-i18n="adminApplyNow">샘플 투표 바로 반영</button>
+          <p class="small-note" id="adminAutoStatus"></p>
+        </section>
+
+        <section class="admin-card">
+          <h3 data-i18n="adminPostTitle">공지/이벤트 글쓰기</h3>
+          <div class="field">
+            <label for="adminPostTitleInput" data-i18n="adminPostLabel">제목</label>
+            <input id="adminPostTitleInput" placeholder="예: 6월 Drinking Party">
+          </div>
+          <div class="field">
+            <label for="adminPostBodyInput" data-i18n="adminPostBodyLabel">내용</label>
+            <textarea id="adminPostBodyInput" placeholder="회원에게 보여줄 공지나 이벤트 내용을 입력하세요."></textarea>
+          </div>
+          <button type="button" class="btn primary" id="adminSavePost" data-i18n="adminSavePost">글 올리기</button>
+          <button type="button" class="btn hidden" id="adminCancelEdit" data-i18n="cancelEdit">수정 취소</button>
+          <p class="small-note" data-i18n="adminPostHelp">공지/이벤트 탭에 투표 버튼 없이 글 형태로 표시됩니다.</p>
+        </section>
+
+        <section class="admin-card">
+          <h3 data-i18n="adminVoteAuditTitle">실시간 투표자 확인</h3>
+          <p class="helper" data-i18n="adminVoteAuditHelp">일정별로 누가 어떤 레벨에 신청했는지 관리자만 확인할 수 있습니다.</p>
+          <div class="small-note" id="adminVoteAudit"></div>
+        </section>
+
+        <section class="admin-card">
+          <h3 data-i18n="adminHeartAuditTitle">좋아요 발송 기록</h3>
+          <p class="helper" data-i18n="adminHeartAuditHelp">누가 누구에게 좋아요를 보냈는지 관리자만 확인할 수 있습니다.</p>
+          <div class="small-note" id="adminHeartAudit"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="panel login" id="loginPanel" aria-label="참여자 로그인">
+      <div class="field">
+        <label for="memberName" data-i18n="nameLabel">이름: 전호민(HO) (한글 + 영어 이름)</label>
+        <input id="memberName" autocomplete="name" placeholder="예: 전호민(HO)">
+        <button type="button" class="name-suggestion hidden" id="nameSuggestion"></button>
+      </div>
+      <div class="field">
+        <label for="memberBirth" data-i18n="birthLabel">생년월일: 920117 (6자리)</label>
+        <input id="memberBirth" inputmode="numeric" maxlength="6" placeholder="예: 920117">
+      </div>
+      <div class="login-actions">
+        <button type="button" class="btn primary" id="saveMember" data-i18n="loginButton">🔑 이미 등록하셨나요? → 로그인</button>
+        <button type="button" class="btn" id="registerMember" data-i18n="registerButton">🆕 처음이신가요? → 신규 등록</button>
+      </div>
+      <p class="helper login-guide" data-i18n="loginHelp">⚠️ 최초 등록한 이름과 생년월일은 등록 후 절대 변경할 수 없습니다.
+카카오톡 오픈채팅 닉네임과 동일한 이름으로 등록해 주세요. (예: 전호민(HO))
+앞으로 계속 사용할 계정 정보이므로 정확하게 입력하고 꼭 기억해 주세요.</p>
+    </section>
+
+    <p class="message" id="message" role="status" aria-live="polite"></p>
+
+    <section class="dashboard hidden" id="dashboardSection">
+      <div class="panel level-card">
+        <div>
+          <div class="level-number" id="levelNumber">Lv.1</div>
+          <div class="rank-emblem" id="rankEmblem">🌱<br>Rookie</div>
+        </div>
+        <div>
+          <h2 id="levelTitle">내 레벨</h2>
+          <p class="helper" id="levelText">투표와 참석 예약, 익명 좋아요가 포인트로 쌓입니다.</p>
+          <div class="xp-bar" aria-hidden="true"><span id="xpFill" style="width:0%"></span></div>
+          <div class="stats">
+            <span class="pill clickable" id="pointPill">0 pt</span>
+            <span class="pill clickable" id="attendPill">참석 0</span>
+            <span class="pill" id="heartPill">받은 좋아요 0</span>
+            <span class="pill clickable" id="sentHeartPill">보낸 좋아요 0</span>
+          </div>
+          <div class="profile-actions">
+            <button type="button" class="btn" id="showAttendanceLog" data-i18n="attendanceLogButton">내 참석 보기</button>
+            <button type="button" class="btn" id="showPointLog" data-i18n="pointLogButton">포인트 내역</button>
+            <button type="button" class="btn" id="showSentHeartLog" data-i18n="sentHeartLogButton">보낸 좋아요 보기</button>
+          </div>
+          <button type="button" class="btn level-guide-toggle" id="levelGuideToggle" data-i18n="levelGuideButton">레벨 등급 보기</button>
+          <div class="level-guide hidden" id="levelGuide">
+            <div data-i18n="levelGuideRookie">🌱 Rookie (Lv.1~20) : 첫걸음을 시작한 단계</div>
+            <div data-i18n="levelGuideBronze">🥉 Bronze (Lv.21~40) : 꾸준히 참여하며 성장하는 단계</div>
+            <div data-i18n="levelGuideSilver">🥈 Silver (Lv.41~60) : 자신 있게 대화할 수 있는 단계</div>
+            <div data-i18n="levelGuideGold">🥇 Gold (Lv.61~80) : 높은 참여도와 실력을 갖춘 단계</div>
+            <div data-i18n="levelGuideDiamond">💎 Diamond (Lv.81~100) : 최상위 레벨의 멤버</div>
+            <p data-i18n="levelGuideNote">레벨은 스터디 참여, 회원들의 좋아요, 다양한 활동 등을 종합하여 산정됩니다. 높은 레벨은 활발한 참여와 좋은 평가를 받은 멤버를 의미합니다. 🌟</p>
+          </div>
+          <button type="button" class="btn heart" id="toggleLikePanel" data-i18n="postStudyLikeButton">스터디 후 익명 좋아요</button>
+        </div>
+        <section class="profile-detail hidden" id="profileDetail" aria-live="polite"></section>
+        <section class="like-panel hidden" id="likePanel">
+          <h2 data-i18n="heartTitle">스터디 후 익명 좋아요</h2>
+          <p class="helper" data-i18n="heartHelp">내가 투표한 날짜를 먼저 선택하면, 그 날짜에 참석한 사람에게만 익명 좋아요를 보낼 수 있습니다.</p>
+          <div class="like-event-list" id="likeEventList"></div>
+          <div class="like-target-list" id="likeTargetList"></div>
+          <button type="button" class="btn heart" id="sendHeart" data-i18n="sendHeart">하트 보내기</button>
+          <p class="small-note" data-i18n="heartNote">하트 1개는 5포인트로 계산했습니다. 누가 보냈는지는 공개되지 않습니다.</p>
+        </section>
+      </div>
+
+      <aside class="panel ranking">
+        <h2 data-i18n="weeklyTop">🏆 주간 레벨 TOP 3</h2>
+        <ol class="rank-list" id="rankingList"></ol>
+        <p class="small-note" data-i18n="rankingHelp">참석 예약 + 받은 좋아요 기준으로 계산됩니다.</p>
+      </aside>
+    </section>
+
+    <section class="panel section hidden" id="voteSection">
+      <h2 data-i18n="voteTitle">🗳️ 이번 주 스터디 투표</h2>
+      <p class="helper" data-i18n="voteHelp">참여 가능한 일정과 레벨을 고르세요. 투표하면 참석 포인트가 쌓입니다.</p>
+      <nav class="category-tabs" aria-label="투표 분류">
+        <button type="button" class="tab active" data-filter="all" data-i18n="filterAll">전체</button>
+        <button type="button" class="tab" data-filter="offline" data-i18n="filterOffline">오프라인 영어</button>
+        <button type="button" class="tab" data-filter="online" data-i18n="filterOnline">온라인 영어</button>
+        <button type="button" class="tab" data-filter="language" data-i18n="filterLanguage">일본어/중국어</button>
+        <button type="button" class="tab" data-filter="closed" data-i18n="filterClosed">종료된 투표</button>
+        <button type="button" class="tab" data-filter="event" data-i18n="filterEvent">공지/이벤트</button>
+        <button type="button" class="tab" id="materialsToggle" data-i18n="filterMaterials">자료 메뉴</button>
+      </nav>
+      <div class="polls" id="polls"></div>
+      <section class="event-panel hidden" id="eventPanel" aria-label="공지와 이벤트 글"></section>
+      <section class="materials hidden" id="materialsPanel" aria-label="스터디 자료 메뉴">
+        <div class="material-tabs">
+          <button type="button" class="material-tab active" data-material="english" data-i18n="materialEnglish">영어</button>
+          <button type="button" class="material-tab" data-material="japanese" data-i18n="materialJapanese">일본어</button>
+          <button type="button" class="material-tab" data-material="chinese" data-i18n="materialChinese">중국어</button>
+        </div>
+        <div class="material-groups" id="materialGroups"></div>
+      </section>
+    </section>
+
+    <section class="logout-panel hidden" id="logoutPanel">
+      <button type="button" class="btn danger" id="logoutButton" data-i18n="logoutButton">로그아웃</button>
+    </section>
+
+    <section class="admin-footer" aria-label="관리자 메뉴">
+      <button type="button" class="btn" id="adminToggle" data-i18n="adminOpen">관리자 로그인</button>
+    </section>
+
+    <div class="heart-burst hidden" id="heartBurst" aria-hidden="true"></div>
+
+  </main>
+
+  <script>
+    const MEMBER_KEY = "le101SimpleMember";
+    const STATS_KEY = "le101SimpleStats";
+    const HEARTS_KEY = "le101SimpleHearts";
+    const MEMBER_DIRECTORY_KEY = "le101SimpleMemberDirectory";
+    const SHEET_WEBHOOK_KEY = "le101SheetWebhookUrl";
+    const SHEET_SYNC_QUEUE_KEY = "le101SheetSyncQueue";
+    const SCHEDULE_OVERRIDES_KEY = "le101ScheduleOverrides";
+    const CLOSED_EMAIL_KEY = "le101ClosedPollEmails";
+    const NOTICE_KEY = "le101SimpleNotice";
+    const EVENT_POSTS_KEY = "le101SimpleEventPosts";
+    const AUTO_UPLOAD_KEY = "le101SimpleAutoUploadAt";
+    const AUTO_DONE_KEY = "le101SimpleAutoDone";
+    const AUTO_RUN_KEY = "le101SimpleAutoRun";
+    const AUTO_ROSTER_KEY = "le101SimpleAutoRoster";
+    const ADMIN_PASSWORD = "101language";
+    const SUPABASE_URL = "https://wcbfjyejnhbijqwkajnl.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_e5axVxRAtZA1cj9Y5ul1wA_WRYZeUG2";
+    const JONGGAK_PLACE = "서울 종로구 종로 80 (종각 드람브르 5층)";
+    const NONHYEON_PLACE = "서울 서초구 신반포로 332 1층 (오켈리논현점 1층)";
+    const ONLINE_PLACE = "온라인(Zoom) - 신청자에게 별도 링크 발송";
+
+    const scheduleRules = [
+      { id: "offline-english-tue", weekday: 2, category: "offline", title: "offlineEnglish", startTime: "19:30", endTime: "21:30", place: JONGGAK_PLACE, options: ["beginner", "intermediate", "upperIntermediate"] },
+      { id: "offline-english-wed", weekday: 3, category: "offline", title: "offlineEnglish", startTime: "19:30", endTime: "21:30", place: JONGGAK_PLACE, options: ["beginner", "intermediate", "upperIntermediate"] },
+      { id: "offline-english-thu", weekday: 4, category: "offline", title: "offlineEnglish", startTime: "19:30", endTime: "21:30", place: JONGGAK_PLACE, options: ["beginner", "intermediate", "upperIntermediate"] },
+      { id: "offline-english-fri", weekday: 5, category: "offline", title: "offlineEnglish", startTime: "19:30", endTime: "21:30", place: NONHYEON_PLACE, options: ["beginner", "intermediate", "upperIntermediate"] },
+      { id: "offline-english-sat", weekday: 6, category: "offline", title: "offlineEnglish", startTime: "16:00", endTime: "18:00", place: JONGGAK_PLACE, options: ["beginner", "intermediate", "upperIntermediate"] },
+      { id: "offline-english-sun", weekday: 0, category: "offline", title: "offlineEnglish", startTime: "16:00", endTime: "18:00", place: NONHYEON_PLACE, options: ["beginner", "intermediate", "upperIntermediate"] },
+      { id: "online-english-tue", weekday: 2, category: "online", title: "onlineEnglish", startTime: "20:30", endTime: "22:00", place: ONLINE_PLACE, options: ["beginner", "intermediate"] },
+      { id: "online-english-sat", weekday: 6, category: "online", title: "onlineEnglish", startTime: "13:00", endTime: "14:30", place: ONLINE_PLACE, options: ["beginner", "intermediate"] },
+      { id: "online-english-sun", weekday: 0, category: "online", title: "onlineEnglish", startTime: "13:00", endTime: "14:30", place: ONLINE_PLACE, options: ["beginner", "intermediate"] },
+      { id: "japanese-tue", weekday: 2, category: "language", title: "japaneseStudy", startTime: "19:30", endTime: "21:30", place: JONGGAK_PLACE, options: ["jpBeginner", "jpIntermediate"] },
+      { id: "japanese-sat", weekday: 6, category: "language", title: "japaneseStudy", startTime: "16:00", endTime: "18:00", place: JONGGAK_PLACE, options: ["jpBeginner", "jpIntermediate"] },
+      { id: "chinese-sat", weekday: 6, category: "language", title: "chineseStudy", startTime: "16:00", endTime: "18:00", place: JONGGAK_PLACE, options: ["cnBeginner", "cnIntermediate"] }
+    ];
+
+    let templates = [];
+    let closedTemplates = [];
+    let expandedPollId = "";
+
+    const defaultEventPosts = [
+      {
+        title: "6월 Drinking Party",
+        body: "매달 마지막 토요일에는 언어교환101 술파티를 진행합니다.\n외국인&한국인 친구들과 편하게 친해지고, 맛있는 음식과 술을 즐기면서 다양한 언어를 자연스럽게 연습해보세요."
+      }
+    ];
+
+    const pointRules = {
+      attendance: 200,
+      heart: 100,
+      earlyBonus: 50
+    };
+    const EARLY_BONUS_LIMIT = 10;
+
+    const autoNamePool = [
+      "김하늘(haneul)", "박서연(seo)", "이준호(jun)", "최민지(minji)", "정유진(yujin)", "한지우(jiu)",
+      "오세훈(sean)", "문가영(kay)", "강다은(daeun)", "윤태민(tom)", "신예린(erin)", "배수빈(subin)",
+      "장나영(nana)", "임도윤(doyun)", "권아린(arin)", "서지훈(jay)", "노은채(eun)", "조현우(hyun)",
+      "Alice", "Brian", "Claire", "Daniel", "Emma", "Felix", "Grace", "Henry", "Irene", "Jason",
+      "Kelly", "Leo", "Mina", "Noah", "Olivia", "Peter", "Rachel", "Sofia", "Tony", "Yuna"
+    ];
+
+    const memberNameEl = document.querySelector("#memberName");
+    const nameSuggestionEl = document.querySelector("#nameSuggestion");
+    const memberBirthEl = document.querySelector("#memberBirth");
+    const saveMemberEl = document.querySelector("#saveMember");
+    const registerMemberEl = document.querySelector("#registerMember");
+    const loginPanelEl = document.querySelector("#loginPanel");
+    const dashboardSectionEl = document.querySelector("#dashboardSection");
+    const voteSectionEl = document.querySelector("#voteSection");
+    const messageEl = document.querySelector("#message");
+    const pollsEl = document.querySelector("#polls");
+    const eventPanelEl = document.querySelector("#eventPanel");
+    const materialsPanelEl = document.querySelector("#materialsPanel");
+    const materialsToggleEl = document.querySelector("#materialsToggle");
+    const materialGroupsEl = document.querySelector("#materialGroups");
+    const levelNumberEl = document.querySelector("#levelNumber");
+    const rankEmblemEl = document.querySelector("#rankEmblem");
+    const levelTitleEl = document.querySelector("#levelTitle");
+    const levelTextEl = document.querySelector("#levelText");
+    const levelGuideToggleEl = document.querySelector("#levelGuideToggle");
+    const levelGuideEl = document.querySelector("#levelGuide");
+    const showAttendanceLogEl = document.querySelector("#showAttendanceLog");
+    const showPointLogEl = document.querySelector("#showPointLog");
+    const showSentHeartLogEl = document.querySelector("#showSentHeartLog");
+    const profileDetailEl = document.querySelector("#profileDetail");
+    const logoutPanelEl = document.querySelector("#logoutPanel");
+    const logoutButtonEl = document.querySelector("#logoutButton");
+    const xpFillEl = document.querySelector("#xpFill");
+    const pointPillEl = document.querySelector("#pointPill");
+    const attendPillEl = document.querySelector("#attendPill");
+    const heartPillEl = document.querySelector("#heartPill");
+    const sentHeartPillEl = document.querySelector("#sentHeartPill");
+    const rankingListEl = document.querySelector("#rankingList");
+    const toggleLikePanelEl = document.querySelector("#toggleLikePanel");
+    const likePanelEl = document.querySelector("#likePanel");
+    const likeEventListEl = document.querySelector("#likeEventList");
+    const likeTargetListEl = document.querySelector("#likeTargetList");
+    const sendHeartEl = document.querySelector("#sendHeart");
+    const languageButtonEls = document.querySelectorAll(".flag-btn");
+    const languageToggleEl = document.querySelector("#languageToggle");
+    const languagePopoverEl = document.querySelector("#languagePopover");
+    const refreshButtonEl = document.querySelector("#refreshButton");
+    const heartBurstEl = document.querySelector("#heartBurst");
+    const noticePanelEl = document.querySelector("#noticePanel");
+    const noticeTextEl = document.querySelector("#noticeText");
+    const adminToggleEl = document.querySelector("#adminToggle");
+    const adminPanelEl = document.querySelector("#adminPanel");
+    const adminLockEl = document.querySelector("#adminLock");
+    const adminToolsEl = document.querySelector("#adminTools");
+    const adminPasswordEl = document.querySelector("#adminPassword");
+    const adminLoginEl = document.querySelector("#adminLogin");
+    const adminGoLoginEl = document.querySelector("#adminGoLogin");
+    const adminNoticeInputEl = document.querySelector("#adminNoticeInput");
+    const saveNoticeEl = document.querySelector("#saveNotice");
+    const adminPostTitleInputEl = document.querySelector("#adminPostTitleInput");
+    const adminPostBodyInputEl = document.querySelector("#adminPostBodyInput");
+    const adminSavePostEl = document.querySelector("#adminSavePost");
+    const adminCancelEditEl = document.querySelector("#adminCancelEdit");
+    const adminEventSelectEl = document.querySelector("#adminEventSelect");
+    const adminOptionSelectEl = document.querySelector("#adminOptionSelect");
+    const adminRealEventSelectEl = document.querySelector("#adminRealEventSelect");
+    const adminRealOptionSelectEl = document.querySelector("#adminRealOptionSelect");
+    const adminRealNameInputEl = document.querySelector("#adminRealNameInput");
+    const adminAddRealVoteEl = document.querySelector("#adminAddRealVote");
+    const adminScheduleEventSelectEl = document.querySelector("#adminScheduleEventSelect");
+    const adminStartInputEl = document.querySelector("#adminStartInput");
+    const adminEndInputEl = document.querySelector("#adminEndInput");
+    const adminPlaceInputEl = document.querySelector("#adminPlaceInput");
+    const saveScheduleEl = document.querySelector("#saveSchedule");
+    const adminCountSelectEl = document.querySelector("#adminCountSelect");
+    const adminAddVoteEl = document.querySelector("#adminAddVote");
+    const setUploadTimeEl = document.querySelector("#setUploadTime");
+    const applyAutoNowEl = document.querySelector("#applyAutoNow");
+    const adminAutoStatusEl = document.querySelector("#adminAutoStatus");
+    const sheetWebhookInputEl = document.querySelector("#sheetWebhookInput");
+    const saveSheetWebhookEl = document.querySelector("#saveSheetWebhook");
+    const sheetSyncStatusEl = document.querySelector("#sheetSyncStatus");
+    const adminVoteAuditEl = document.querySelector("#adminVoteAudit");
+    const adminHeartAuditEl = document.querySelector("#adminHeartAudit");
+
+    let activeFilter = "all";
+    let activeMaterial = "english";
+    let currentLang = "ko";
+    let adminUnlocked = false;
+    let editingPostIndex = null;
+    let selectedLikeTargets = [];
+    let selectedLikeEventId = "";
+    let activeProfileDetail = "";
+    let supabaseClient = null;
+    let realtimeChannel = null;
+    let remoteVotesCache = {};
+    let votesLoadInFlight = false;
+    let votesPollTimer = null;
+    const pendingVoteActions = new Set();
+    const localVoteOverrides = new Map();
+
+    const i18n = {
+      ko: {
+        appTitle: "🌍 언어교환101",
+        tagline: "투표하고, 참석하고, 좋아요를 받으면 레벨이 올라갑니다.",
+        nameLabel: "이름: 전호민(HO) (한글 + 영어 이름)",
+        birthLabel: "생년월일: 920117 (6자리)",
+        startButton: "로그인 하기",
+        loginButton: "🔑 이미 등록하셨나요? → 로그인",
+        registerButton: "🆕 처음이신가요? → 신규 등록",
+        loginHelp: "⚠️ 최초 등록한 이름과 생년월일은 등록 후 절대 변경할 수 없습니다.\n카카오톡 오픈채팅 닉네임과 동일한 이름으로 등록해 주세요. (예: 전호민(HO))\n앞으로 계속 사용할 계정 정보이므로 정확하게 입력하고 꼭 기억해 주세요.",
+        weeklyTop: "🏆 주간 레벨 TOP 3",
+        rankingHelp: "참석 예약 + 받은 좋아요 기준으로 계산됩니다.",
+        voteTitle: "🗳️ 이번 주 스터디 투표",
+        voteHelp: "참여 가능한 일정과 레벨을 고르세요. 투표하면 참석 포인트가 쌓입니다.",
+        filterAll: "전체",
+        filterOffline: "오프라인 영어",
+        filterOnline: "온라인 영어",
+        filterLanguage: "일본어/중국어",
+        filterClosed: "종료된 투표",
+        filterEvent: "공지/이벤트",
+        filterMaterials: "자료 메뉴",
+        refreshButton: "새로고침",
+        materialEnglish: "영어",
+        materialJapanese: "일본어",
+        materialChinese: "중국어",
+        heartTitle: "스터디 후 익명 좋아요",
+        heartHelp: "내가 투표한 날짜를 먼저 선택하면, 그 날짜에 참석한 사람에게만 익명 좋아요를 보낼 수 있습니다.",
+        periodLabel: "시간",
+        heartTargetLabel: "좋아요 보낼 사람",
+        sendHeart: "하트 보내기",
+        heartNote: "하트 1개는 5포인트로 계산했습니다. 누가 보냈는지는 공개되지 않습니다.",
+        myLevel: "내 레벨",
+        levelOf: "👤 {name}님의 레벨",
+        nextLevel: "{rank} 등급입니다. Lv.1부터 Lv.100까지 성장합니다. 다음 레벨까지 {points}포인트",
+        levelGuideButton: "레벨 등급 보기",
+        levelGuideRookie: "🌱 Rookie (Lv.1~20) : 첫걸음을 시작한 단계",
+        levelGuideBronze: "🥉 Bronze (Lv.21~40) : 꾸준히 참여하며 성장하는 단계",
+        levelGuideSilver: "🥈 Silver (Lv.41~60) : 자신 있게 대화할 수 있는 단계",
+        levelGuideGold: "🥇 Gold (Lv.61~80) : 높은 참여도와 실력을 갖춘 단계",
+        levelGuideDiamond: "💎 Diamond (Lv.81~100) : 최상위 레벨의 멤버",
+        levelGuideNote: "레벨은 스터디 참여, 회원들의 좋아요, 다양한 활동 등을 종합하여 산정됩니다. 높은 레벨은 활발한 참여와 좋은 평가를 받은 멤버를 의미합니다. 🌟",
+        attendanceLogButton: "내 참석 보기",
+        pointLogButton: "포인트 내역",
+        sentHeartLogButton: "보낸 좋아요 보기",
+        logoutButton: "로그아웃",
+        profileLogEmpty: "아직 기록이 없습니다.",
+        earlyBonusTitle: "🎁 선착순 보너스",
+        earlyBonusLeft: "남은 자리: {left} / {limit}명",
+        earlyBonusPoint: "신청 시 +{points}P",
+        earlyBonusClosed: "🎁 선착순 보너스 마감",
+        applyWithBonus: "+{points}P 받고 신청하기",
+        pointLogAttendance: "{date} {event} 참석 예약 +{points}P",
+        pointLogBonus: "{date} {event} 선착순 보너스 +{points}P",
+        pointLogCancel: "{date} {event} 투표 취소 -{points}P",
+        pointLogHeart: "{date} {target}님에게 받은 좋아요 +{points}P",
+        points: "{points} pt",
+        attendance: "참석 {count}",
+        hearts: "받은 좋아요 {count}",
+        sentHearts: "보낸 좋아요 {count}",
+        noRanking: "아직 랭킹 없음",
+        noParticipants: "투표 참여자가 아직 없습니다",
+        noLikedEvents: "좋아요는 내가 신청한 스터디가 종료된 뒤부터 다음날까지만 보낼 수 있습니다.",
+        chooseLikeEvent: "좋아요를 보낼 수 있는 스터디 날짜를 먼저 선택해주세요.",
+        likeWindowClosed: "이 스터디는 아직 종료되지 않았거나 좋아요 가능 시간이 지났습니다.",
+        noEventParticipants: "이 날짜에는 아직 다른 참석자가 없습니다.",
+        selectName: "이름을 입력하고 투표를 시작해주세요.",
+        invalidName: "전호민(Ho) 형식으로 이름을 입력해주세요.",
+        invalidBirth: "생년월일은 920117처럼 숫자 6자리로 입력해주세요.",
+        duplicateMember: "이미 같은 이름과 생년월일로 등록되어 있습니다. 영어이름을 바꿔서 다시 입력해주세요.",
+        duplicateName: "이미 같은 이름이 있습니다. 동명이인은 영어이름을 바꿔서 로그인해주세요. 예: 방나리아(bang), 방나리아(alod)처럼 현재 없는 이름으로 입력해주세요.",
+        started: "{name}님으로 시작합니다.",
+        alreadySelected: "이미 선택한 항목입니다.",
+        voteProcessing: "신청을 저장하고 있습니다. 잠시만 기다려주세요.",
+        cancelConfirm: "정말 이 투표를 취소할까요? 취소하면 신청 인원에서 빠집니다.",
+        cancelVote: "내 투표 취소",
+        applyToVote: "신청하기",
+        foldVote: "접기",
+        voteCancelled: "투표를 취소했습니다.",
+        voted: "{option}에 투표했습니다. 포인트 +{points}",
+        chooseHeartTarget: "좋아요를 보낼 사람을 1명 또는 2명 선택해주세요.",
+        maxHeartTargets: "좋아요는 최대 2명까지 선택할 수 있습니다.",
+        noSelfHeart: "본인에게는 하트를 보낼 수 없습니다.",
+        duplicateHeart: "이미 이 시간에 해당 사람에게 하트를 보냈습니다.",
+        heartSent: "하트 보내기 완료! {target}님에게 익명 하트를 보냈습니다.",
+        postStudyLikeButton: "스터디 후 익명 좋아요",
+        myVote: "내 투표: {option}",
+        totalCount: "{count}명 신청",
+        scheduleTime: "시간: {time}",
+        deadlineTime: "투표 마감: {deadline}",
+        closedLabel: "마감",
+        dueSoonLabel: "마감임박",
+        dayLeftLabel: "D-{days}",
+        voteClosed: "이 투표는 마감되어 신청이나 변경이 불가능합니다.",
+        voters: "{option}: {names}",
+        period1: "1교시",
+        period2: "2교시",
+        offlineEnglish: "오프라인 영어",
+        onlineEnglish: "온라인 영어",
+        jpChinese: "일본어&중국어",
+        japaneseStudy: "일본어 스터디",
+        chineseStudy: "중국어 스터디",
+        drinkingParty: "월말 술파티",
+        jonggak: "종각 드람브르 5층",
+        nonhyeon: "오켈리논현점",
+        online: "온라인",
+        dateJun25: "6월 25일",
+        dateJun26: "6월 26일",
+        dateJun27: "6월 27일",
+        dateJun28: "6월 28일",
+        dateMonthEnd: "매달 마지막 토요일",
+        thu: "목",
+        fri: "금",
+        sat: "토",
+        sun: "일",
+        time730: "오후 7:30",
+        time400: "오후 4:00",
+        time100: "오후 1:00",
+        beginner: "Beginner",
+        intermediate: "Intermediate",
+        upperIntermediate: "Upper Intermediate",
+        jpBeginner: "일본어 초급",
+        jpIntermediate: "일본어 중급이상",
+        cnBeginner: "중국어 초급",
+        cnIntermediate: "중국어 중급이상",
+        join: "참석 가능",
+        maybe: "고민 중",
+        cantJoin: "참석 어려움",
+        noticeTitle: "고정 공지",
+        defaultNotice: "클래스 시작 4시간 전까지 투표 가능하며 그 이후에는 자동으로 투표가 종료됩니다. 원하는 일정과 레벨을 놓치지 않게 미리 신청해주세요.",
+        adminOpen: "관리자 로그인",
+        adminTitle: "관리자 페이지",
+        adminHelp: "",
+        adminPassword: "관리자 아이디",
+        adminLogin: "관리 시작",
+        adminGoLogin: "로그인 페이지로 이동",
+        adminPasswordHelp: "",
+        adminNoticeTitle: "공지 수정",
+        adminNoticeLabel: "회원 화면 상단 공지",
+        adminSaveNotice: "공지 저장",
+        adminManualTitle: "투표 인원 추가",
+        adminEvent: "일정",
+        adminOption: "레벨/선택지",
+        adminName: "참여자 이름",
+        adminAdd: "투표자 추가",
+        adminAutoTitle: "자동 샘플 투표",
+        adminScheduleTitle: "투표 일정 수정",
+        adminStartTime: "시작 시간",
+        adminEndTime: "종료 시간",
+        adminPlace: "장소",
+        saveSchedule: "일정 저장",
+        scheduleSaved: "투표 일정이 저장되었습니다.",
+        adminAutoHelp: "버튼을 누르면 모든 투표에 자동 투표가 즉시 들어갑니다. 영어는 Beginner 3명, Intermediate 2명, Upper Intermediate 1명이고 일본어/중국어는 초급 2명, 중급 1명입니다. 자동 명단은 아래 상태에 표시됩니다.",
+        adminUploadNow: "자동 투표 즉시 설정",
+        adminApplyNow: "자동 투표 다시 반영",
+        adminWrongPassword: "관리자 아이디가 맞지 않습니다.",
+        adminUnlocked: "관리자 페이지가 열렸습니다.",
+        noticeSaved: "공지 저장 완료",
+        adminAddedVote: "{option}에 {name}을 추가했습니다.",
+        adminCountLabel: "추가 인원",
+        adminRandomHelp: "선택한 인원만큼 단발성 랜덤 이름으로 추가됩니다.",
+        adminRealAddTitle: "실제 회원 추가",
+        adminRealAddHelp: "투표 시간을 놓친 실제 회원만 이름이 기록에 있을 때 추가할 수 있습니다.",
+        adminRealNameLabel: "회원 이름",
+        adminAddReal: "실제 회원 추가",
+        adminRealMemberMissing: "기록에 있는 회원 이름만 추가할 수 있습니다. 예: 데오(deo)",
+        adminRealAdded: "{name}님을 {option}에 추가했습니다.",
+        autoUploadSaved: "자동 투표를 모든 투표에 즉시 반영했습니다.",
+        autoApplied: "자동 투표를 다시 반영했습니다.",
+        autoStatusNone: "아직 업로드 시간이 저장되지 않았습니다.",
+        autoStatusWaiting: "업로드 후 {minutes}분 지났습니다. 60분/120분 기준으로 자동 반영됩니다.",
+        autoStatusDone: "자동 샘플 투표 반영 완료: {steps}",
+        autoPhase1: "초급 자동 투표",
+        autoPhase2: "중급 자동 투표",
+        autoPhase3: "상위/보강 자동 투표",
+        sheetSyncTitle: "구글시트 연결",
+        sheetSyncHelp: "Apps Script 웹앱 URL을 넣으면 로그인, 투표, 좋아요 기록과 마감 명단 이메일이 자동 처리됩니다.",
+        sheetWebhookLabel: "Apps Script URL",
+        saveSheetWebhook: "연결 URL 저장",
+        sheetWebhookSaved: "구글시트 연결 URL을 저장했습니다.",
+        sheetSyncReady: "구글시트 자동 기록 준비 완료",
+        sheetSyncWaiting: "구글시트 연결 URL이 아직 없습니다. 기록은 이 브라우저에만 임시 저장됩니다. 자동 시트 저장을 하려면 Apps Script URL을 넣어주세요.",
+        adminPostTitle: "공지/이벤트 글쓰기",
+        adminPostLabel: "제목",
+        adminPostBodyLabel: "내용",
+        adminSavePost: "글 올리기",
+        adminPostHelp: "공지/이벤트 탭에 투표 버튼 없이 글 형태로 표시됩니다.",
+        postSaved: "공지/이벤트 글이 올라갔습니다.",
+        postUpdated: "공지/이벤트 글을 수정했습니다.",
+        postDeleted: "공지/이벤트 글을 삭제했습니다.",
+        postMissing: "제목과 내용을 입력해주세요.",
+        editPost: "수정",
+        deletePost: "삭제",
+        updatePost: "수정 저장",
+        cancelEdit: "수정 취소",
+        noPosts: "아직 등록된 공지/이벤트 글이 없습니다.",
+        adminVoteAuditTitle: "실시간 투표자 확인",
+        adminVoteAuditHelp: "일정별로 누가 어떤 레벨에 신청했는지 관리자만 확인할 수 있습니다.",
+        adminHeartAuditTitle: "좋아요 발송 기록",
+        adminHeartAuditHelp: "누가 누구에게 좋아요를 보냈는지 관리자만 확인할 수 있습니다.",
+        adminNoVotes: "아직 신청자가 없습니다.",
+        adminNoHearts: "아직 좋아요 발송 기록이 없습니다.",
+        langMessage: "한국어 보기로 설정했습니다."
+      },
+      en: {
+        appTitle: "🌍 Language Exchange 101",
+        tagline: "Vote, attend, receive likes, and level up.",
+        nameLabel: "Name: 전호민(HO) (Korean + English name)",
+        birthLabel: "Birthdate: 920117 (6 digits)",
+        startButton: "Log In",
+        loginButton: "🔑 Already registered? → Log in",
+        registerButton: "🆕 First time? → Register",
+        loginHelp: "⚠️ Your first registration information cannot be changed. Please enter it accurately and remember it because you will keep using it.",
+        weeklyTop: "🏆 Weekly Level TOP 3",
+        rankingHelp: "Calculated from attendance reservations and received likes.",
+        voteTitle: "🗳️ This Week's Study Polls",
+        voteHelp: "Choose the schedule and level you can join. Voting gives attendance points.",
+        filterAll: "All",
+        filterOffline: "Offline English",
+        filterOnline: "Online English",
+        filterLanguage: "Japanese/Chinese",
+        filterClosed: "Closed Polls",
+        filterEvent: "Notice/Event",
+        filterMaterials: "Materials",
+        refreshButton: "Refresh",
+        materialEnglish: "English",
+        materialJapanese: "Japanese",
+        materialChinese: "Chinese",
+        heartTitle: "Anonymous Likes After Study",
+        heartHelp: "Choose a date you voted for first, then send anonymous likes only to attendees from that date.",
+        periodLabel: "Session",
+        heartTargetLabel: "Send like to",
+        sendHeart: "Send Heart",
+        heartNote: "Each heart is worth 5 points. The sender is never shown.",
+        myLevel: "My Level",
+        levelOf: "👤 {name}'s Level",
+        nextLevel: "{rank} tier. Grow from Lv.1 to Lv.100. {points} points to next level",
+        levelGuideButton: "View Level Tiers",
+        levelGuideRookie: "🌱 Rookie (Lv.1~20): Starting your first steps",
+        levelGuideBronze: "🥉 Bronze (Lv.21~40): Growing through steady participation",
+        levelGuideSilver: "🥈 Silver (Lv.41~60): Able to converse with confidence",
+        levelGuideGold: "🥇 Gold (Lv.61~80): Strong participation and skill",
+        levelGuideDiamond: "💎 Diamond (Lv.81~100): Top-level member",
+        levelGuideNote: "Levels are calculated from study attendance, likes from members, and other activities. A higher level means active participation and positive feedback. 🌟",
+        attendanceLogButton: "My Attendance",
+        pointLogButton: "Point History",
+        sentHeartLogButton: "Sent Likes",
+        logoutButton: "Log Out",
+        profileLogEmpty: "No records yet.",
+        earlyBonusTitle: "🎁 Early Bonus",
+        earlyBonusLeft: "Seats left: {left} / {limit}",
+        earlyBonusPoint: "+{points}P when applying",
+        earlyBonusClosed: "🎁 Early bonus closed",
+        applyWithBonus: "Apply and get +{points}P",
+        pointLogAttendance: "{date} {event} attendance booking +{points}P",
+        pointLogBonus: "{date} {event} early bonus +{points}P",
+        pointLogCancel: "{date} {event} vote cancelled -{points}P",
+        pointLogHeart: "{date} received like from {target} +{points}P",
+        points: "{points} pt",
+        attendance: "Attendance {count}",
+        hearts: "Received likes {count}",
+        sentHearts: "Sent likes {count}",
+        noRanking: "No ranking yet",
+        noParticipants: "No voters yet",
+        noLikedEvents: "Likes are available only after a study ends and until the next day.",
+        chooseLikeEvent: "Choose an available study date first.",
+        likeWindowClosed: "This study has not ended yet or the like period has expired.",
+        noEventParticipants: "There are no other attendees for this date yet.",
+        selectName: "Enter your name and start voting.",
+        invalidName: "Please use the format 전호민(Ho).",
+        invalidBirth: "Please enter 6 digits like 920117.",
+        duplicateMember: "This name and birthdate are already registered. Please change your English name and try again.",
+        duplicateName: "This name already exists. If you have the same Korean name, change the English name and log in again. Example: 방나리아(bang), 방나리아(alod).",
+        started: "Started as {name}.",
+        alreadySelected: "You already selected this option.",
+        voteProcessing: "Saving your vote. Please wait a moment.",
+        cancelConfirm: "Are you sure you want to cancel this vote? You will be removed from the attendee count.",
+        cancelVote: "Cancel My Vote",
+        applyToVote: "Apply",
+        foldVote: "Close",
+        voteCancelled: "Your vote was cancelled.",
+        voted: "Voted for {option}. Points +{points}",
+        chooseHeartTarget: "Please choose 1 or 2 people to send likes to.",
+        maxHeartTargets: "You can choose up to 2 people.",
+        noSelfHeart: "You cannot send a heart to yourself.",
+        duplicateHeart: "You already sent a heart to this person for this session.",
+        heartSent: "Heart sent! An anonymous heart was sent to {target}.",
+        postStudyLikeButton: "Anonymous Likes After Study",
+        myVote: "My vote: {option}",
+        totalCount: "{count} registered",
+        scheduleTime: "Time: {time}",
+        deadlineTime: "Voting closes: {deadline}",
+        closedLabel: "Closed",
+        dueSoonLabel: "Closing soon",
+        dayLeftLabel: "D-{days}",
+        voteClosed: "This poll is closed. New votes or changes are not available.",
+        voters: "{option}: {names}",
+        period1: "Session 1",
+        period2: "Session 2",
+        offlineEnglish: "Offline English",
+        onlineEnglish: "Online English",
+        jpChinese: "Japanese & Chinese",
+        japaneseStudy: "Japanese Study",
+        chineseStudy: "Chinese Study",
+        drinkingParty: "Monthly Drinking Party",
+        jonggak: "Jonggak Drambre 5F",
+        nonhyeon: "O'Kelly Nonhyeon",
+        online: "Online",
+        dateJun25: "June 25",
+        dateJun26: "June 26",
+        dateJun27: "June 27",
+        dateJun28: "June 28",
+        dateMonthEnd: "Last Saturday of each month",
+        thu: "Thu",
+        fri: "Fri",
+        sat: "Sat",
+        sun: "Sun",
+        time730: "7:30 PM",
+        time400: "4:00 PM",
+        time100: "1:00 PM",
+        beginner: "Beginner",
+        intermediate: "Intermediate",
+        upperIntermediate: "Upper Intermediate",
+        jpBeginner: "Japanese Beginner",
+        jpIntermediate: "Japanese Intermediate+",
+        cnBeginner: "Chinese Beginner",
+        cnIntermediate: "Chinese Intermediate+",
+        join: "Can join",
+        maybe: "Maybe",
+        cantJoin: "Cannot join",
+        noticeTitle: "Pinned Notice",
+        defaultNotice: "Voting is open until 4 hours before class starts. After that, voting closes automatically, so please reserve your preferred schedule and level early.",
+        adminOpen: "Admin Login",
+        adminTitle: "Admin Page",
+        adminHelp: "",
+        adminPassword: "Admin ID",
+        adminLogin: "Unlock",
+        adminGoLogin: "Go to Login Page",
+        adminPasswordHelp: "",
+        adminNoticeTitle: "Edit Notice",
+        adminNoticeLabel: "Top notice for members",
+        adminSaveNotice: "Save Notice",
+        adminManualTitle: "Add Voter",
+        adminEvent: "Schedule",
+        adminOption: "Level/option",
+        adminName: "Participant name",
+        adminAdd: "Add Voter",
+        adminAutoTitle: "Auto Sample Votes",
+        adminScheduleTitle: "Edit Poll Schedule",
+        adminStartTime: "Start time",
+        adminEndTime: "End time",
+        adminPlace: "Place",
+        saveSchedule: "Save Schedule",
+        scheduleSaved: "Poll schedule saved.",
+        adminAutoHelp: "Click the button to add auto votes to every poll immediately. English polls get 3 Beginner, 2 Intermediate, and 1 Upper Intermediate voters. Japanese/Chinese polls get 2 beginner and 1 intermediate voters. The auto roster appears below.",
+        adminUploadNow: "Set Auto Votes Now",
+        adminApplyNow: "Apply Auto Votes Again",
+        adminWrongPassword: "The admin ID is incorrect.",
+        adminUnlocked: "Admin page unlocked.",
+        noticeSaved: "Notice saved.",
+        adminAddedVote: "Added {name} to {option}.",
+        adminCountLabel: "Number to add",
+        adminRandomHelp: "Adds one-time random names for the selected count.",
+        adminRealAddTitle: "Add Real Member",
+        adminRealAddHelp: "Only recorded real members who missed the voting time can be added.",
+        adminRealNameLabel: "Member name",
+        adminAddReal: "Add Real Member",
+        adminRealMemberMissing: "Only recorded member names can be added. Example: 데오(deo)",
+        adminRealAdded: "Added {name} to {option}.",
+        autoUploadSaved: "Auto votes were applied to every poll immediately.",
+        autoApplied: "Auto votes were applied again.",
+        autoStatusNone: "No upload time saved yet.",
+        autoStatusWaiting: "{minutes} minutes since upload. Auto votes apply at 60/120 minutes.",
+        autoStatusDone: "Auto sample votes applied: {steps}",
+        autoPhase1: "Beginner auto votes",
+        autoPhase2: "Intermediate auto votes",
+        autoPhase3: "Upper/fill auto votes",
+        sheetSyncTitle: "Google Sheets Sync",
+        sheetSyncHelp: "Add an Apps Script web app URL to send login, vote, like records, and closed-poll email summaries.",
+        sheetWebhookLabel: "Apps Script URL",
+        saveSheetWebhook: "Save Sync URL",
+        sheetWebhookSaved: "Google Sheets sync URL saved.",
+        sheetSyncReady: "Google Sheets auto logging is ready.",
+        sheetSyncWaiting: "No Google Sheets sync URL yet. Records are only queued in this browser. Add an Apps Script URL to save automatically.",
+        adminPostTitle: "Write Notice/Event",
+        adminPostLabel: "Title",
+        adminPostBodyLabel: "Content",
+        adminSavePost: "Publish Post",
+        adminPostHelp: "Shown in the Notice/Event tab as a post without voting buttons.",
+        postSaved: "Notice/event post published.",
+        postUpdated: "Notice/event post updated.",
+        postDeleted: "Notice/event post deleted.",
+        postMissing: "Please enter a title and content.",
+        editPost: "Edit",
+        deletePost: "Delete",
+        updatePost: "Save Edit",
+        cancelEdit: "Cancel Edit",
+        noPosts: "No notice/event posts yet.",
+        adminVoteAuditTitle: "Realtime Voter Check",
+        adminVoteAuditHelp: "Admins can see who applied to each level by schedule.",
+        adminHeartAuditTitle: "Sent Like Records",
+        adminHeartAuditHelp: "Admins can see who sent likes to whom.",
+        adminNoVotes: "No voters yet.",
+        adminNoHearts: "No sent-like records yet.",
+        langMessage: "English view selected."
+      },
+      ja: {
+        appTitle: "🌍 言語交換101",
+        tagline: "投票、参加、いいねでレベルアップします。",
+        nameLabel: "名前: 전호민(HO)（韓国語名 + 英語名）",
+        birthLabel: "生年月日: 920117（6桁）",
+        startButton: "ログイン",
+        loginButton: "🔑 登録済みですか？ → ログイン",
+        registerButton: "🆕 初めてですか？ → 新規登録",
+        loginHelp: "⚠️ 初回登録情報は変更できません。正確に入力してください。今後も使う情報なので必ず覚えておいてください。",
+        weeklyTop: "🏆 週間レベルTOP 3",
+        rankingHelp: "参加予約と受け取ったいいねを基準に計算されます。",
+        voteTitle: "🗳️ 今週のスタディ投票",
+        voteHelp: "参加できる日程とレベルを選んでください。投票すると参加ポイントが貯まります。",
+        filterAll: "全体",
+        filterOffline: "オフライン英語",
+        filterOnline: "オンライン英語",
+        filterLanguage: "日本語/中国語",
+        filterClosed: "終了した投票",
+        filterEvent: "お知らせ/イベント",
+        filterMaterials: "資料",
+        refreshButton: "更新",
+        materialEnglish: "英語",
+        materialJapanese: "日本語",
+        materialChinese: "中国語",
+        heartTitle: "スタディ後の匿名いいね",
+        heartHelp: "先に自分が投票した日程を選ぶと、その日程の参加者だけに匿名いいねを送れます。",
+        periodLabel: "時間",
+        heartTargetLabel: "いいねを送る相手",
+        sendHeart: "ハート送信",
+        heartNote: "ハート1個は5ポイントです。送信者は公開されません。",
+        myLevel: "自分のレベル",
+        levelOf: "👤 {name}さんのレベル",
+        nextLevel: "{rank}ランクです。Lv.1からLv.100まで成長します。次のレベルまで{points}ポイント",
+        levelGuideButton: "レベルランクを見る",
+        levelGuideRookie: "🌱 Rookie (Lv.1~20): 最初の一歩を始めた段階",
+        levelGuideBronze: "🥉 Bronze (Lv.21~40): 継続的に参加しながら成長する段階",
+        levelGuideSilver: "🥈 Silver (Lv.41~60): 自信を持って会話できる段階",
+        levelGuideGold: "🥇 Gold (Lv.61~80): 高い参加度と実力を持つ段階",
+        levelGuideDiamond: "💎 Diamond (Lv.81~100): 最上位レベルのメンバー",
+        levelGuideNote: "レベルはスタディ参加、メンバーからのいいね、さまざまな活動を総合して算定されます。高いレベルは活発な参加と良い評価を受けたメンバーを意味します。🌟",
+        attendanceLogButton: "参加履歴",
+        pointLogButton: "ポイント履歴",
+        sentHeartLogButton: "送ったいいね",
+        logoutButton: "ログアウト",
+        profileLogEmpty: "まだ記録がありません。",
+        earlyBonusTitle: "🎁 先着ボーナス",
+        earlyBonusLeft: "残り枠: {left} / {limit}名",
+        earlyBonusPoint: "申請時 +{points}P",
+        earlyBonusClosed: "🎁 先着ボーナス終了",
+        applyWithBonus: "+{points}Pを受け取って申請",
+        pointLogAttendance: "{date} {event} 参加予約 +{points}P",
+        pointLogBonus: "{date} {event} 先着ボーナス +{points}P",
+        pointLogCancel: "{date} {event} 投票キャンセル -{points}P",
+        pointLogHeart: "{date} {target}さんから受け取ったいいね +{points}P",
+        points: "{points} pt",
+        attendance: "参加 {count}",
+        hearts: "受け取ったいいね {count}",
+        sentHearts: "送ったいいね {count}",
+        noRanking: "ランキングはまだありません",
+        noParticipants: "投票参加者がまだいません",
+        noLikedEvents: "いいねは自分が申請したスタディ終了後から翌日まで送れます。",
+        chooseLikeEvent: "いいね可能なスタディ日程を先に選択してください。",
+        likeWindowClosed: "このスタディはまだ終了していないか、いいね可能時間が過ぎました。",
+        noEventParticipants: "この日程には他の参加者がまだいません。",
+        selectName: "名前を入力して投票を始めてください。",
+        invalidName: "전호민(Ho) の形式で名前を入力してください。",
+        invalidBirth: "生年月日は920117のように数字6桁で入力してください。",
+        duplicateMember: "同じ名前と生年月日ですでに登録されています。英語名を変更して再入力してください。",
+        duplicateName: "同じ名前がすでにあります。同名の場合は英語名を変えてログインしてください。例: 방나리아(bang), 방나리아(alod)",
+        started: "{name}さんで開始しました。",
+        alreadySelected: "すでに選択済みです。",
+        voteProcessing: "申請を保存しています。少しお待ちください。",
+        cancelConfirm: "本当にこの投票をキャンセルしますか？申請人数から外れます。",
+        cancelVote: "自分の投票をキャンセル",
+        applyToVote: "申請する",
+        foldVote: "閉じる",
+        voteCancelled: "投票をキャンセルしました。",
+        voted: "{option}に投票しました。ポイント +{points}",
+        chooseHeartTarget: "いいねを送る相手を1名または2名選んでください。",
+        maxHeartTargets: "いいねは最大2名まで選択できます。",
+        noSelfHeart: "自分にはハートを送れません。",
+        duplicateHeart: "この時間にはすでにこの人へハートを送りました。",
+        heartSent: "ハート送信完了！{target}さんに匿名ハートを送りました。",
+        postStudyLikeButton: "スタディ後の匿名いいね",
+        myVote: "自分の投票: {option}",
+        totalCount: "{count}名申請",
+        scheduleTime: "時間: {time}",
+        deadlineTime: "投票締切: {deadline}",
+        closedLabel: "締切",
+        dueSoonLabel: "締切間近",
+        dayLeftLabel: "D-{days}",
+        voteClosed: "この投票は締め切られたため、申請や変更はできません。",
+        voters: "{option}: {names}",
+        period1: "1時間目",
+        period2: "2時間目",
+        offlineEnglish: "オフライン英語",
+        onlineEnglish: "オンライン英語",
+        jpChinese: "日本語&中国語",
+        japaneseStudy: "日本語スタディ",
+        chineseStudy: "中国語スタディ",
+        drinkingParty: "月末飲み会",
+        jonggak: "鐘閣ドラムブル5階",
+        nonhyeon: "オケリーノンヒョン店",
+        online: "オンライン",
+        dateJun25: "6月25日",
+        dateJun26: "6月26日",
+        dateJun27: "6月27日",
+        dateJun28: "6月28日",
+        dateMonthEnd: "毎月最後の土曜日",
+        thu: "木",
+        fri: "金",
+        sat: "土",
+        sun: "日",
+        time730: "午後7:30",
+        time400: "午後4:00",
+        time100: "午後1:00",
+        beginner: "初級",
+        intermediate: "中級",
+        upperIntermediate: "上級",
+        jpBeginner: "日本語初級",
+        jpIntermediate: "日本語中級以上",
+        cnBeginner: "中国語初級",
+        cnIntermediate: "中国語中級以上",
+        join: "参加可能",
+        maybe: "検討中",
+        cantJoin: "参加不可",
+        noticeTitle: "固定お知らせ",
+        defaultNotice: "投票はクラス開始4時間前まで可能です。その後は自動で締め切られます。希望の日程とレベルは早めに申請してください。",
+        adminOpen: "管理者ログイン",
+        adminTitle: "管理者ページ",
+        adminHelp: "",
+        adminPassword: "管理者ID",
+        adminLogin: "管理開始",
+        adminGoLogin: "ログインページへ移動",
+        adminPasswordHelp: "",
+        adminNoticeTitle: "お知らせ編集",
+        adminNoticeLabel: "会員画面上部のお知らせ",
+        adminSaveNotice: "お知らせ保存",
+        adminManualTitle: "投票者追加",
+        adminEvent: "日程",
+        adminOption: "レベル/選択肢",
+        adminName: "参加者名",
+        adminAdd: "投票者追加",
+        adminAutoTitle: "自動サンプル投票",
+        adminScheduleTitle: "投票日程修正",
+        adminStartTime: "開始時間",
+        adminEndTime: "終了時間",
+        adminPlace: "場所",
+        saveSchedule: "日程保存",
+        scheduleSaved: "投票日程を保存しました。",
+        adminAutoHelp: "ボタンを押すと全投票に自動投票がすぐ入ります。英語は初級3名、中級2名、Upper Intermediate1名、日本語/中国語は初級2名、中級1名です。自動名簿は下に表示されます。",
+        adminUploadNow: "自動投票を今すぐ設定",
+        adminApplyNow: "自動投票を再反映",
+        adminWrongPassword: "管理者IDが違います。",
+        adminUnlocked: "管理者ページを開きました。",
+        noticeSaved: "お知らせを保存しました。",
+        adminAddedVote: "{option}に{name}を追加しました。",
+        adminCountLabel: "追加人数",
+        adminRandomHelp: "選択した人数分、一回用のランダム名で追加されます。",
+        adminRealAddTitle: "実会員を追加",
+        adminRealAddHelp: "投票時間を逃した実会員のみ、記録に名前がある場合に追加できます。",
+        adminRealNameLabel: "会員名",
+        adminAddReal: "実会員を追加",
+        adminRealMemberMissing: "記録にある会員名のみ追加できます。例: 데오(deo)",
+        adminRealAdded: "{name}さんを{option}に追加しました。",
+        autoUploadSaved: "自動投票を全投票にすぐ反映しました。",
+        autoApplied: "自動投票を再反映しました。",
+        autoStatusNone: "アップロード時間はまだ保存されていません。",
+        autoStatusWaiting: "アップロードから{minutes}分経過。60分/120分で自動反映されます。",
+        autoStatusDone: "自動サンプル投票反映済み: {steps}",
+        autoPhase1: "初級自動投票",
+        autoPhase2: "中級自動投票",
+        autoPhase3: "上級/補完自動投票",
+        sheetSyncTitle: "Googleシート連携",
+        sheetSyncHelp: "Apps Script WebアプリURLを入れると、ログイン、投票、いいね記録と締切名簿メールが自動処理されます。",
+        sheetWebhookLabel: "Apps Script URL",
+        saveSheetWebhook: "連携URLを保存",
+        sheetWebhookSaved: "Googleシート連携URLを保存しました。",
+        sheetSyncReady: "Googleシート自動記録の準備完了",
+        sheetSyncWaiting: "Googleシート連携URLがまだありません。記録はこのブラウザのみに一時保存されます。自動保存にはApps Script URLが必要です。",
+        adminPostTitle: "お知らせ/イベント投稿",
+        adminPostLabel: "タイトル",
+        adminPostBodyLabel: "内容",
+        adminSavePost: "投稿する",
+        adminPostHelp: "お知らせ/イベントタブに投票ボタンなしの投稿として表示されます。",
+        postSaved: "お知らせ/イベント投稿を公開しました。",
+        postUpdated: "お知らせ/イベント投稿を修正しました。",
+        postDeleted: "お知らせ/イベント投稿を削除しました。",
+        postMissing: "タイトルと内容を入力してください。",
+        editPost: "修正",
+        deletePost: "削除",
+        updatePost: "修正を保存",
+        cancelEdit: "修正をキャンセル",
+        noPosts: "登録されたお知らせ/イベント投稿はまだありません。",
+        adminVoteAuditTitle: "リアルタイム投票者確認",
+        adminVoteAuditHelp: "日程別に誰がどのレベルへ申請したか管理者だけ確認できます。",
+        adminHeartAuditTitle: "いいね送信記録",
+        adminHeartAuditHelp: "誰が誰にいいねを送ったか管理者だけ確認できます。",
+        adminNoVotes: "申請者はまだいません。",
+        adminNoHearts: "いいね送信記録はまだありません。",
+        langMessage: "日本語表示を選択しました。"
+      },
+      zh: {
+        appTitle: "🌍 语言交换101",
+        tagline: "投票、参加、收到喜欢后即可升级。",
+        nameLabel: "姓名：전호민(HO)（韩文名 + 英文名）",
+        birthLabel: "出生日期：920117（6位）",
+        startButton: "登录",
+        loginButton: "🔑 已注册？→ 登录",
+        registerButton: "🆕 第一次？→ 新注册",
+        loginHelp: "⚠️ 首次注册信息无法更改。请准确输入，并记住以后会继续使用的信息。",
+        weeklyTop: "🏆 本周等级 TOP 3",
+        rankingHelp: "根据参加预约和收到的喜欢计算。",
+        voteTitle: "🗳️ 本周学习投票",
+        voteHelp: "选择可参加的日程和等级。投票后会获得参加积分。",
+        filterAll: "全部",
+        filterOffline: "线下英语",
+        filterOnline: "线上英语",
+        filterLanguage: "日语/中文",
+        filterClosed: "已结束投票",
+        filterEvent: "公告/活动",
+        filterMaterials: "资料",
+        refreshButton: "刷新",
+        materialEnglish: "英语",
+        materialJapanese: "日语",
+        materialChinese: "中文",
+        heartTitle: "学习后的匿名喜欢",
+        heartHelp: "请先选择自己投票的日期，然后只能给该日期的参加者发送匿名喜欢。",
+        periodLabel: "时间",
+        heartTargetLabel: "发送给",
+        sendHeart: "发送爱心",
+        heartNote: "每个爱心为5分，不会公开发送者。",
+        myLevel: "我的等级",
+        levelOf: "👤 {name}的等级",
+        nextLevel: "当前为{rank}等级。从Lv.1成长到Lv.100。距离下一级还需{points}分",
+        levelGuideButton: "查看等级段",
+        levelGuideRookie: "🌱 Rookie (Lv.1~20)：迈出第一步的阶段",
+        levelGuideBronze: "🥉 Bronze (Lv.21~40)：持续参与并成长的阶段",
+        levelGuideSilver: "🥈 Silver (Lv.41~60)：能够自信交流的阶段",
+        levelGuideGold: "🥇 Gold (Lv.61~80)：参与度和实力都很高的阶段",
+        levelGuideDiamond: "💎 Diamond (Lv.81~100)：最高等级成员",
+        levelGuideNote: "等级会综合学习参加、会员点赞和各种活动来计算。高等级代表积极参与并获得良好评价的成员。🌟",
+        attendanceLogButton: "我的参加",
+        pointLogButton: "积分记录",
+        sentHeartLogButton: "发送喜欢",
+        logoutButton: "退出登录",
+        profileLogEmpty: "暂无记录。",
+        earlyBonusTitle: "🎁 先到奖励",
+        earlyBonusLeft: "剩余名额: {left} / {limit}人",
+        earlyBonusPoint: "申请时 +{points}P",
+        earlyBonusClosed: "🎁 先到奖励已结束",
+        applyWithBonus: "领取+{points}P并申请",
+        pointLogAttendance: "{date} {event} 参加预约 +{points}P",
+        pointLogBonus: "{date} {event} 先到奖励 +{points}P",
+        pointLogCancel: "{date} {event} 取消投票 -{points}P",
+        pointLogHeart: "{date} 收到{target}的喜欢 +{points}P",
+        points: "{points} pt",
+        attendance: "参加 {count}",
+        hearts: "收到喜欢 {count}",
+        sentHearts: "发送喜欢 {count}",
+        noRanking: "暂无排名",
+        noParticipants: "暂无投票者",
+        noLikedEvents: "喜欢只能在已申请的学习结束后到第二天为止发送。",
+        chooseLikeEvent: "请先选择可发送喜欢的学习日期。",
+        likeWindowClosed: "该学习尚未结束或喜欢时间已结束。",
+        noEventParticipants: "该日期暂无其他参加者。",
+        selectName: "请输入姓名并开始投票。",
+        invalidName: "请按 전호민(Ho) 格式输入姓名。",
+        invalidBirth: "出生日期请输入920117这样的6位数字。",
+        duplicateMember: "相同姓名和出生日期已注册。请更改英文名后再试。",
+        duplicateName: "已存在相同姓名。同名时请更改英文名后重新登录。例: 방나리아(bang), 방나리아(alod)。",
+        started: "已用{name}开始。",
+        alreadySelected: "已经选择了该选项。",
+        voteProcessing: "正在保存申请，请稍等。",
+        cancelConfirm: "确定要取消这个投票吗？取消后将从申请人数中移除。",
+        cancelVote: "取消我的投票",
+        applyToVote: "申请",
+        foldVote: "收起",
+        voteCancelled: "投票已取消。",
+        voted: "已投票给{option}。积分 +{points}",
+        chooseHeartTarget: "请选择1位或2位要发送喜欢的人。",
+        maxHeartTargets: "最多可选择2位。",
+        noSelfHeart: "不能给自己发送爱心。",
+        duplicateHeart: "本时间段已给此人发送过爱心。",
+        heartSent: "爱心发送完成！已向{target}发送匿名爱心。",
+        postStudyLikeButton: "学习后的匿名喜欢",
+        myVote: "我的投票：{option}",
+        totalCount: "{count}人申请",
+        scheduleTime: "时间: {time}",
+        deadlineTime: "投票截止: {deadline}",
+        closedLabel: "已截止",
+        dueSoonLabel: "即将截止",
+        dayLeftLabel: "D-{days}",
+        voteClosed: "此投票已截止，无法申请或更改。",
+        voters: "{option}: {names}",
+        period1: "第一节",
+        period2: "第二节",
+        offlineEnglish: "线下英语",
+        onlineEnglish: "线上英语",
+        jpChinese: "日语&中文",
+        japaneseStudy: "日语学习",
+        chineseStudy: "中文学习",
+        drinkingParty: "月底聚会",
+        jonggak: "钟阁Drambre 5楼",
+        nonhyeon: "O'Kelly论岘店",
+        online: "线上",
+        dateJun25: "6月25日",
+        dateJun26: "6月26日",
+        dateJun27: "6月27日",
+        dateJun28: "6月28日",
+        dateMonthEnd: "每月最后一个周六",
+        thu: "周四",
+        fri: "周五",
+        sat: "周六",
+        sun: "周日",
+        time730: "晚上7:30",
+        time400: "下午4:00",
+        time100: "下午1:00",
+        beginner: "初级",
+        intermediate: "中级",
+        upperIntermediate: "高级",
+        jpBeginner: "日语初级",
+        jpIntermediate: "日语中级以上",
+        cnBeginner: "中文初级",
+        cnIntermediate: "中文中级以上",
+        join: "可以参加",
+        maybe: "考虑中",
+        cantJoin: "无法参加",
+        noticeTitle: "置顶公告",
+        defaultNotice: "投票开放至课程开始前4小时。之后会自动关闭，请提前选择想参加的日程和等级。",
+        adminOpen: "管理员登录",
+        adminTitle: "管理员页面",
+        adminHelp: "",
+        adminPassword: "管理员ID",
+        adminLogin: "开始管理",
+        adminGoLogin: "前往登录页",
+        adminPasswordHelp: "",
+        adminNoticeTitle: "编辑公告",
+        adminNoticeLabel: "会员页面顶部公告",
+        adminSaveNotice: "保存公告",
+        adminManualTitle: "添加投票人员",
+        adminEvent: "日程",
+        adminOption: "等级/选项",
+        adminName: "参加者姓名",
+        adminAdd: "添加投票者",
+        adminAutoTitle: "自动样本投票",
+        adminScheduleTitle: "修改投票日程",
+        adminStartTime: "开始时间",
+        adminEndTime: "结束时间",
+        adminPlace: "地点",
+        saveSchedule: "保存日程",
+        scheduleSaved: "投票日程已保存。",
+        adminAutoHelp: "点击按钮后会立即向所有投票加入自动投票。英语为初级3人、中级2人、Upper Intermediate 1人，日语/中文为初级2人、中级1人。自动名单会显示在下方。",
+        adminUploadNow: "立即设置自动投票",
+        adminApplyNow: "重新应用自动投票",
+        adminWrongPassword: "管理员ID不正确。",
+        adminUnlocked: "管理员页面已打开。",
+        noticeSaved: "公告已保存。",
+        adminAddedVote: "已将{name}添加到{option}。",
+        adminCountLabel: "添加人数",
+        adminRandomHelp: "会按选择人数添加一次性随机姓名。",
+        adminRealAddTitle: "添加真实会员",
+        adminRealAddHelp: "仅可添加错过投票时间且记录中存在的真实会员。",
+        adminRealNameLabel: "会员姓名",
+        adminAddReal: "添加真实会员",
+        adminRealMemberMissing: "只能添加记录中存在的会员姓名。例: 데오(deo)",
+        adminRealAdded: "已将{name}添加到{option}。",
+        autoUploadSaved: "自动投票已立即应用到所有投票。",
+        autoApplied: "自动投票已重新应用。",
+        autoStatusNone: "尚未保存上传时间。",
+        autoStatusWaiting: "上传后已过{minutes}分钟。将在60/120分钟自动应用。",
+        autoStatusDone: "自动样本投票已应用: {steps}",
+        autoPhase1: "初级自动投票",
+        autoPhase2: "中级自动投票",
+        autoPhase3: "高级/补充自动投票",
+        sheetSyncTitle: "Google表格连接",
+        sheetSyncHelp: "输入Apps Script网页应用URL后，登录、投票、喜欢记录和截止名单邮件会自动处理。",
+        sheetWebhookLabel: "Apps Script URL",
+        saveSheetWebhook: "保存连接URL",
+        sheetWebhookSaved: "Google表格连接URL已保存。",
+        sheetSyncReady: "Google表格自动记录已准备好。",
+        sheetSyncWaiting: "尚未设置Google表格连接URL。记录只会暂存在此浏览器。需要Apps Script URL才能自动保存。",
+        adminPostTitle: "发布公告/活动",
+        adminPostLabel: "标题",
+        adminPostBodyLabel: "内容",
+        adminSavePost: "发布",
+        adminPostHelp: "会在公告/活动标签中以文章形式显示，不带投票按钮。",
+        postSaved: "公告/活动已发布。",
+        postUpdated: "公告/活动已修改。",
+        postDeleted: "公告/活动已删除。",
+        postMissing: "请输入标题和内容。",
+        editPost: "修改",
+        deletePost: "删除",
+        updatePost: "保存修改",
+        cancelEdit: "取消修改",
+        noPosts: "暂无公告/活动文章。",
+        adminVoteAuditTitle: "实时投票者确认",
+        adminVoteAuditHelp: "管理员可按日程查看谁申请了哪个等级。",
+        adminHeartAuditTitle: "喜欢发送记录",
+        adminHeartAuditHelp: "管理员可查看谁向谁发送了喜欢。",
+        adminNoVotes: "暂无申请者。",
+        adminNoHearts: "暂无喜欢发送记录。",
+        langMessage: "已选择中文显示。"
+      }
+    };
+
+    const materials = {
+      english: [
+        { title: "Ice-breaking", items: [["True or False", "https://cafe.naver.com/language101/1750"], ["30 Second Speaking", "https://v0-101class.vercel.app/"], ["20 Questions", "https://v0-101languagegame.vercel.app/"], ["What If Challenge", "https://v0-iflanguage101.vercel.app/"], ["Funny Questions", "https://cafe.naver.com/language101/2402"]] },
+        { title: "Game & Activity", items: [["Fun Discuss", "https://v0-101language.vercel.app/"], ["Guessing Words", "https://v0-101language101.vercel.app/"], ["Word Battle", "https://v0-101languagewords.vercel.app/"], ["Balance Game", "https://cafe.naver.com/language101/3835"]] },
+        { title: "Expression Practice", items: [["Useful Expressions", "https://cafe.naver.com/language101/4285"], ["Practice of Expressing", "https://cafe.naver.com/language101/4408"], ["Describing Picture Game", "https://cafe.naver.com/language101/2750"]] }
+      ],
+      japanese: [
+        { title: "Ice Breaking", items: [["자기소개 & 일상 공유", "https://cafe.naver.com/language101/2790"], ["아이스브레이킹 질문", "https://cafe.naver.com/language101/3671"], ["롤플레이 활동", "https://cafe.naver.com/language101/4557"]] },
+        { title: "Game Activity", items: [["재밌는 토론", "https://v0-101language.vercel.app/"], ["단어 맞추기 게임", "https://v0-101language101.vercel.app/"], ["스무고개", "https://v0-101languagegame.vercel.app/"], ["단어 배틀", "https://v0-101languagewords.vercel.app/"]] },
+        { title: "실전 일본어 표현", items: [["일본어 실전 표현 모음 (텍스트)", "https://cafe.naver.com/language101/4413"], ["일본어 실전 표현 모음 (회화 연습)", "https://cafe.naver.com/language101/4409"]] }
+      ],
+      chinese: [
+        { title: "Ice Breaking", items: [["자기소개 & 일상 공유", "https://cafe.naver.com/language101/2497"], ["스무고개", "https://v0-101languagegame.vercel.app/"], ["아이스브레이킹 질문", "https://cafe.naver.com/language101/3732"]] },
+        { title: "Game Activity", items: [["재밌는 토론", "https://v0-101language.vercel.app/"], ["단어 맞추기", "https://v0-101language101.vercel.app/"], ["단어 배틀", "https://v0-101languagewords.vercel.app/"], ["30초 말하기 연습", "https://v0-101class.vercel.app/"]] },
+        { title: "Discussion", items: [["디베이트 : 찬성 & 반대", "https://cafe.naver.com/language101/3717"]] }
+      ]
+    };
+
+    function t(key, values = {}) {
+      let text = i18n[currentLang][key] || i18n.ko[key] || key;
+      Object.entries(values).forEach(([name, value]) => {
+        text = text.replace(`{${name}}`, value);
+      });
+      return text;
+    }
+
+    function escapeHtml(value = "") {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function countText(count) {
+      if (currentLang === "ko") return `${count}명`;
+      if (currentLang === "ja") return `${count}名`;
+      if (currentLang === "zh") return `${count}人`;
+      return `${count}`;
+    }
+
+    function applyStaticTranslations() {
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        el.textContent = t(el.dataset.i18n);
+      });
+      document.documentElement.lang = currentLang;
+    }
+
+    function readJson(key, fallback) {
+      const saved = localStorage.getItem(key);
+      if (!saved) return fallback;
+      try { return JSON.parse(saved); } catch { return fallback; }
+    }
+
+    function writeJson(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function makeMember(name, birth) {
+      const cleanName = name.trim();
+      const cleanBirth = birth.trim();
+      return {
+        id: `${cleanBirth}|${normalizeName(cleanName)}`,
+        name: cleanName,
+        birth: cleanBirth
+      };
+    }
+
+    function getDirectory() {
+      return readJson(MEMBER_DIRECTORY_KEY, {});
+    }
+
+    function saveDirectoryMember(member) {
+      const directory = getDirectory();
+      directory[member.id] = { name: member.name, birth: member.birth };
+      writeJson(MEMBER_DIRECTORY_KEY, directory);
+    }
+
+    function memberFromId(id) {
+      const directory = getDirectory();
+      const saved = directory[id];
+      if (saved) return { id, name: saved.name, birth: saved.birth };
+      if (id.includes("|")) {
+        const [birth, ...nameParts] = id.split("|");
+        return { id, birth, name: nameParts.join("|") };
+      }
+      return { id, name: id, birth: "" };
+    }
+
+    function normalizeName(value = "") {
+      return value.trim().toLowerCase();
+    }
+
+    function isOperatorMember(member) {
+      return normalizeName(member?.name) === "데오(deo)";
+    }
+
+    function isSyntheticMember(memberOrId) {
+      const member = typeof memberOrId === "string" ? memberFromId(memberOrId) : memberOrId;
+      const name = normalizeName(member?.name);
+      return name.startsWith("자동참여") || name.startsWith("관리추가") || name.includes("(auto") || name.includes("(admin");
+    }
+
+    function isRealVisibleMember(memberOrId) {
+      const member = typeof memberOrId === "string" ? memberFromId(memberOrId) : memberOrId;
+      return Boolean(member?.name) && !isSyntheticMember(member);
+    }
+
+    function isRankingVisibleMember(memberOrId) {
+      const member = typeof memberOrId === "string" ? memberFromId(memberOrId) : memberOrId;
+      return isRealVisibleMember(member) && !isOperatorMember(member);
+    }
+
+    function findDirectoryMemberByName(name) {
+      const target = normalizeName(name);
+      return Object.entries(getDirectory())
+        .map(([id, saved]) => ({ id, name: saved.name, birth: saved.birth }))
+        .find((member) => normalizeName(member.name) === target && !isSyntheticMember(member));
+    }
+
+    function getMember() {
+      const saved = localStorage.getItem(MEMBER_KEY);
+      if (!saved) return null;
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed?.name && parsed?.birth) return makeMember(parsed.name, parsed.birth);
+        if (parsed?.id && parsed?.name) return parsed;
+      } catch {}
+      return memberFromId(saved);
+    }
+
+    function isNameValid(name) {
+      const value = name.trim();
+      return /^[가-힣]{2,}\([A-Za-z][A-Za-z0-9 ._-]{1,20}\)$/.test(value) || /^[A-Za-z][A-Za-z0-9 ._-]{1,30}$/.test(value);
+    }
+
+    function isBirthValid(birth) {
+      return /^\d{6}$/.test(birth.trim());
+    }
+
+    function getSuggestedEnglishName(koreanName) {
+      const fixed = {
+        "김해민": "Haily",
+        "전호민": "HO",
+        "김도원": "LIA",
+        "방나리아": "lia"
+      };
+      if (fixed[koreanName]) return fixed[koreanName];
+      const pool = ["Haily", "Mia", "Leo", "Noah", "Sofia", "Jay", "Lina", "Dani", "Yuna", "Ryan"];
+      return pool[hashText(koreanName) % pool.length];
+    }
+
+    function updateNameSuggestion() {
+      const name = memberNameEl.value.trim();
+      if (/^[가-힣]{2,5}$/.test(name)) {
+        const suggested = `${name}(${getSuggestedEnglishName(name)})`;
+        nameSuggestionEl.textContent = `추천 이름: ${suggested}`;
+        nameSuggestionEl.dataset.suggestedName = suggested;
+        nameSuggestionEl.classList.remove("hidden");
+        return;
+      }
+      nameSuggestionEl.classList.add("hidden");
+      nameSuggestionEl.dataset.suggestedName = "";
+    }
+
+    function getStats() {
+      return readJson(STATS_KEY, {});
+    }
+
+    function ensureStats(memberOrId) {
+      const member = typeof memberOrId === "string" ? memberFromId(memberOrId) : memberOrId;
+      const stats = getStats();
+      ensureStatsEntry(stats, member);
+      return stats;
+    }
+
+    function ensureStatsEntry(stats, member) {
+      if (!stats[member.id]) {
+        stats[member.id] = { name: member.name, birth: member.birth, points: 0, attendance: 0, hearts: 0, sentHearts: 0, bonusEvents: {} };
+      } else {
+        stats[member.id].name = member.name || stats[member.id].name;
+        stats[member.id].birth = member.birth || stats[member.id].birth;
+        stats[member.id].points = stats[member.id].points || 0;
+        stats[member.id].attendance = stats[member.id].attendance || 0;
+        stats[member.id].hearts = stats[member.id].hearts || 0;
+        stats[member.id].sentHearts = stats[member.id].sentHearts || 0;
+        stats[member.id].bonusEvents = stats[member.id].bonusEvents || {};
+      }
+      stats[member.id].points =
+        stats[member.id].attendance * pointRules.attendance +
+        Object.keys(stats[member.id].bonusEvents || {}).length * pointRules.earlyBonus +
+        stats[member.id].hearts * pointRules.heart;
+      if (isOperatorMember(member)) {
+        stats[member.id].points = Math.max(stats[member.id].points, 99000);
+      }
+      return stats[member.id];
+    }
+
+    function getVotes() {
+      return remoteVotesCache;
+    }
+
+    function cloneVotes(votes) {
+      return JSON.parse(JSON.stringify(votes || {}));
+    }
+
+    function applyVoteToVotes(votes, eventId, option, member) {
+      if (!votes[eventId]) votes[eventId] = {};
+      Object.keys(votes[eventId]).forEach((key) => {
+        votes[eventId][key] = votes[eventId][key].filter((item) => item !== member.id);
+      });
+      if (!votes[eventId][option]) votes[eventId][option] = [];
+      votes[eventId][option].push(member.id);
+      return votes;
+    }
+
+    function removeVoteFromVotes(votes, eventId, member) {
+      if (!votes[eventId]) return votes;
+      Object.keys(votes[eventId]).forEach((key) => {
+        votes[eventId][key] = votes[eventId][key].filter((item) => item !== member.id);
+      });
+      return votes;
+    }
+
+    function rememberLocalVote(eventId, option, member) {
+      localVoteOverrides.set(`${eventId}|${member.id}`, {
+        eventId,
+        option,
+        member,
+        cancelled: false,
+        expiresAt: Date.now() + 12000
+      });
+    }
+
+    function rememberLocalCancel(eventId, member) {
+      localVoteOverrides.set(`${eventId}|${member.id}`, {
+        eventId,
+        member,
+        cancelled: true,
+        expiresAt: Date.now() + 12000
+      });
+    }
+
+    function applyLocalVoteOverrides(votes) {
+      const now = Date.now();
+      localVoteOverrides.forEach((entry, key) => {
+        if (entry.expiresAt && entry.expiresAt < now) {
+          localVoteOverrides.delete(key);
+          return;
+        }
+        if (entry.cancelled) {
+          removeVoteFromVotes(votes, entry.eventId, entry.member);
+          return;
+        }
+        applyVoteToVotes(votes, entry.eventId, entry.option, entry.member);
+      });
+      return votes;
+    }
+
+    function buildVotesFromRows(rows) {
+      const latestByMember = new Map();
+      [...rows]
+        .filter((row) => row.name && row.birth && row.level && row.vote_option)
+        .sort((a, b) => {
+          const timeDiff = new Date(a.created_at || 0) - new Date(b.created_at || 0);
+          if (timeDiff) return timeDiff;
+          return String(a.id || "").localeCompare(String(b.id || ""));
+        })
+        .forEach((row) => {
+          const member = makeMember(row.name, row.birth);
+          saveDirectoryMember(member);
+          latestByMember.set(`${row.level}|${member.id}`, { row, member });
+        });
+      localVoteOverrides.forEach((entry, key) => {
+        const latest = latestByMember.get(key)?.row;
+        const serverCaughtUp =
+          latest &&
+          ((entry.cancelled && latest.vote_option === "__cancelled__") ||
+            (!entry.cancelled && latest.vote_option === entry.option));
+        if (serverCaughtUp) localVoteOverrides.delete(key);
+      });
+      const votes = {};
+      latestByMember.forEach(({ row, member }) => {
+        if (row.vote_option === "__cancelled__") return;
+        applyVoteToVotes(votes, row.level, row.vote_option, member);
+      });
+      return applyLocalVoteOverrides(votes);
+    }
+
+    function applySupabaseVoteRow(row) {
+      if (!row?.name || !row?.birth || !row?.level || !row?.vote_option) return;
+      const member = makeMember(row.name, row.birth);
+      saveDirectoryMember(member);
+      const votes = cloneVotes(getVotes());
+      if (row.vote_option === "__cancelled__") {
+        remoteVotesCache = removeVoteFromVotes(votes, row.level, member);
+      } else {
+        remoteVotesCache = applyVoteToVotes(votes, row.level, row.vote_option, member);
+      }
+      render();
+    }
+
+    function getLevel(points) {
+      return Math.min(100, Math.max(1, Math.floor(points / 1000) + 1));
+    }
+
+    function getRankTier(level) {
+      if (level <= 20) return { emoji: "🌱", label: "Rookie" };
+      if (level <= 40) return { emoji: "🥉", label: "Bronze" };
+      if (level <= 60) return { emoji: "🥈", label: "Silver" };
+      if (level <= 80) return { emoji: "🥇", label: "Gold" };
+      return { emoji: "💎", label: "Diamond" };
+    }
+
+    function getNotice() {
+      return localStorage.getItem(NOTICE_KEY) || "";
+    }
+
+    function getEventPosts() {
+      return readJson(EVENT_POSTS_KEY, defaultEventPosts);
+    }
+
+    function padNumber(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function getKstDateParts(date = new Date()) {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Seoul",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(date);
+      return {
+        year: Number(parts.find((part) => part.type === "year").value),
+        month: Number(parts.find((part) => part.type === "month").value),
+        day: Number(parts.find((part) => part.type === "day").value)
+      };
+    }
+
+    function getUtcDateFromParts(parts) {
+      return new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
+    }
+
+    function formatYmdFromUtcDate(date) {
+      return `${date.getUTCFullYear()}-${padNumber(date.getUTCMonth() + 1)}-${padNumber(date.getUTCDate())}`;
+    }
+
+    function addDaysToUtcDate(date, days) {
+      return new Date(date.getTime() + days * 86400000);
+    }
+
+    function buildTimeIso(ymd, time) {
+      return `${ymd}T${time}:00+09:00`;
+    }
+
+    function eventForRuleDate(rule, ymd, closed = false) {
+      return {
+        id: `${rule.id}-${ymd.replaceAll("-", "")}`,
+        ruleId: rule.id,
+        category: closed ? "closed" : rule.category,
+        originalCategory: rule.category,
+        title: rule.title,
+        start: buildTimeIso(ymd, rule.startTime),
+        end: buildTimeIso(ymd, rule.endTime),
+        place: rule.place,
+        options: rule.options,
+        closed
+      };
+    }
+
+    function buildWeeklyTemplates() {
+      const todayParts = getKstDateParts();
+      const todayUtcDate = getUtcDateFromParts(todayParts);
+      const todayWeekday = todayUtcDate.getUTCDay();
+      const byId = {};
+      scheduleRules.map((rule) => {
+        let daysUntil = (rule.weekday - todayWeekday + 7) % 7;
+        let eventDate = addDaysToUtcDate(todayUtcDate, daysUntil);
+        let ymd = formatYmdFromUtcDate(eventDate);
+        let start = buildTimeIso(ymd, rule.startTime);
+        let end = buildTimeIso(ymd, rule.endTime);
+        if (Date.now() >= getDeadline({ start }).getTime()) {
+          eventDate = addDaysToUtcDate(eventDate, 7);
+          ymd = formatYmdFromUtcDate(eventDate);
+          start = buildTimeIso(ymd, rule.startTime);
+          end = buildTimeIso(ymd, rule.endTime);
+        }
+        return eventForRuleDate(rule, ymd);
+      }).forEach((event) => {
+        byId[event.id] = event;
+      });
+      Object.keys(getVotes()).forEach((eventId) => {
+        const event = eventFromStoredId(eventId);
+        if (event && !isPollClosed(event)) byId[event.id] = event;
+      });
+      return Object.values(byId).sort((a, b) => new Date(a.start) - new Date(b.start));
+    }
+
+    function buildClosedTemplates() {
+      const todayParts = getKstDateParts();
+      const todayUtcDate = getUtcDateFromParts(todayParts);
+      const todayWeekday = todayUtcDate.getUTCDay();
+      const closedById = {};
+      scheduleRules.forEach((rule) => {
+        let daysUntil = (rule.weekday - todayWeekday + 7) % 7;
+        if (daysUntil > 0) daysUntil -= 7;
+        const eventDate = addDaysToUtcDate(todayUtcDate, daysUntil);
+        const ymd = formatYmdFromUtcDate(eventDate);
+        const event = eventForRuleDate(rule, ymd, true);
+        if (isPollClosed(event)) closedById[event.id] = event;
+      });
+      Object.keys(getVotes()).forEach((eventId) => {
+        const event = eventFromStoredId(eventId);
+        if (event && isPollClosed(event)) closedById[event.id] = { ...event, category: "closed", closed: true };
+      });
+      return Object.values(closedById).sort((a, b) => new Date(b.start) - new Date(a.start));
+    }
+
+    function getScheduleOverrides() {
+      return readJson(SCHEDULE_OVERRIDES_KEY, {});
+    }
+
+    function getEvent(event) {
+      return { ...event, ...(getScheduleOverrides()[event.id] || {}) };
+    }
+
+    function toInputDateTime(value) {
+      const date = new Date(value);
+      const offset = date.getTimezoneOffset() * 60000;
+      return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+    }
+
+    function fromInputDateTime(value) {
+      return new Date(value).toISOString();
+    }
+
+    function formatDateLabel(value) {
+      const date = new Date(value);
+      return `${date.getMonth() + 1}월 ${date.getDate()}일(${["일", "월", "화", "수", "목", "금", "토"][date.getDay()]})`;
+    }
+
+    function formatTime(value) {
+      return new Date(value).toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit", hour12: true });
+    }
+
+    function formatDateTime(value) {
+      const date = new Date(value);
+      return `${date.getMonth() + 1}월 ${date.getDate()}일 ${formatTime(value)}`;
+    }
+
+    function getDeadline(event) {
+      return new Date(new Date(event.start).getTime() - 4 * 60 * 60 * 1000);
+    }
+
+    function isPollClosed(event) {
+      return Date.now() >= getDeadline(event).getTime();
+    }
+
+    function getDeadlineBadge(event) {
+      const startParts = getKstDateParts(new Date(event.start));
+      const todayParts = getKstDateParts();
+      const startDate = getUtcDateFromParts(startParts);
+      const todayDate = getUtcDateFromParts(todayParts);
+      if (isPollClosed(event)) return t("closedLabel");
+      if (startDate.getTime() === todayDate.getTime()) return t("dueSoonLabel");
+      const days = Math.max(1, Math.round((startDate - todayDate) / 86400000));
+      return t("dayLeftLabel", { days });
+    }
+
+    function getSheetWebhookUrl() {
+      return localStorage.getItem(SHEET_WEBHOOK_KEY) || "";
+    }
+
+    function setSheetStatus() {
+      if (!sheetSyncStatusEl) return;
+      sheetWebhookInputEl.value = getSheetWebhookUrl();
+      sheetSyncStatusEl.classList.toggle("warning", !getSheetWebhookUrl());
+      sheetSyncStatusEl.textContent = getSheetWebhookUrl() ? t("sheetSyncReady") : t("sheetSyncWaiting");
+    }
+
+    function getMemberStats(member) {
+      const stats = ensureStats(member);
+      return stats[member.id];
+    }
+
+    function queueSheetRecord(record) {
+      const queue = readJson(SHEET_SYNC_QUEUE_KEY, []);
+      queue.push(record);
+      writeJson(SHEET_SYNC_QUEUE_KEY, queue.slice(-200));
+      sendSheetRecord(record);
+    }
+
+    function sendSheetRecord(record) {
+      const url = getSheetWebhookUrl();
+      if (!url) return;
+      fetch(url, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(record)
+      }).catch(() => {});
+    }
+
+    function syncQueuedSheetRecords() {
+      const queue = readJson(SHEET_SYNC_QUEUE_KEY, []);
+      if (!getSheetWebhookUrl() || !queue.length) return;
+      queue.forEach((record) => sendSheetRecord(record));
+    }
+
+    function isSupabaseConfigured() {
+      return Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
+    }
+
+    function supabaseRestHeaders(extra = {}) {
+      return {
+        apikey: SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+        ...extra
+      };
+    }
+
+    async function selectVotesViaRest() {
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=*&order=created_at.asc`;
+      const response = await fetch(url, {
+        method: "GET",
+        headers: supabaseRestHeaders({ Accept: "application/json" })
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `HTTP ${response.status}`);
+      }
+      return response.json();
+    }
+
+    async function insertVoteViaRest(eventId, option, member) {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/votes`, {
+        method: "POST",
+        headers: supabaseRestHeaders({
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        }),
+        body: JSON.stringify({
+          name: member.name,
+          birth: member.birth,
+          level: eventId,
+          vote_option: option
+        })
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `HTTP ${response.status}`);
+      }
+      return true;
+    }
+
+    async function loadVotesFromSupabase(options = {}) {
+      if (votesLoadInFlight) return;
+      votesLoadInFlight = true;
+      try {
+        const data = await selectVotesViaRest();
+        remoteVotesCache = buildVotesFromRows(data || []);
+        render();
+      } catch (error) {
+        if (!options.silent) messageEl.textContent = `Supabase 투표 목록을 불러오지 못했습니다: ${error.message}`;
+      } finally {
+        votesLoadInFlight = false;
+      }
+    }
+
+    async function insertSupabaseRow(eventId, option, member, errorPrefix) {
+      try {
+        await insertVoteViaRest(eventId, option, member);
+        return true;
+      } catch (restError) {
+        if (!supabaseClient) {
+          messageEl.textContent = `${errorPrefix}: ${restError.message}`;
+          return false;
+        }
+      }
+      const { error } = await supabaseClient.from("votes").insert({
+        name: member.name,
+        birth: member.birth,
+        level: eventId,
+        vote_option: option
+      });
+      if (error) {
+        messageEl.textContent = `${errorPrefix}: ${error.message}`;
+        return false;
+      }
+      return true;
+    }
+
+    async function insertSupabaseVote(eventId, option, member) {
+      if (!isSupabaseConfigured()) {
+        messageEl.textContent = "Supabase 연결이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.";
+        return false;
+      }
+      return insertSupabaseRow(eventId, option, member, "Supabase 투표 저장 실패");
+    }
+
+    async function deleteSupabaseVote(eventId, member) {
+      if (!isSupabaseConfigured()) {
+        messageEl.textContent = "Supabase 연결이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.";
+        return false;
+      }
+      return insertSupabaseRow(eventId, "__cancelled__", member, "Supabase 투표 취소 실패");
+    }
+
+    function subscribeVotesRealtime() {
+      if (!supabaseClient) return;
+      if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
+      realtimeChannel = supabaseClient
+        .channel(`votes-realtime-${Date.now()}`)
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "votes" }, (payload) => {
+          applySupabaseVoteRow(payload.new);
+          loadVotesFromSupabase({ silent: true });
+        })
+        .subscribe((status) => {
+          if (status === "SUBSCRIBED") loadVotesFromSupabase({ silent: true });
+        });
+    }
+
+    function startVotesPolling() {
+      if (votesPollTimer) window.clearInterval(votesPollTimer);
+      votesPollTimer = window.setInterval(() => {
+        loadVotesFromSupabase({ silent: true });
+      }, 1000);
+    }
+
+    async function initSupabase() {
+      if (!isSupabaseConfigured()) {
+        messageEl.textContent = "Supabase 설정이 필요합니다. Publishable Key와 SDK 로딩 상태를 확인해주세요.";
+        render();
+        return;
+      }
+      if (window.supabase?.createClient) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        subscribeVotesRealtime();
+      }
+      await loadVotesFromSupabase();
+      startVotesPolling();
+    }
+
+    function logMemberAction(type, memberOrId, details = {}) {
+      const member = typeof memberOrId === "string" ? memberFromId(memberOrId) : memberOrId;
+      const stats = getMemberStats(member);
+      queueSheetRecord({
+        timestamp: new Date().toISOString(),
+        memberId: member.id,
+        name: member.name,
+        birth: member.birth,
+        action: type,
+        event: details.event || "",
+        option: details.option || "",
+        points: stats.points,
+        level: getLevel(stats.points),
+        attendance: stats.attendance,
+        hearts: stats.hearts,
+        sentHearts: stats.sentHearts,
+        detail: details.detail || ""
+      });
+    }
+
+    function getMemberRecords(member) {
+      if (!member?.id) return [];
+      return readJson(SHEET_SYNC_QUEUE_KEY, [])
+        .filter((record) => record.memberId === member.id)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    }
+
+    function formatRecordDate(timestamp) {
+      const date = new Date(timestamp);
+      if (Number.isNaN(date.getTime())) return "";
+      return `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+    }
+
+    function recordEventLabel(eventId) {
+      const event = resolveEventById(eventId);
+      return event ? `${formatDateLabel(event.start)} ${t(event.title)}` : eventId;
+    }
+
+    function showProfileDetail(kind) {
+      const member = getMember();
+      if (!member) return;
+      if (activeProfileDetail === kind && !profileDetailEl.classList.contains("hidden")) {
+        activeProfileDetail = "";
+        profileDetailEl.classList.add("hidden");
+        profileDetailEl.textContent = "";
+        return;
+      }
+      const records = getMemberRecords(member);
+      let lines = [];
+      if (kind === "attendance") {
+        const votes = getVotes();
+        lines = Object.entries(votes)
+          .filter(([, eventVotes]) => memberVotedInEvent(eventVotes, member.id))
+          .map(([eventId, eventVotes]) => {
+            const option = Object.entries(eventVotes).find(([, ids]) => ids.includes(member.id))?.[0];
+            return `${recordEventLabel(eventId)} · ${option ? t(option) : ""}`;
+          });
+      } else if (kind === "points") {
+        lines = records
+          .filter((record) => ["vote", "bonus", "cancel_vote", "heart_received"].includes(record.action))
+          .map((record) => `${formatRecordDate(record.timestamp)} · ${record.detail || record.action}`);
+      } else if (kind === "sentHearts") {
+        lines = records
+          .filter((record) => record.action === "heart_sent")
+          .map((record) => `${formatRecordDate(record.timestamp)} · ${record.detail || ""}`);
+      }
+      activeProfileDetail = kind;
+      profileDetailEl.textContent = lines.length ? lines.join("\n") : t("profileLogEmpty");
+      profileDetailEl.classList.remove("hidden");
+    }
+
+    function logoutMember() {
+      localStorage.removeItem(MEMBER_KEY);
+      activeProfileDetail = "";
+      profileDetailEl.classList.add("hidden");
+      profileDetailEl.textContent = "";
+      likePanelEl.classList.add("hidden");
+      selectedLikeTargets = [];
+      selectedLikeEventId = "";
+      expandedPollId = "";
+      memberNameEl.value = "";
+      memberBirthEl.value = "";
+      updateNameSuggestion();
+      messageEl.textContent = t("selectName");
+      render();
+      loginPanelEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      memberNameEl.focus();
+    }
+
+    function goLoginPage() {
+      adminPanelEl.classList.add("hidden");
+      loginPanelEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      memberNameEl.focus();
+    }
+
+    function eventFromStoredId(eventId) {
+      const match = eventId.match(/^(.+)-(\d{8})$/);
+      if (!match) return null;
+      const rule = scheduleRules.find((item) => item.id === match[1]);
+      if (!rule) return null;
+      const ymd = `${match[2].slice(0, 4)}-${match[2].slice(4, 6)}-${match[2].slice(6, 8)}`;
+      return getEvent({
+        id: eventId,
+        ruleId: rule.id,
+        category: rule.category,
+        title: rule.title,
+        start: buildTimeIso(ymd, rule.startTime),
+        end: buildTimeIso(ymd, rule.endTime),
+        place: rule.place,
+        options: rule.options
+      });
+    }
+
+    function buildClosedPollSummary(event, eventVotes) {
+      const lines = [
+        `[언어교환101 투표 마감 명단]`,
+        `${formatDateLabel(event.start)} ${t(event.title)}`,
+        `시간: ${formatTime(event.start)} ~ ${formatTime(event.end)}`,
+        `장소: ${event.place}`,
+        `투표 마감: ${formatDateTime(getDeadline(event))}`,
+        ""
+      ];
+      let total = 0;
+      event.options.forEach((option) => {
+        const ids = eventVotes[option] || [];
+        total += ids.length;
+        lines.push(`${t(option)} (${ids.length}명)`);
+        lines.push(ids.length ? ids.map((id, index) => `${index + 1}. ${memberFromId(id).name}`).join("\n") : "- 없음");
+        lines.push("");
+      });
+      lines.push(`총 신청 인원: ${total}명`);
+      return lines.join("\n");
+    }
+
+    function checkClosedPollEmails() {
+      const votes = getVotes();
+      const sent = readJson(CLOSED_EMAIL_KEY, {});
+      Object.entries(votes).forEach(([eventId, eventVotes]) => {
+        if (sent[eventId]) return;
+        const event = eventFromStoredId(eventId);
+        if (!event || !isPollClosed(event)) return;
+        const detail = buildClosedPollSummary(event, eventVotes);
+        queueSheetRecord({
+          timestamp: new Date().toISOString(),
+          memberId: "system",
+          name: "언어교환101 자동마감",
+          birth: "",
+          action: "poll_closed",
+          event: `${formatDateLabel(event.start)} ${t(event.title)}`,
+          option: "",
+          points: 0,
+          level: 1,
+          attendance: 0,
+          hearts: 0,
+          sentHearts: 0,
+          detail
+        });
+        sent[eventId] = true;
+      });
+      writeJson(CLOSED_EMAIL_KEY, sent);
+    }
+
+    function showHeartBurst() {
+      heartBurstEl.innerHTML = "";
+      heartBurstEl.classList.remove("hidden");
+      const pieces = [
+        ["-92px", "140px", "-18deg"],
+        ["-46px", "175px", "12deg"],
+        ["0px", "155px", "-6deg"],
+        ["48px", "185px", "18deg"],
+        ["94px", "135px", "-12deg"]
+      ];
+      pieces.forEach(([x, y, rotate], index) => {
+        const heart = document.createElement("span");
+        heart.textContent = "♥";
+        heart.style.setProperty("--x", x);
+        heart.style.setProperty("--y", y);
+        heart.style.setProperty("--r", rotate);
+        heart.style.animationDelay = `${index * 45}ms`;
+        heartBurstEl.appendChild(heart);
+      });
+      window.setTimeout(() => {
+        heartBurstEl.classList.add("hidden");
+        heartBurstEl.innerHTML = "";
+      }, 1250);
+    }
+
+    function makeAdminRandomMember(eventId, option, index) {
+      const seed = `${Date.now()}${Math.floor(Math.random() * 100000)}${index}`.slice(-10);
+      const short = seed.slice(-5);
+      return makeMember(`관리추가${short}(admin${short})`, `88${short.slice(-4)}`);
+    }
+
+    async function addVoteForMember(eventId, option, member) {
+      if (!member?.id) return false;
+      saveDirectoryMember(member);
+
+      const votes = cloneVotes(getVotes());
+      if (!votes[eventId]) votes[eventId] = {};
+      const previous = Object.entries(votes[eventId]).find(([, ids]) => ids.includes(member.id));
+      const totalBefore = getUniqueVoteCount(votes[eventId]);
+      const getsEarlyBonus = !previous && totalBefore < EARLY_BONUS_LIMIT;
+      const saved = await insertSupabaseVote(eventId, option, member);
+      if (!saved) return false;
+      rememberLocalVote(eventId, option, member);
+      remoteVotesCache = applyVoteToVotes(votes, eventId, option, member);
+
+      if (!previous && !isSyntheticMember(member)) {
+        const stats = ensureStats(member);
+        stats[member.id].attendance += 1;
+        stats[member.id].points += pointRules.attendance;
+        logMemberAction("vote", member, {
+          event: eventId,
+          option,
+          detail: t("pointLogAttendance", { date: formatRecordDate(new Date().toISOString()), event: recordEventLabel(eventId), points: pointRules.attendance })
+        });
+        if (getsEarlyBonus) {
+          stats[member.id].points += pointRules.earlyBonus;
+          stats[member.id].bonusEvents[eventId] = true;
+          logMemberAction("bonus", member, {
+            event: eventId,
+            option,
+            detail: t("pointLogBonus", { date: formatRecordDate(new Date().toISOString()), event: recordEventLabel(eventId), points: pointRules.earlyBonus })
+          });
+        }
+        writeJson(STATS_KEY, stats);
+      } else if (!isSyntheticMember(member)) {
+        logMemberAction("vote", member, { event: eventId, option });
+      }
+      return true;
+    }
+
+    function hashText(text) {
+      let hash = 0;
+      for (let index = 0; index < text.length; index += 1) {
+        hash = (hash * 31 + text.charCodeAt(index)) >>> 0;
+      }
+      return hash;
+    }
+
+    function makeAutoMember(event, option, slot, runId) {
+      const eventIndex = Math.max(0, templates.findIndex((item) => item.id === event.id));
+      const optionIndex = Math.max(0, event.options.indexOf(option));
+      const serial = eventIndex * 20 + optionIndex * 5 + slot;
+      const padded = String(serial).padStart(3, "0");
+      const run = String(runId || "00000").replace(/[^a-z0-9]/gi, "").slice(-5) || "00000";
+      const name = `자동참여${run}${padded}(auto${run}${padded})`;
+      const birth = String(700000 + (hashText(`${run}-${serial}`) % 299999)).slice(0, 6);
+      return makeMember(name, birth);
+    }
+
+    async function addAutoVote(event, option, slot, phase, roster, runId) {
+      const member = makeAutoMember(event, option, slot, runId);
+      if (await addVoteForMember(event.id, option, member)) {
+        roster.push(`${formatDateLabel(event.start)} ${t(event.title)} / ${t(option)}: ${member.name}`);
+      }
+    }
+
+    function getAutoRoster() {
+      return readJson(AUTO_ROSTER_KEY, []);
+    }
+
+    function saveAutoRoster(roster) {
+      writeJson(AUTO_ROSTER_KEY, roster.slice(-500));
+    }
+
+    async function applyAutoVotes() {
+      const done = readJson(AUTO_DONE_KEY, {});
+      const roster = getAutoRoster();
+      const runId = localStorage.getItem(AUTO_RUN_KEY) || Date.now().toString(36).slice(-5);
+      localStorage.setItem(AUTO_RUN_KEY, runId);
+
+      if (!done.phase1) {
+        for (const event of templates) {
+          if (event.options.includes("beginner")) {
+            for (const slot of [1, 2, 3]) await addAutoVote(event, "beginner", slot, "phase1", roster, runId);
+          }
+          const beginnerOption = ["jpBeginner", "cnBeginner"].find((option) => event.options.includes(option));
+          if (beginnerOption) {
+            for (const slot of [1, 2]) await addAutoVote(event, beginnerOption, slot, "phase1", roster, runId);
+          }
+        }
+        done.phase1 = true;
+      }
+      if (!done.phase2) {
+        for (const event of templates) {
+          if (event.options.includes("intermediate")) {
+            for (const slot of [1, 2]) await addAutoVote(event, "intermediate", slot, "phase2", roster, runId);
+          }
+          const intermediateOption = ["jpIntermediate", "cnIntermediate"].find((option) => event.options.includes(option));
+          if (intermediateOption) await addAutoVote(event, intermediateOption, 1, "phase2", roster, runId);
+        }
+        done.phase2 = true;
+      }
+      if (!done.phase3) {
+        for (const event of templates) {
+          if (event.options.includes("upperIntermediate")) {
+            await addAutoVote(event, "upperIntermediate", 1, "phase3", roster, runId);
+          }
+        }
+        done.phase3 = true;
+      }
+      writeJson(AUTO_DONE_KEY, done);
+      saveAutoRoster(roster);
+      return true;
+    }
+
+    function renderAdminEventOptions() {
+      const selectedEvent = adminEventSelectEl.value || templates[0].id;
+      adminEventSelectEl.innerHTML = "";
+      templates.forEach((event) => {
+        const schedule = getEvent(event);
+        const option = document.createElement("option");
+        option.value = event.id;
+        option.textContent = `${formatDateLabel(schedule.start)} ${t(event.title)}`;
+        adminEventSelectEl.appendChild(option);
+      });
+      adminEventSelectEl.value = templates.some((event) => event.id === selectedEvent) ? selectedEvent : templates[0].id;
+      renderAdminOptionSelect();
+    }
+
+    function renderAdminRealEventOptions() {
+      const selectedEvent = adminRealEventSelectEl.value || templates[0].id;
+      adminRealEventSelectEl.innerHTML = "";
+      templates.forEach((event) => {
+        const schedule = getEvent(event);
+        const option = document.createElement("option");
+        option.value = event.id;
+        option.textContent = `${formatDateLabel(schedule.start)} ${t(event.title)}`;
+        adminRealEventSelectEl.appendChild(option);
+      });
+      adminRealEventSelectEl.value = templates.some((event) => event.id === selectedEvent) ? selectedEvent : templates[0].id;
+      renderAdminRealOptionSelect();
+    }
+
+    function renderAdminScheduleOptions() {
+      const selectedEvent = adminScheduleEventSelectEl.value || templates[0].id;
+      adminScheduleEventSelectEl.innerHTML = "";
+      templates.forEach((event) => {
+        const schedule = getEvent(event);
+        const option = document.createElement("option");
+        option.value = event.id;
+        option.textContent = `${formatDateLabel(schedule.start)} ${t(event.title)}`;
+        adminScheduleEventSelectEl.appendChild(option);
+      });
+      adminScheduleEventSelectEl.value = templates.some((event) => event.id === selectedEvent) ? selectedEvent : templates[0].id;
+      renderAdminScheduleFields();
+    }
+
+    function renderAdminScheduleFields() {
+      const base = templates.find((item) => item.id === adminScheduleEventSelectEl.value) || templates[0];
+      const event = getEvent(base);
+      adminStartInputEl.value = toInputDateTime(event.start);
+      adminEndInputEl.value = toInputDateTime(event.end);
+      adminPlaceInputEl.value = event.place;
+    }
+
+    function renderAdminOptionSelect() {
+      const event = templates.find((item) => item.id === adminEventSelectEl.value) || templates[0];
+      const selectedOption = adminOptionSelectEl.value;
+      adminOptionSelectEl.innerHTML = "";
+      event.options.forEach((item) => {
+        const option = document.createElement("option");
+        option.value = item;
+        option.textContent = t(item);
+        adminOptionSelectEl.appendChild(option);
+      });
+      if (event.options.includes(selectedOption)) adminOptionSelectEl.value = selectedOption;
+    }
+
+    function renderAdminRealOptionSelect() {
+      const event = templates.find((item) => item.id === adminRealEventSelectEl.value) || templates[0];
+      const selectedOption = adminRealOptionSelectEl.value;
+      adminRealOptionSelectEl.innerHTML = "";
+      event.options.forEach((item) => {
+        const option = document.createElement("option");
+        option.value = item;
+        option.textContent = t(item);
+        adminRealOptionSelectEl.appendChild(option);
+      });
+      if (event.options.includes(selectedOption)) adminRealOptionSelectEl.value = selectedOption;
+    }
+
+
+    function renderAdminStatus() {
+      const uploadAt = Number(localStorage.getItem(AUTO_UPLOAD_KEY) || 0);
+      const done = readJson(AUTO_DONE_KEY, {});
+      const roster = getAutoRoster();
+      const rosterText = roster.length ? `\n\n자동 투표 명단\n${roster.slice(-80).join("\n")}` : "";
+      if (!uploadAt) {
+        adminAutoStatusEl.textContent = t("autoStatusNone") + rosterText;
+        return;
+      }
+      const completed = [];
+      if (done.phase1) completed.push(t("autoPhase1"));
+      if (done.phase2) completed.push(t("autoPhase2"));
+      if (done.phase3) completed.push(t("autoPhase3"));
+      if (completed.length) {
+        adminAutoStatusEl.textContent = t("autoStatusDone", { steps: completed.join(", ") }) + rosterText;
+        return;
+      }
+      const minutes = Math.max(0, Math.floor((Date.now() - uploadAt) / 60000));
+      adminAutoStatusEl.textContent = t("autoStatusWaiting", { minutes }) + rosterText;
+    }
+
+    function renderAdminVoteAudit() {
+      if (!adminVoteAuditEl) return;
+      const votes = getVotes();
+      const activeSections = [];
+      const closedSections = [];
+      Object.entries(votes).forEach(([eventId, eventVotes]) => {
+        const base = resolveEventById(eventId);
+        if (!base) return;
+        const schedule = getEvent(base);
+        const total = new Set(Object.values(eventVotes).flat().filter((id) => isRealVisibleMember(id))).size;
+        if (!total) return;
+        const detailLines = [];
+        base.options.forEach((option) => {
+          const ids = (eventVotes[option] || []).filter((id) => isRealVisibleMember(id));
+          if (!ids.length) return;
+          detailLines.push(`<div><strong>${t(option)}</strong>: ${ids.map((id) => escapeHtml(memberFromId(id).name)).join(", ")}</div>`);
+        });
+        const html = `<details><summary>${escapeHtml(formatDateLabel(schedule.start))} ${escapeHtml(t(base.title))} · ${escapeHtml(t("totalCount", { count: total }))}</summary>${detailLines.join("")}</details>`;
+        if (isPollClosed(schedule)) {
+          closedSections.push(html);
+        } else {
+          activeSections.push(html);
+        }
+      });
+      const hasAny = activeSections.length || closedSections.length;
+      adminVoteAuditEl.innerHTML = hasAny
+        ? `<strong>진행 중 투표자 확인</strong>${activeSections.join("") || `<div>${escapeHtml(t("adminNoVotes"))}</div>`}<br><strong>종료 된 투표자 확인</strong>${closedSections.join("") || `<div>${escapeHtml(t("adminNoVotes"))}</div>`}`
+        : escapeHtml(t("adminNoVotes"));
+    }
+
+    function renderAdminHeartAudit() {
+      if (!adminHeartAuditEl) return;
+      const records = readJson(SHEET_SYNC_QUEUE_KEY, [])
+        .filter((record) => record.action === "heart_sent")
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      if (!records.length) {
+        adminHeartAuditEl.textContent = t("adminNoHearts");
+        return;
+      }
+      adminHeartAuditEl.textContent = records.slice(0, 80).map((record) => {
+        const event = record.event ? recordEventLabel(record.event) : "";
+        return `${formatRecordDate(record.timestamp)} · ${record.name} → ${record.detail.replace(/^보낸 사람:\\s*/, "")}${event ? ` · ${event}` : ""}`;
+      }).join("\n");
+    }
+
+    function renderNotice() {
+      const notice = getNotice();
+      noticePanelEl.classList.toggle("hidden", !notice);
+      noticeTextEl.textContent = notice;
+      adminNoticeInputEl.value = notice;
+    }
+
+    function readMemberForm() {
+      const name = memberNameEl.value.trim();
+      const birth = memberBirthEl.value.trim();
+      if (!isNameValid(name)) {
+        messageEl.textContent = t("invalidName");
+        memberNameEl.focus();
+        return null;
+      }
+      if (!isBirthValid(birth)) {
+        messageEl.textContent = t("invalidBirth");
+        memberBirthEl.focus();
+        return null;
+      }
+      return makeMember(name, birth);
+    }
+
+    function enterMember(member, action = "login") {
+      localStorage.setItem(MEMBER_KEY, JSON.stringify(member));
+      saveDirectoryMember(member);
+      ensureStats(member);
+      messageEl.textContent = t("started", { name: member.name });
+      logMemberAction(action, member, { detail: `member ${action}` });
+      render();
+      return member;
+    }
+
+    function saveMember() {
+      const member = readMemberForm();
+      if (!member) return null;
+      enterMember(member, "login");
+      return member;
+    }
+
+    function registerMember() {
+      const member = readMemberForm();
+      if (!member) return null;
+      const ok = window.confirm("⚠️ 최초 등록한 이름과 생년월일은 등록 후 절대 변경할 수 없습니다.\n카카오톡 오픈채팅 닉네임과 동일한 이름으로 등록해 주세요. (예: 전호민(HO))\n앞으로 계속 사용할 계정 정보이므로 정확하게 입력하고 꼭 기억해 주세요.");
+      if (!ok) return null;
+      const directory = getDirectory();
+      const sameNameExists = Object.entries(directory).some(([id, saved]) => saved.name === member.name && id !== member.id);
+      if (sameNameExists) {
+        const text = t("duplicateName");
+        messageEl.textContent = text;
+        window.alert(text);
+        memberNameEl.focus();
+        return null;
+      }
+      if (directory[member.id]) {
+        messageEl.textContent = t("duplicateMember");
+        window.alert(t("duplicateMember"));
+        memberNameEl.focus();
+        return null;
+      }
+      enterMember(member, "register");
+      return member;
+    }
+
+    async function vote(eventId, option) {
+      const member = getMember() || saveMember();
+      if (!member) return;
+      const event = templates.find((item) => item.id === eventId);
+      if (event && isPollClosed(getEvent(event))) {
+        messageEl.textContent = t("voteClosed");
+        return;
+      }
+
+      const votes = getVotes();
+      if (!votes[eventId]) votes[eventId] = {};
+      const previous = Object.entries(votes[eventId]).find(([, ids]) => ids.includes(member.id));
+      if (previous && previous[0] === option) {
+        messageEl.textContent = t("alreadySelected");
+        return;
+      }
+      const actionKey = `${eventId}|${member.id}`;
+      if (pendingVoteActions.has(actionKey)) {
+        messageEl.textContent = t("voteProcessing");
+        return;
+      }
+      pendingVoteActions.add(actionKey);
+      try {
+        const totalBefore = getUniqueVoteCount(votes[eventId]);
+        const awardedPoints = previous ? 0 : pointRules.attendance + (totalBefore < EARLY_BONUS_LIMIT ? pointRules.earlyBonus : 0);
+        const saved = await addVoteForMember(eventId, option, member);
+        if (!saved) return;
+
+        messageEl.textContent = t("voted", { option: t(option), points: awardedPoints });
+        render();
+      } finally {
+        pendingVoteActions.delete(actionKey);
+      }
+    }
+
+    async function cancelVote(eventId) {
+      const member = getMember();
+      if (!member) {
+        messageEl.textContent = t("selectName");
+        return;
+      }
+      const event = templates.find((item) => item.id === eventId) || closedTemplates.find((item) => item.id === eventId);
+      if (event && isPollClosed(getEvent(event))) {
+        messageEl.textContent = t("voteClosed");
+        return;
+      }
+      if (!window.confirm(t("cancelConfirm"))) return;
+      const actionKey = `${eventId}|${member.id}`;
+      if (pendingVoteActions.has(actionKey)) {
+        messageEl.textContent = t("voteProcessing");
+        return;
+      }
+      pendingVoteActions.add(actionKey);
+      try {
+        const saved = await deleteSupabaseVote(eventId, member);
+        if (!saved) return;
+        rememberLocalCancel(eventId, member);
+        const votes = cloneVotes(getVotes());
+        const hadVote = memberVotedInEvent(votes[eventId], member.id);
+        if (votes[eventId]) {
+          Object.keys(votes[eventId]).forEach((key) => {
+            votes[eventId][key] = votes[eventId][key].filter((item) => item !== member.id);
+          });
+        }
+        remoteVotesCache = votes;
+        if (hadVote) {
+          const stats = ensureStats(member);
+          let removedPoints = pointRules.attendance;
+          stats[member.id].attendance = Math.max(0, stats[member.id].attendance - 1);
+          if (stats[member.id].bonusEvents?.[eventId]) {
+            removedPoints += pointRules.earlyBonus;
+            delete stats[member.id].bonusEvents[eventId];
+          }
+          stats[member.id].points = Math.max(0, stats[member.id].points - removedPoints);
+          writeJson(STATS_KEY, stats);
+          logMemberAction("cancel_vote", member, {
+            event: eventId,
+            option: "",
+            detail: t("pointLogCancel", { date: formatRecordDate(new Date().toISOString()), event: recordEventLabel(eventId), points: removedPoints })
+          });
+        }
+        messageEl.textContent = t("voteCancelled");
+        render();
+      } finally {
+        pendingVoteActions.delete(actionKey);
+      }
+    }
+
+    function getAllParticipants() {
+      const votes = getVotes();
+      const names = new Set();
+      Object.values(votes).forEach((eventVotes) => {
+        Object.values(eventVotes).forEach((items) => items.forEach((id) => names.add(id)));
+      });
+      return [...names].sort((a, b) => a.localeCompare(b));
+    }
+
+    function resolveEventById(eventId) {
+      return templates.find((event) => event.id === eventId) || closedTemplates.find((event) => event.id === eventId) || eventFromStoredId(eventId);
+    }
+
+    function memberVotedInEvent(eventVotes, memberId) {
+      return Object.values(eventVotes || {}).some((ids) => ids.includes(memberId));
+    }
+
+    function isLikeWindowOpen(event, now = new Date()) {
+      if (!event?.end) return false;
+      const end = new Date(event.end);
+      const close = new Date(end);
+      close.setDate(close.getDate() + 1);
+      close.setHours(23, 59, 59, 999);
+      return now >= end && now <= close;
+    }
+
+    function getLikeEligibleEvents(member) {
+      if (!member) return [];
+      const votes = getVotes();
+      return Object.entries(votes)
+        .filter(([, eventVotes]) => memberVotedInEvent(eventVotes, member.id))
+        .map(([eventId]) => {
+          const event = resolveEventById(eventId);
+          return event ? getEvent(event) : null;
+        })
+        .filter(Boolean)
+        .filter((event) => isLikeWindowOpen(event))
+        .sort((a, b) => new Date(b.start) - new Date(a.start));
+    }
+
+    function sendHeart() {
+      const member = getMember() || saveMember();
+      const targets = selectedLikeTargets.slice(0, 2);
+      const votes = getVotes();
+      const selectedEvent = selectedLikeEventId ? resolveEventById(selectedLikeEventId) : null;
+      const selectedSchedule = selectedEvent ? getEvent(selectedEvent) : null;
+      if (!selectedLikeEventId || !memberVotedInEvent(votes[selectedLikeEventId], member?.id)) {
+        messageEl.textContent = t("chooseLikeEvent");
+        return;
+      }
+      if (!isLikeWindowOpen(selectedSchedule)) {
+        messageEl.textContent = t("likeWindowClosed");
+        renderLikeEvents();
+        renderLikeTargets();
+        return;
+      }
+      if (!member || !targets.length) {
+        messageEl.textContent = t("chooseHeartTarget");
+        return;
+      }
+      if (targets.includes(member.id)) {
+        messageEl.textContent = t("noSelfHeart");
+        return;
+      }
+
+      const sent = readJson(HEARTS_KEY, {});
+      const newTargets = targets.filter((target) => !sent[`${member.id}|${selectedLikeEventId}|${target}`]);
+      if (!newTargets.length) {
+        messageEl.textContent = t("duplicateHeart");
+        return;
+      }
+
+      const stats = getStats();
+      const senderStats = ensureStatsEntry(stats, member);
+      const targetMembers = [];
+      newTargets.forEach((target) => {
+        sent[`${member.id}|${selectedLikeEventId}|${target}`] = true;
+        const targetMember = memberFromId(target);
+        targetMembers.push(targetMember);
+        const targetStats = ensureStatsEntry(stats, targetMember);
+        targetStats.hearts += 1;
+        targetStats.points += pointRules.heart;
+      });
+      senderStats.sentHearts += newTargets.length;
+      writeJson(STATS_KEY, stats);
+      writeJson(HEARTS_KEY, sent);
+      targetMembers.forEach((targetMember) => {
+        logMemberAction("heart_received", targetMember, {
+          event: selectedLikeEventId,
+          option: "study",
+          detail: t("pointLogHeart", { date: formatRecordDate(new Date().toISOString()), target: member.name, points: pointRules.heart })
+        });
+      });
+      logMemberAction("heart_sent", member, { event: selectedLikeEventId, option: "study", detail: newTargets.map((target) => memberFromId(target).name).join(", ") });
+      messageEl.textContent = t("heartSent", { target: newTargets.map((target) => memberFromId(target).name).join(", ") });
+      selectedLikeTargets = [];
+      showHeartBurst();
+      render();
+    }
+
+    function renderLevel() {
+      const member = getMember();
+      if (member) {
+        memberNameEl.value = member.name || "";
+        memberBirthEl.value = member.birth || "";
+      }
+      const stats = member ? ensureStats(member)[member.id] : { points: 0, attendance: 0, hearts: 0, sentHearts: 0 };
+      const level = getLevel(stats.points);
+      const rank = getRankTier(level);
+      levelNumberEl.textContent = `Lv.${level}`;
+      rankEmblemEl.innerHTML = `${rank.emoji}<br>${rank.label}`;
+      levelTitleEl.textContent = member ? t("levelOf", { name: member.name }) : t("myLevel");
+      levelTextEl.textContent = t("nextLevel", { rank: `${rank.emoji} ${rank.label}`, points: level >= 100 ? 0 : 1000 - (stats.points % 1000 || 1000) });
+      xpFillEl.style.width = `${(stats.points % 1000) / 10}%`;
+      pointPillEl.textContent = t("points", { points: stats.points });
+      attendPillEl.textContent = t("attendance", { count: stats.attendance });
+      heartPillEl.textContent = t("hearts", { count: stats.hearts });
+      sentHeartPillEl.textContent = t("sentHearts", { count: stats.sentHearts });
+    }
+
+    function renderRanking() {
+      const stats = getStats();
+      Object.keys(stats).forEach((id) => ensureStatsEntry(stats, memberFromId(id)));
+      writeJson(STATS_KEY, stats);
+      const rows = Object.entries(stats)
+        .filter(([id]) => isRankingVisibleMember(id))
+        .sort((a, b) => b[1].points - a[1].points)
+        .slice(0, 3);
+      rankingListEl.innerHTML = "";
+      if (!rows.length) {
+        rankingListEl.innerHTML = `<li><strong>${t("noRanking")}</strong><small>0 pt</small></li>`;
+        return;
+      }
+      rows.forEach(([id, value], index) => {
+        const li = document.createElement("li");
+        const medals = ["🥇", "🥈", "🥉"];
+        li.innerHTML = `<strong>${medals[index] || `${index + 1}.`} ${value.name || memberFromId(id).name}</strong><small>Lv.${getLevel(value.points)} · ${value.points} pt</small>`;
+        rankingListEl.appendChild(li);
+      });
+    }
+
+    function optionDisplayLabel(option) {
+      const emojiMap = {
+        beginner: "👶",
+        intermediate: "😊",
+        upperIntermediate: "🔥",
+        jpBeginner: "👶",
+        jpIntermediate: "😊",
+        cnBeginner: "👶",
+        cnIntermediate: "😊"
+      };
+      return `${emojiMap[option] || "✓"} ${t(option)}`;
+    }
+
+    function optionColorClass(option) {
+      if (["beginner", "jpBeginner", "cnBeginner"].includes(option)) return "level-green";
+      if (["intermediate", "jpIntermediate", "cnIntermediate"].includes(option)) return "level-yellow";
+      if (option === "upperIntermediate") return "level-blue";
+      return "";
+    }
+
+    function getUniqueVoteCount(eventVotes) {
+      return new Set(Object.values(eventVotes || {}).flat()).size;
+    }
+
+    function getEarlyBonusLeft(eventVotes) {
+      return Math.max(0, EARLY_BONUS_LIMIT - getUniqueVoteCount(eventVotes));
+    }
+
+    function renderPolls() {
+      const votes = getVotes();
+      const member = getMember();
+      const canSeeVoterNames = adminUnlocked || isOperatorMember(member);
+      let visibleTemplates = templates;
+      if (activeFilter === "closed") {
+        visibleTemplates = closedTemplates;
+      } else if (activeFilter !== "all") {
+        visibleTemplates = templates.filter((event) => event.category === activeFilter);
+      }
+      pollsEl.innerHTML = "";
+      visibleTemplates.forEach((event) => {
+        const schedule = getEvent(event);
+        const eventVotes = votes[event.id] || {};
+        const selected = Object.entries(eventVotes).find(([, ids]) => ids.includes(member?.id))?.[0];
+        const total = canSeeVoterNames
+          ? new Set(Object.values(eventVotes).flat().filter((id) => isRealVisibleMember(id))).size
+          : getUniqueVoteCount(eventVotes);
+        const bonusLeft = getEarlyBonusLeft(eventVotes);
+        const bonusOpen = bonusLeft > 0;
+        const closed = isPollClosed(schedule);
+        const expanded = expandedPollId === event.id;
+        const actionPending = member?.id ? pendingVoteActions.has(`${event.id}|${member.id}`) : false;
+        const canCancelVote = canSeeVoterNames;
+        const card = document.createElement("article");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="card-head">
+            <div>
+              <h3>${formatDateLabel(schedule.start)} ${t(event.title)}</h3>
+              <div class="meta">
+                <span>${t("scheduleTime", { time: `${formatTime(schedule.start)} ~ ${formatTime(schedule.end)}` })}</span>
+                <span>${schedule.place}</span>
+                <span>${t("deadlineTime", { deadline: formatDateTime(getDeadline(schedule)) })}</span>
+                <span>${t("totalCount", { count: total })}</span>
+              </div>
+            </div>
+            <span class="deadline-badge">${getDeadlineBadge(schedule)}</span>
+          </div>
+          ${bonusOpen && !closed ? `
+            <div class="bonus-banner">
+              <span>${t("earlyBonusTitle")}</span>
+              <span>${t("earlyBonusLeft", { left: bonusLeft, limit: EARLY_BONUS_LIMIT })}</span>
+              <span>${t("earlyBonusPoint", { points: pointRules.earlyBonus })}</span>
+            </div>
+          ` : ""}
+          ${closed ? `<p class="small-note warning">${t("voteClosed")}</p>` : ""}
+          <button type="button" class="btn primary apply-toggle">${expanded ? t("foldVote") : (bonusOpen && !selected && !closed ? t("applyWithBonus", { points: pointRules.earlyBonus }) : t("applyToVote"))}</button>
+          <div class="poll-detail ${expanded ? "" : "hidden"}">
+            <div class="option-list"></div>
+            <div class="cancel-slot"></div>
+            <div class="voter-list"></div>
+          </div>
+        `;
+        const toggleButton = card.querySelector(".apply-toggle");
+        const optionList = card.querySelector(".option-list");
+        const cancelSlot = card.querySelector(".cancel-slot");
+        const voterList = card.querySelector(".voter-list");
+        toggleButton.addEventListener("click", () => {
+          expandedPollId = expanded ? "" : event.id;
+          renderPolls();
+        });
+        if (expanded) {
+          event.options.forEach((option) => {
+            const optionIds = eventVotes[option] || [];
+            const visibleOptionIds = canSeeVoterNames ? optionIds.filter((id) => isRealVisibleMember(id)) : optionIds;
+            const count = visibleOptionIds.length;
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = ["option-btn", optionColorClass(option), selected === option ? "selected" : ""].filter(Boolean).join(" ");
+            btn.disabled = closed || actionPending;
+            const label = optionDisplayLabel(option);
+            btn.innerHTML = `<span>${selected === option ? "✓ " : ""}${label}</span><span>${countText(count)}</span>`;
+            btn.addEventListener("click", () => vote(event.id, option));
+            optionList.appendChild(btn);
+            if (canSeeVoterNames && count > 0) {
+              const line = document.createElement("div");
+              line.textContent = t("voters", { option: t(option), names: visibleOptionIds.map((id) => memberFromId(id).name).join(", ") });
+              voterList.appendChild(line);
+            }
+          });
+          if (selected) {
+            const myVote = document.createElement("p");
+            myVote.className = "my-vote-note";
+            myVote.textContent = t("myVote", { option: optionDisplayLabel(selected) });
+            cancelSlot.appendChild(myVote);
+          }
+          if (selected && !closed && canCancelVote) {
+            const cancelButton = document.createElement("button");
+            cancelButton.type = "button";
+            cancelButton.className = "btn danger";
+            cancelButton.textContent = t("cancelVote");
+            cancelButton.disabled = actionPending;
+            cancelButton.addEventListener("click", () => cancelVote(event.id));
+            cancelSlot.appendChild(cancelButton);
+          }
+        }
+        pollsEl.appendChild(card);
+      });
+    }
+
+    function renderEventPosts() {
+      const posts = getEventPosts();
+      eventPanelEl.innerHTML = "";
+      if (!posts.length) {
+        const empty = document.createElement("article");
+        empty.className = "event-post";
+        empty.innerHTML = `<p>${t("noPosts")}</p>`;
+        eventPanelEl.appendChild(empty);
+        return;
+      }
+      posts.forEach((post, index) => {
+        const article = document.createElement("article");
+        article.className = "event-post";
+        article.innerHTML = `<h3></h3><p></p>`;
+        article.querySelector("h3").textContent = post.title;
+        article.querySelector("p").textContent = post.body;
+        if (adminUnlocked) {
+          const actions = document.createElement("div");
+          actions.className = "post-actions";
+          const editButton = document.createElement("button");
+          editButton.type = "button";
+          editButton.className = "btn";
+          editButton.textContent = t("editPost");
+          editButton.addEventListener("click", () => editEventPost(index));
+          const deleteButton = document.createElement("button");
+          deleteButton.type = "button";
+          deleteButton.className = "btn danger";
+          deleteButton.textContent = t("deletePost");
+          deleteButton.addEventListener("click", () => deleteEventPost(index));
+          actions.append(editButton, deleteButton);
+          article.appendChild(actions);
+        }
+        eventPanelEl.appendChild(article);
+      });
+    }
+
+    function renderLikeEvents() {
+      const member = getMember();
+      const eligibleEvents = getLikeEligibleEvents(member);
+      likeEventListEl.innerHTML = "";
+      if (!eligibleEvents.length) {
+        selectedLikeEventId = "";
+        selectedLikeTargets = [];
+        const empty = document.createElement("p");
+        empty.className = "small-note";
+        empty.textContent = t("noLikedEvents");
+        likeEventListEl.appendChild(empty);
+        return;
+      }
+      if (!eligibleEvents.some((event) => event.id === selectedLikeEventId)) {
+        selectedLikeEventId = eligibleEvents[0].id;
+        selectedLikeTargets = [];
+      }
+      eligibleEvents.forEach((event) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = selectedLikeEventId === event.id ? "like-event selected" : "like-event";
+        button.innerHTML = `<span>${formatDateLabel(event.start)} ${t(event.title)}</span><small>${formatTime(event.start)} · ${event.place}</small>`;
+        button.addEventListener("click", () => {
+          selectedLikeEventId = event.id;
+          selectedLikeTargets = [];
+          renderLikeEvents();
+          renderLikeTargets();
+        });
+        likeEventListEl.appendChild(button);
+      });
+    }
+
+    function renderLikeTargets() {
+      const member = getMember();
+      const votes = getVotes();
+      const selectedEvent = selectedLikeEventId ? resolveEventById(selectedLikeEventId) : null;
+      const selectedSchedule = selectedEvent ? getEvent(selectedEvent) : null;
+      if (!selectedLikeEventId || !memberVotedInEvent(votes[selectedLikeEventId], member?.id)) {
+        likeTargetListEl.innerHTML = `<p class="small-note">${t("chooseLikeEvent")}</p>`;
+        return;
+      }
+      if (!isLikeWindowOpen(selectedSchedule)) {
+        likeTargetListEl.innerHTML = `<p class="small-note">${t("likeWindowClosed")}</p>`;
+        return;
+      }
+      const eventVotes = votes[selectedLikeEventId] || {};
+      const participants = [...new Set(Object.values(eventVotes).flat())]
+        .filter((id) => id !== member?.id)
+        .filter((id) => isRankingVisibleMember(id));
+      likeTargetListEl.innerHTML = "";
+      if (!participants.length) {
+        const empty = document.createElement("p");
+        empty.className = "small-note";
+        empty.textContent = t("noEventParticipants");
+        likeTargetListEl.appendChild(empty);
+        return;
+      }
+      selectedLikeTargets = selectedLikeTargets.filter((id) => participants.includes(id));
+      participants.forEach((id) => {
+        const targetMember = memberFromId(id);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = selectedLikeTargets.includes(id) ? "like-target selected" : "like-target";
+        button.innerHTML = `<span>${targetMember.name}</span><span>${selectedLikeTargets.includes(id) ? "♥" : "♡"}</span>`;
+        button.addEventListener("click", () => toggleLikeTarget(id));
+        likeTargetListEl.appendChild(button);
+      });
+    }
+
+    function toggleLikeTarget(id) {
+      if (selectedLikeTargets.includes(id)) {
+        selectedLikeTargets = selectedLikeTargets.filter((target) => target !== id);
+      } else if (selectedLikeTargets.length >= 2) {
+        messageEl.textContent = t("maxHeartTargets");
+        return;
+      } else {
+        selectedLikeTargets.push(id);
+      }
+      renderLikeTargets();
+    }
+
+    function renderMaterials() {
+      materialGroupsEl.innerHTML = "";
+      materials[activeMaterial].forEach((group) => {
+        const section = document.createElement("section");
+        section.className = "material-group";
+        section.innerHTML = `<h3>${group.title}</h3><ul class="material-list"></ul>`;
+        const list = section.querySelector(".material-list");
+        group.items.forEach(([label, url]) => {
+          const item = document.createElement("li");
+          item.innerHTML = `<a href="${url}" target="_blank" rel="noreferrer">${label}</a>`;
+          list.appendChild(item);
+        });
+        materialGroupsEl.appendChild(section);
+      });
+    }
+
+    function toggleAdminPanel() {
+      adminPanelEl.classList.toggle("hidden");
+      if (!adminPanelEl.classList.contains("hidden")) {
+        renderAdminEventOptions();
+        renderAdminRealEventOptions();
+        renderAdminStatus();
+        if (adminUnlocked) {
+          adminLockEl.classList.add("hidden");
+          adminToolsEl.classList.remove("hidden");
+          adminToolsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          adminLockEl.classList.remove("hidden");
+          adminToolsEl.classList.add("hidden");
+          adminPasswordEl.focus();
+        }
+      }
+    }
+
+    function unlockAdmin() {
+      if (adminPasswordEl.value !== ADMIN_PASSWORD) {
+        messageEl.textContent = t("adminWrongPassword");
+        adminPasswordEl.focus();
+        return;
+      }
+      adminUnlocked = true;
+      adminLockEl.classList.add("hidden");
+      adminToolsEl.classList.remove("hidden");
+      messageEl.textContent = t("adminUnlocked");
+      renderAdminEventOptions();
+      renderAdminRealEventOptions();
+      renderAdminStatus();
+      renderAdminScheduleOptions();
+      renderAdminVoteAudit();
+      renderAdminHeartAudit();
+      renderEventPosts();
+      adminToolsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function saveNotice() {
+      if (!adminUnlocked) return;
+      const notice = adminNoticeInputEl.value.trim();
+      if (notice) {
+        localStorage.setItem(NOTICE_KEY, notice);
+      } else {
+        localStorage.removeItem(NOTICE_KEY);
+      }
+      messageEl.textContent = t("noticeSaved");
+      renderNotice();
+    }
+
+    function resetEventPostForm() {
+      editingPostIndex = null;
+      adminPostTitleInputEl.value = "";
+      adminPostBodyInputEl.value = "";
+      adminSavePostEl.textContent = t("adminSavePost");
+      adminCancelEditEl.classList.add("hidden");
+    }
+
+    function renderEventPostFormState() {
+      adminSavePostEl.textContent = editingPostIndex === null ? t("adminSavePost") : t("updatePost");
+      adminCancelEditEl.classList.toggle("hidden", editingPostIndex === null);
+    }
+
+    function saveEventPost() {
+      if (!adminUnlocked) return;
+      const title = adminPostTitleInputEl.value.trim();
+      const body = adminPostBodyInputEl.value.trim();
+      if (!title || !body) {
+        messageEl.textContent = t("postMissing");
+        return;
+      }
+      const posts = getEventPosts();
+      if (editingPostIndex !== null) {
+        posts[editingPostIndex] = { title, body };
+      } else {
+        posts.unshift({ title, body });
+      }
+      writeJson(EVENT_POSTS_KEY, posts);
+      messageEl.textContent = editingPostIndex !== null ? t("postUpdated") : t("postSaved");
+      resetEventPostForm();
+      if (activeFilter === "event") renderEventPosts();
+    }
+
+    function editEventPost(index) {
+      const posts = getEventPosts();
+      const post = posts[index];
+      if (!post) return;
+      editingPostIndex = index;
+      adminPostTitleInputEl.value = post.title;
+      adminPostBodyInputEl.value = post.body;
+      adminSavePostEl.textContent = t("updatePost");
+      adminCancelEditEl.classList.remove("hidden");
+      adminPostTitleInputEl.focus();
+      messageEl.textContent = t("updatePost");
+    }
+
+    function deleteEventPost(index) {
+      const posts = getEventPosts();
+      if (!posts[index]) return;
+      posts.splice(index, 1);
+      writeJson(EVENT_POSTS_KEY, posts);
+      if (editingPostIndex === index) resetEventPostForm();
+      if (editingPostIndex !== null && editingPostIndex > index) editingPostIndex -= 1;
+      messageEl.textContent = t("postDeleted");
+      renderEventPosts();
+    }
+
+    async function addAdminVote() {
+      if (!adminUnlocked) return;
+      const count = Math.min(5, Math.max(1, Number(adminCountSelectEl.value || 1)));
+      const option = adminOptionSelectEl.value;
+      const eventId = adminEventSelectEl.value;
+      const names = [];
+      for (let index = 0; index < count; index += 1) {
+        const member = makeAdminRandomMember(eventId, option, index);
+        const saved = await addVoteForMember(eventId, option, member);
+        if (saved) names.push(member.name);
+      }
+      if (!names.length) return;
+      messageEl.textContent = t("adminAddedVote", { name: `${names.length}명`, option: t(option) });
+      render();
+    }
+
+    async function addAdminRealVote() {
+      if (!adminUnlocked) return;
+      const member = findDirectoryMemberByName(adminRealNameInputEl.value);
+      if (!member) {
+        messageEl.textContent = t("adminRealMemberMissing");
+        adminRealNameInputEl.focus();
+        return;
+      }
+      const option = adminRealOptionSelectEl.value;
+      const saved = await addVoteForMember(adminRealEventSelectEl.value, option, member);
+      if (!saved) return;
+      adminRealNameInputEl.value = "";
+      messageEl.textContent = t("adminRealAdded", { name: member.name, option: t(option) });
+      render();
+    }
+
+    function saveSchedule() {
+      if (!adminUnlocked) return;
+      const eventId = adminScheduleEventSelectEl.value;
+      const overrides = getScheduleOverrides();
+      overrides[eventId] = {
+        start: fromInputDateTime(adminStartInputEl.value),
+        end: fromInputDateTime(adminEndInputEl.value),
+        place: adminPlaceInputEl.value.trim()
+      };
+      writeJson(SCHEDULE_OVERRIDES_KEY, overrides);
+      messageEl.textContent = t("scheduleSaved");
+      render();
+    }
+
+    function saveSheetWebhook() {
+      if (!adminUnlocked) return;
+      const url = sheetWebhookInputEl.value.trim();
+      if (url) {
+        localStorage.setItem(SHEET_WEBHOOK_KEY, url);
+      } else {
+        localStorage.removeItem(SHEET_WEBHOOK_KEY);
+      }
+      setSheetStatus();
+      syncQueuedSheetRecords();
+      messageEl.textContent = t("sheetWebhookSaved");
+    }
+
+    async function setUploadTime() {
+      if (!adminUnlocked) return;
+      localStorage.setItem(AUTO_UPLOAD_KEY, String(Date.now()));
+      writeJson(AUTO_DONE_KEY, {});
+      localStorage.setItem(AUTO_RUN_KEY, Date.now().toString(36).slice(-5));
+      writeJson(AUTO_ROSTER_KEY, []);
+      if (!(await applyAutoVotes())) return;
+      messageEl.textContent = t("autoUploadSaved");
+      render();
+    }
+
+    async function applyAutoNow() {
+      if (!adminUnlocked) return;
+      writeJson(AUTO_DONE_KEY, {});
+      localStorage.setItem(AUTO_RUN_KEY, Date.now().toString(36).slice(-5));
+      writeJson(AUTO_ROSTER_KEY, []);
+      localStorage.setItem(AUTO_UPLOAD_KEY, String(Date.now()));
+      if (!(await applyAutoVotes())) return;
+      messageEl.textContent = t("autoApplied");
+      render();
+    }
+
+    function refreshView() {
+      templates = buildWeeklyTemplates();
+      closedTemplates = buildClosedTemplates();
+      messageEl.textContent = t("refreshButton");
+      loadVotesFromSupabase();
+      render();
+    }
+
+    function updateContentMode() {
+      const isLoggedIn = Boolean(getMember());
+      loginPanelEl.classList.toggle("hidden", isLoggedIn);
+      dashboardSectionEl.classList.toggle("hidden", !isLoggedIn);
+      voteSectionEl.classList.toggle("hidden", !isLoggedIn);
+      logoutPanelEl.classList.toggle("hidden", !isLoggedIn);
+      if (!isLoggedIn) {
+        pollsEl.classList.add("hidden");
+        eventPanelEl.classList.add("hidden");
+        materialsPanelEl.classList.add("hidden");
+        activeProfileDetail = "";
+        profileDetailEl.classList.add("hidden");
+        return;
+      }
+      const showingEvents = activeFilter === "event";
+      pollsEl.classList.toggle("hidden", showingEvents);
+      eventPanelEl.classList.toggle("hidden", !showingEvents);
+      materialsPanelEl.classList.add("hidden");
+    }
+
+    function toggleLikePanel() {
+      likePanelEl.classList.toggle("hidden");
+      if (!likePanelEl.classList.contains("hidden")) {
+        messageEl.textContent = t("chooseHeartTarget");
+        renderLikeEvents();
+        renderLikeTargets();
+      }
+    }
+
+    function render() {
+      templates = buildWeeklyTemplates();
+      closedTemplates = buildClosedTemplates();
+      checkClosedPollEmails();
+      applyStaticTranslations();
+      renderNotice();
+      renderLevel();
+      renderRanking();
+      renderPolls();
+      renderEventPosts();
+      renderLikeEvents();
+      renderLikeTargets();
+      renderMaterials();
+      renderAdminEventOptions();
+      renderAdminRealEventOptions();
+      renderAdminScheduleOptions();
+      renderAdminStatus();
+      renderAdminVoteAudit();
+      renderAdminHeartAudit();
+      renderEventPostFormState();
+      setSheetStatus();
+      updateContentMode();
+    }
+
+    document.querySelectorAll(".tab").forEach((tab) => {
+      if (tab.id === "materialsToggle") return;
+      tab.addEventListener("click", () => {
+        activeFilter = tab.dataset.filter;
+        updateContentMode();
+        document.querySelectorAll(".tab").forEach((item) => item.classList.toggle("active", item === tab));
+        renderPolls();
+        renderEventPosts();
+      });
+    });
+
+    materialsToggleEl.addEventListener("click", () => {
+      pollsEl.classList.add("hidden");
+      eventPanelEl.classList.add("hidden");
+      materialsPanelEl.classList.remove("hidden");
+      document.querySelectorAll(".tab").forEach((item) => item.classList.toggle("active", item === materialsToggleEl));
+      renderMaterials();
+    });
+
+    document.querySelectorAll(".material-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        activeMaterial = tab.dataset.material;
+        document.querySelectorAll(".material-tab").forEach((item) => item.classList.toggle("active", item === tab));
+        renderMaterials();
+      });
+    });
+
+    saveMemberEl.addEventListener("click", saveMember);
+    registerMemberEl.addEventListener("click", registerMember);
+    memberNameEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") saveMember();
+    });
+    memberNameEl.addEventListener("input", updateNameSuggestion);
+    nameSuggestionEl.addEventListener("click", () => {
+      if (!nameSuggestionEl.dataset.suggestedName) return;
+      memberNameEl.value = nameSuggestionEl.dataset.suggestedName;
+      updateNameSuggestion();
+      memberBirthEl.focus();
+    });
+    memberBirthEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") saveMember();
+    });
+    sendHeartEl.addEventListener("click", sendHeart);
+    toggleLikePanelEl.addEventListener("click", toggleLikePanel);
+    showAttendanceLogEl.addEventListener("click", () => showProfileDetail("attendance"));
+    showPointLogEl.addEventListener("click", () => showProfileDetail("points"));
+    showSentHeartLogEl.addEventListener("click", () => showProfileDetail("sentHearts"));
+    attendPillEl.addEventListener("click", () => showProfileDetail("attendance"));
+    pointPillEl.addEventListener("click", () => showProfileDetail("points"));
+    sentHeartPillEl.addEventListener("click", () => showProfileDetail("sentHearts"));
+    logoutButtonEl.addEventListener("click", logoutMember);
+    levelGuideToggleEl.addEventListener("click", () => {
+      levelGuideEl.classList.toggle("hidden");
+    });
+    adminToggleEl.addEventListener("click", toggleAdminPanel);
+    adminLoginEl.addEventListener("click", unlockAdmin);
+    adminGoLoginEl.addEventListener("click", goLoginPage);
+    adminPasswordEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") unlockAdmin();
+    });
+    saveNoticeEl.addEventListener("click", saveNotice);
+    adminSavePostEl.addEventListener("click", saveEventPost);
+    adminCancelEditEl.addEventListener("click", resetEventPostForm);
+    adminEventSelectEl.addEventListener("change", renderAdminOptionSelect);
+    adminRealEventSelectEl.addEventListener("change", renderAdminRealOptionSelect);
+    adminScheduleEventSelectEl.addEventListener("change", renderAdminScheduleFields);
+    saveScheduleEl.addEventListener("click", saveSchedule);
+    adminAddVoteEl.addEventListener("click", addAdminVote);
+    adminAddRealVoteEl.addEventListener("click", addAdminRealVote);
+    adminRealNameInputEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") addAdminRealVote();
+    });
+    saveSheetWebhookEl.addEventListener("click", saveSheetWebhook);
+    setUploadTimeEl.addEventListener("click", setUploadTime);
+    applyAutoNowEl.addEventListener("click", applyAutoNow);
+    refreshButtonEl.addEventListener("click", refreshView);
+    languageToggleEl.addEventListener("click", (event) => {
+      event.stopPropagation();
+      languagePopoverEl.classList.toggle("hidden");
+    });
+    languagePopoverEl.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    languageButtonEls.forEach((button) => {
+      button.addEventListener("click", () => {
+        currentLang = button.dataset.lang;
+        languageButtonEls.forEach((item) => item.classList.toggle("active", item === button));
+        languagePopoverEl.classList.add("hidden");
+        messageEl.textContent = t("langMessage");
+        render();
+      });
+    });
+    document.addEventListener("click", () => {
+      languagePopoverEl.classList.add("hidden");
+    });
+
+    messageEl.textContent = t("selectName");
+    setInterval(() => {
+      render();
+    }, 60000);
+    render();
+    initSupabase();
+  </script>
+</body>
+</html>
