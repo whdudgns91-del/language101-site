@@ -1528,7 +1528,7 @@
         alreadySelected: "이미 선택한 항목입니다.",
         voteProcessing: "신청을 저장하고 있습니다. 잠시만 기다려주세요.",
         cancelConfirm: "정말 이 투표를 취소할까요? 취소하면 신청 인원에서 빠집니다.",
-        cancelVote: "내 투표 취소",
+        cancelVote: "취소하기",
         applyToVote: "신청하기",
         foldVote: "접기",
         voteCancelled: "투표를 취소했습니다.",
@@ -2512,19 +2512,6 @@
       return votes;
     }
 
-    function applySupabaseVoteRow(row) {
-      if (!row?.name || !row?.birth || !row?.level || !row?.vote_option) return;
-      const member = makeMember(row.name, row.birth);
-      saveDirectoryMember(member);
-      const votes = cloneVotes(getVotes());
-      if (row.vote_option === "__cancelled__") {
-        remoteVotesCache = removeVoteFromVotes(votes, row.level, member);
-      } else {
-        remoteVotesCache = applyVoteToVotes(votes, row.level, row.vote_option, member);
-      }
-      render();
-    }
-
     function getLevel(points) {
       return Math.min(100, Math.max(1, Math.floor(points / 1000) + 1));
     }
@@ -2746,16 +2733,50 @@
     }
 
     async function selectVotesViaRest() {
-      const url = `${SUPABASE_URL}/rest/v1/votes?select=*&order=created_at.asc`;
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=*&order=created_at.desc&limit=5000`;
       const response = await fetch(url, {
         method: "GET",
-        headers: supabaseRestHeaders({ Accept: "application/json" })
+        cache: "no-store",
+        headers: supabaseRestHeaders({
+          Accept: "application/json",
+          "Cache-Control": "no-store",
+          Range: "0-4999"
+        })
       });
       if (!response.ok) {
         const text = await response.text();
         throw new Error(text || `HTTP ${response.status}`);
       }
       return response.json();
+    }
+
+    function voteRowMatches(row, expectedRow) {
+      if (!row || !expectedRow) return false;
+      if (expectedRow.id && row.id === expectedRow.id) return true;
+      return row.name === expectedRow.name &&
+        row.birth === expectedRow.birth &&
+        row.level === expectedRow.level &&
+        row.vote_option === expectedRow.vote_option &&
+        (!expectedRow.created_at || row.created_at === expectedRow.created_at);
+    }
+
+    function rowsContainVote(rows, expectedRow) {
+      if (!expectedRow) return true;
+      return Array.isArray(rows) && rows.some((row) => voteRowMatches(row, expectedRow));
+    }
+
+    function wait(ms) {
+      return new Promise((resolve) => window.setTimeout(resolve, ms));
+    }
+
+    async function selectVotesUntilContains(expectedRow, attempts = 6) {
+      let rows = [];
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        rows = await selectVotesViaRest();
+        if (rowsContainVote(rows, expectedRow)) return rows;
+        await wait(250);
+      }
+      throw new Error("투표 저장은 요청됐지만 목록에서 확인되지 않았습니다. 잠시 후 새로고침 후 다시 확인해주세요.");
     }
 
     async function insertVoteViaRest(eventId, option, member) {
@@ -2777,24 +2798,36 @@
         throw new Error(text || `HTTP ${response.status}`);
       }
       const rows = await response.json();
-      return Array.isArray(rows) ? rows[0] : true;
+      const savedRow = Array.isArray(rows) ? rows[0] : null;
+      if (!savedRow) throw new Error("투표 저장 응답을 확인하지 못했습니다.");
+      return savedRow;
     }
 
     async function loadVotesFromSupabase(options = {}) {
+      if (pendingVoteActions.size && !options.force) return;
       if (votesLoadInFlight && !options.force) return;
       const loadSerial = ++votesLoadSerial;
       votesLoadInFlight = true;
       try {
-        const data = await selectVotesViaRest();
+        const data = options.requiredRow
+          ? await selectVotesUntilContains(options.requiredRow)
+          : await selectVotesViaRest();
         if (loadSerial < latestAppliedVotesSerial) return;
         latestAppliedVotesSerial = loadSerial;
         remoteVotesCache = buildVotesFromRows(data || []);
         render();
+        return true;
       } catch (error) {
         if (!options.silent) messageEl.textContent = `Supabase 투표 목록을 불러오지 못했습니다: ${error.message}`;
+        if (options.requiredRow) throw error;
+        return false;
       } finally {
         votesLoadInFlight = false;
       }
+    }
+
+    function ignoreOlderVoteLoads() {
+      latestAppliedVotesSerial = Math.max(latestAppliedVotesSerial, votesLoadSerial + 1);
     }
 
     async function insertSupabaseRow(eventId, option, member, errorPrefix) {
@@ -2806,17 +2839,17 @@
           return false;
         }
       }
-      const { error } = await supabaseClient.from("votes").insert({
+      const { data, error } = await supabaseClient.from("votes").insert({
         name: member.name,
         birth: member.birth,
         level: eventId,
         vote_option: option
-      });
+      }).select("*").single();
       if (error) {
         messageEl.textContent = `${errorPrefix}: ${error.message}`;
         return false;
       }
-      return true;
+      return data;
     }
 
     async function insertSupabaseVote(eventId, option, member) {
@@ -2841,8 +2874,7 @@
       realtimeChannel = supabaseClient
         .channel(`votes-realtime-${Date.now()}`)
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "votes" }, (payload) => {
-          applySupabaseVoteRow(payload.new);
-          loadVotesFromSupabase({ silent: true });
+          loadVotesFromSupabase({ silent: true, force: true, requiredRow: payload.new }).catch(() => {});
         })
         .subscribe((status) => {
           if (status === "SUBSCRIBED") loadVotesFromSupabase({ silent: true });
@@ -3074,8 +3106,11 @@
       const getsEarlyBonus = !previous && totalBefore < EARLY_BONUS_LIMIT;
       const saved = await insertSupabaseVote(eventId, option, member);
       if (!saved) return false;
-      if (typeof saved === "object") applySupabaseVoteRow(saved);
-      await loadVotesFromSupabase({ silent: true, force: true });
+      try {
+        await loadVotesFromSupabase({ silent: false, force: true, requiredRow: saved });
+      } catch {
+        return false;
+      }
 
       if (!previous && !isSyntheticMember(member)) {
         const stats = ensureStats(member);
@@ -3405,6 +3440,7 @@
         messageEl.textContent = t("voteProcessing");
         return;
       }
+      ignoreOlderVoteLoads();
       pendingVoteActions.add(actionKey);
       try {
         const totalBefore = getUniqueVoteCount(votes[eventId]);
@@ -3436,18 +3472,18 @@
         messageEl.textContent = t("voteProcessing");
         return;
       }
+      ignoreOlderVoteLoads();
       pendingVoteActions.add(actionKey);
       try {
         const saved = await deleteSupabaseVote(eventId, member);
         if (!saved) return;
-        const votes = cloneVotes(getVotes());
+        const votes = getVotes();
         const hadVote = memberVotedInEvent(votes[eventId], member.id);
-        if (votes[eventId]) {
-          Object.keys(votes[eventId]).forEach((key) => {
-            votes[eventId][key] = votes[eventId][key].filter((item) => item !== member.id);
-          });
+        try {
+          await loadVotesFromSupabase({ silent: false, force: true, requiredRow: saved });
+        } catch {
+          return;
         }
-        remoteVotesCache = votes;
         if (hadVote) {
           const stats = ensureStats(member);
           let removedPoints = pointRules.attendance;
@@ -3663,7 +3699,7 @@
         const closed = isPollClosed(schedule);
         const expanded = expandedPollId === event.id;
         const actionPending = member?.id ? pendingVoteActions.has(`${event.id}|${member.id}`) : false;
-        const canCancelVote = canSeeVoterNames;
+        const canCancelVote = Boolean(selected) && !closed;
         const card = document.createElement("article");
         card.className = "card";
         card.innerHTML = `
@@ -3727,7 +3763,7 @@
             myVote.textContent = t("myVote", { option: optionDisplayLabel(selected) });
             cancelSlot.appendChild(myVote);
           }
-          if (selected && !closed && canCancelVote) {
+          if (canCancelVote) {
             const cancelButton = document.createElement("button");
             cancelButton.type = "button";
             cancelButton.className = "btn danger";
