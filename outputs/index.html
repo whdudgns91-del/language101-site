@@ -1451,7 +1451,6 @@
     let votesLoadInFlight = false;
     let votesPollTimer = null;
     const pendingVoteActions = new Set();
-    const localVoteOverrides = new Map();
 
     const i18n = {
       ko: {
@@ -2489,41 +2488,6 @@
       return votes;
     }
 
-    function rememberLocalVote(eventId, option, member) {
-      localVoteOverrides.set(`${eventId}|${member.id}`, {
-        eventId,
-        option,
-        member,
-        cancelled: false,
-        expiresAt: Date.now() + 12000
-      });
-    }
-
-    function rememberLocalCancel(eventId, member) {
-      localVoteOverrides.set(`${eventId}|${member.id}`, {
-        eventId,
-        member,
-        cancelled: true,
-        expiresAt: Date.now() + 12000
-      });
-    }
-
-    function applyLocalVoteOverrides(votes) {
-      const now = Date.now();
-      localVoteOverrides.forEach((entry, key) => {
-        if (entry.expiresAt && entry.expiresAt < now) {
-          localVoteOverrides.delete(key);
-          return;
-        }
-        if (entry.cancelled) {
-          removeVoteFromVotes(votes, entry.eventId, entry.member);
-          return;
-        }
-        applyVoteToVotes(votes, entry.eventId, entry.option, entry.member);
-      });
-      return votes;
-    }
-
     function buildVotesFromRows(rows) {
       const latestByMember = new Map();
       [...rows]
@@ -2538,20 +2502,12 @@
           saveDirectoryMember(member);
           latestByMember.set(`${row.level}|${member.id}`, { row, member });
         });
-      localVoteOverrides.forEach((entry, key) => {
-        const latest = latestByMember.get(key)?.row;
-        const serverCaughtUp =
-          latest &&
-          ((entry.cancelled && latest.vote_option === "__cancelled__") ||
-            (!entry.cancelled && latest.vote_option === entry.option));
-        if (serverCaughtUp) localVoteOverrides.delete(key);
-      });
       const votes = {};
       latestByMember.forEach(({ row, member }) => {
         if (row.vote_option === "__cancelled__") return;
         applyVoteToVotes(votes, row.level, row.vote_option, member);
       });
-      return applyLocalVoteOverrides(votes);
+      return votes;
     }
 
     function applySupabaseVoteRow(row) {
@@ -2805,7 +2761,7 @@
         method: "POST",
         headers: supabaseRestHeaders({
           "Content-Type": "application/json",
-          Prefer: "return=minimal"
+          Prefer: "return=representation"
         }),
         body: JSON.stringify({
           name: member.name,
@@ -2818,11 +2774,12 @@
         const text = await response.text();
         throw new Error(text || `HTTP ${response.status}`);
       }
-      return true;
+      const rows = await response.json();
+      return Array.isArray(rows) ? rows[0] : true;
     }
 
     async function loadVotesFromSupabase(options = {}) {
-      if (votesLoadInFlight) return;
+      if (votesLoadInFlight && !options.force) return;
       votesLoadInFlight = true;
       try {
         const data = await selectVotesViaRest();
@@ -2837,8 +2794,7 @@
 
     async function insertSupabaseRow(eventId, option, member, errorPrefix) {
       try {
-        await insertVoteViaRest(eventId, option, member);
-        return true;
+        return await insertVoteViaRest(eventId, option, member);
       } catch (restError) {
         if (!supabaseClient) {
           messageEl.textContent = `${errorPrefix}: ${restError.message}`;
@@ -3113,8 +3069,8 @@
       const getsEarlyBonus = !previous && totalBefore < EARLY_BONUS_LIMIT;
       const saved = await insertSupabaseVote(eventId, option, member);
       if (!saved) return false;
-      rememberLocalVote(eventId, option, member);
-      remoteVotesCache = applyVoteToVotes(votes, eventId, option, member);
+      if (typeof saved === "object") applySupabaseVoteRow(saved);
+      await loadVotesFromSupabase({ silent: true, force: true });
 
       if (!previous && !isSyntheticMember(member)) {
         const stats = ensureStats(member);
@@ -3479,7 +3435,6 @@
       try {
         const saved = await deleteSupabaseVote(eventId, member);
         if (!saved) return;
-        rememberLocalCancel(eventId, member);
         const votes = cloneVotes(getVotes());
         const hadVote = memberVotedInEvent(votes[eventId], member.id);
         if (votes[eventId]) {
