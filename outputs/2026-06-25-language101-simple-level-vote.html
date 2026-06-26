@@ -2493,7 +2493,7 @@
     function buildVotesFromRows(rows) {
       const latestByMember = new Map();
       [...rows]
-        .filter((row) => row.name && row.birth && row.level && row.vote_option)
+        .filter((row) => row.name && row.birth && row.vote_option && rowInternalEventId(row))
         .sort((a, b) => {
           const timeDiff = new Date(a.created_at || 0) - new Date(b.created_at || 0);
           if (timeDiff) return timeDiff;
@@ -2502,12 +2502,12 @@
         .forEach((row) => {
           const member = makeMember(row.name, row.birth);
           saveDirectoryMember(member);
-          latestByMember.set(`${row.level}|${member.id}`, { row, member });
+          latestByMember.set(`${rowInternalEventId(row)}|${member.id}`, { row, member, eventId: rowInternalEventId(row) });
         });
       const votes = {};
-      latestByMember.forEach(({ row, member }) => {
+      latestByMember.forEach(({ row, member, eventId }) => {
         if (row.vote_option === "__cancelled__") return;
-        applyVoteToVotes(votes, row.level, row.vote_option, member);
+        applyVoteToVotes(votes, eventId, row.vote_option, member);
       });
       return votes;
     }
@@ -2569,6 +2569,7 @@
     function eventForRuleDate(rule, ymd, closed = false) {
       return {
         id: `${rule.id}-${ymd.replaceAll("-", "")}`,
+        eventId: `${ymd}-${eventSlugFromRuleId(rule.id)}`,
         ruleId: rule.id,
         category: closed ? "closed" : rule.category,
         originalCategory: rule.category,
@@ -2579,6 +2580,42 @@
         options: rule.options,
         closed
       };
+    }
+
+    function eventSlugFromRuleId(ruleId) {
+      return ruleId
+        .replace(/-(tue|wed|thu|fri|sat|sun)$/i, "")
+        .replace(/^japanese$/, "japanese")
+        .replace(/^chinese$/, "chinese");
+    }
+
+    function eventPublicIdFromInternalId(eventId) {
+      const match = String(eventId || "").match(/^(.+)-(\d{8})$/);
+      if (!match) return eventId;
+      const ymd = `${match[2].slice(0, 4)}-${match[2].slice(4, 6)}-${match[2].slice(6, 8)}`;
+      return `${ymd}-${eventSlugFromRuleId(match[1])}`;
+    }
+
+    function eventInternalIdsFromPublicId(publicEventId) {
+      const match = String(publicEventId || "").match(/^(\d{4})-(\d{2})-(\d{2})-(.+)$/);
+      if (!match) return [];
+      const ymdCompact = `${match[1]}${match[2]}${match[3]}`;
+      const slug = match[4];
+      return scheduleRules
+        .filter((rule) => eventSlugFromRuleId(rule.id) === slug)
+        .map((rule) => `${rule.id}-${ymdCompact}`);
+    }
+
+    function rowEventKey(row) {
+      if (row?.event_id) return row.event_id;
+      if (row?.level) return row.level;
+      return "";
+    }
+
+    function rowInternalEventId(row) {
+      if (row?.level && eventFromStoredId(row.level)) return row.level;
+      if (row?.event_id) return eventInternalIdsFromPublicId(row.event_id)[0] || row.event_id;
+      return row?.level || "";
     }
 
     function buildWeeklyTemplates() {
@@ -2732,15 +2769,44 @@
       };
     }
 
-    async function selectVotesViaRest() {
-      const url = `${SUPABASE_URL}/rest/v1/votes?select=*&order=created_at.desc&limit=5000`;
+    function uniqueValues(values) {
+      return [...new Set(values.filter(Boolean))];
+    }
+
+    function getDisplayedEventsForVoteQuery() {
+      const events = [...templates, ...closedTemplates];
+      return events.length ? events : [...buildWeeklyTemplates(), ...buildClosedTemplates()];
+    }
+
+    function getVoteQueryIds(extraRow = null) {
+      const events = getDisplayedEventsForVoteQuery();
+      const internalIds = uniqueValues(events.map((event) => event.id));
+      const publicIds = uniqueValues(events.map((event) => event.eventId || eventPublicIdFromInternalId(event.id)));
+      if (extraRow) {
+        const internalId = rowInternalEventId(extraRow);
+        const publicId = rowEventKey(extraRow);
+        if (internalId) internalIds.push(internalId);
+        if (publicId) publicIds.push(publicId);
+      }
+      return {
+        internalIds: uniqueValues(internalIds),
+        publicIds: uniqueValues(publicIds)
+      };
+    }
+
+    function encodeInList(values) {
+      return `(${values.map((value) => `"${String(value).replaceAll('"', '\\"')}"`).join(",")})`;
+    }
+
+    async function fetchVotesByColumn(column, values) {
+      if (!values.length) return [];
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=*&${column}=in.${encodeURIComponent(encodeInList(values))}&order=created_at.desc`;
       const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
         headers: supabaseRestHeaders({
           Accept: "application/json",
-          "Cache-Control": "no-store",
-          Range: "0-4999"
+          "Cache-Control": "no-store"
         })
       });
       if (!response.ok) {
@@ -2750,12 +2816,27 @@
       return response.json();
     }
 
+    async function selectVotesViaRest(extraRow = null) {
+      const { publicIds, internalIds } = getVoteQueryIds(extraRow);
+      try {
+        const eventIdRows = await fetchVotesByColumn("event_id", publicIds);
+        const legacyRows = await fetchVotesByColumn("level", internalIds).catch(() => []);
+        const byId = new Map();
+        eventIdRows.concat(legacyRows).forEach((row) => {
+          byId.set(row.id || `${row.name}|${row.birth}|${row.level}|${row.event_id}|${row.created_at}`, row);
+        });
+        return [...byId.values()];
+      } catch (eventIdError) {
+        return fetchVotesByColumn("level", internalIds);
+      }
+    }
+
     function voteRowMatches(row, expectedRow) {
       if (!row || !expectedRow) return false;
       if (expectedRow.id && row.id === expectedRow.id) return true;
       return row.name === expectedRow.name &&
         row.birth === expectedRow.birth &&
-        row.level === expectedRow.level &&
+        rowInternalEventId(row) === rowInternalEventId(expectedRow) &&
         row.vote_option === expectedRow.vote_option &&
         (!expectedRow.created_at || row.created_at === expectedRow.created_at);
     }
@@ -2772,26 +2853,75 @@
     async function selectVotesUntilContains(expectedRow, attempts = 6) {
       let rows = [];
       for (let attempt = 0; attempt < attempts; attempt += 1) {
-        rows = await selectVotesViaRest();
+        rows = await selectVotesViaRest(expectedRow);
         if (rowsContainVote(rows, expectedRow)) return rows;
         await wait(250);
       }
       throw new Error("투표 저장은 요청됐지만 목록에서 확인되지 않았습니다. 잠시 후 새로고침 후 다시 확인해주세요.");
     }
 
-    async function insertVoteViaRest(eventId, option, member) {
+    async function selectExistingVoteViaRest(eventId, member, useEventIdColumn = true) {
+      const publicEventId = eventPublicIdFromInternalId(eventId);
+      const eventColumn = useEventIdColumn ? "event_id" : "level";
+      const eventValue = useEventIdColumn ? publicEventId : eventId;
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=*&${eventColumn}=eq.${encodeURIComponent(eventValue)}&name=eq.${encodeURIComponent(member.name)}&birth=eq.${encodeURIComponent(member.birth)}&order=created_at.desc&limit=1`;
+      const response = await fetch(url, {
+        method: "GET",
+        cache: "no-store",
+        headers: supabaseRestHeaders({
+          Accept: "application/json",
+          "Cache-Control": "no-store"
+        })
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `HTTP ${response.status}`);
+      }
+      const rows = await response.json();
+      return Array.isArray(rows) ? rows[0] : null;
+    }
+
+    async function updateVoteViaRest(rowId, eventId, option, member, useEventIdColumn = true) {
+      const body = {
+        name: member.name,
+        birth: member.birth,
+        level: eventId,
+        vote_option: option
+      };
+      if (useEventIdColumn) body.event_id = eventPublicIdFromInternalId(eventId);
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?id=eq.${encodeURIComponent(rowId)}`, {
+        method: "PATCH",
+        headers: supabaseRestHeaders({
+          "Content-Type": "application/json",
+          Prefer: "return=representation"
+        }),
+        body: JSON.stringify(body)
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `HTTP ${response.status}`);
+      }
+      const rows = await response.json();
+      const savedRow = Array.isArray(rows) ? rows[0] : null;
+      if (!savedRow) throw new Error("투표 수정 응답을 확인하지 못했습니다.");
+      return savedRow;
+    }
+
+    async function postVoteViaRest(eventId, option, member, useEventIdColumn = true) {
+      const body = {
+        name: member.name,
+        birth: member.birth,
+        level: eventId,
+        vote_option: option
+      };
+      if (useEventIdColumn) body.event_id = eventPublicIdFromInternalId(eventId);
       const response = await fetch(`${SUPABASE_URL}/rest/v1/votes`, {
         method: "POST",
         headers: supabaseRestHeaders({
           "Content-Type": "application/json",
           Prefer: "return=representation"
         }),
-        body: JSON.stringify({
-          name: member.name,
-          birth: member.birth,
-          level: eventId,
-          vote_option: option
-        })
+        body: JSON.stringify(body)
       });
       if (!response.ok) {
         const text = await response.text();
@@ -2801,6 +2931,16 @@
       const savedRow = Array.isArray(rows) ? rows[0] : null;
       if (!savedRow) throw new Error("투표 저장 응답을 확인하지 못했습니다.");
       return savedRow;
+    }
+
+    async function insertVoteViaRest(eventId, option, member, useEventIdColumn = true) {
+      const existing = await selectExistingVoteViaRest(eventId, member, useEventIdColumn);
+      if (existing?.id) {
+        try {
+          return await updateVoteViaRest(existing.id, eventId, option, member, useEventIdColumn);
+        } catch {}
+      }
+      return postVoteViaRest(eventId, option, member, useEventIdColumn);
     }
 
     async function loadVotesFromSupabase(options = {}) {
@@ -2832,8 +2972,11 @@
 
     async function insertSupabaseRow(eventId, option, member, errorPrefix) {
       try {
-        return await insertVoteViaRest(eventId, option, member);
+        return await insertVoteViaRest(eventId, option, member, true);
       } catch (restError) {
+        try {
+          return await insertVoteViaRest(eventId, option, member, false);
+        } catch {}
         if (!supabaseClient) {
           messageEl.textContent = `${errorPrefix}: ${restError.message}`;
           return false;
@@ -2843,6 +2986,7 @@
         name: member.name,
         birth: member.birth,
         level: eventId,
+        event_id: eventPublicIdFromInternalId(eventId),
         vote_option: option
       }).select("*").single();
       if (error) {
@@ -3005,6 +3149,7 @@
       const ymd = `${match[2].slice(0, 4)}-${match[2].slice(4, 6)}-${match[2].slice(6, 8)}`;
       return getEvent({
         id: eventId,
+        eventId: eventPublicIdFromInternalId(eventId),
         ruleId: rule.id,
         category: rule.category,
         title: rule.title,
