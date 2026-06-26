@@ -1450,6 +1450,8 @@
     let remoteVotesCache = {};
     let votesLoadInFlight = false;
     let votesPollTimer = null;
+    let votesLoadSerial = 0;
+    let latestAppliedVotesSerial = 0;
     const pendingVoteActions = new Set();
 
     const i18n = {
@@ -2780,9 +2782,12 @@
 
     async function loadVotesFromSupabase(options = {}) {
       if (votesLoadInFlight && !options.force) return;
+      const loadSerial = ++votesLoadSerial;
       votesLoadInFlight = true;
       try {
         const data = await selectVotesViaRest();
+        if (loadSerial < latestAppliedVotesSerial) return;
+        latestAppliedVotesSerial = loadSerial;
         remoteVotesCache = buildVotesFromRows(data || []);
         render();
       } catch (error) {
