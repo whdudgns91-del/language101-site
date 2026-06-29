@@ -1039,6 +1039,112 @@
       font-weight: 900;
     }
 
+    .attendance-admin {
+      display: grid;
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    .attendance-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: #f8fafc;
+    }
+
+    .attendance-toolbar .btn {
+      min-height: 32px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
+    .attendance-count {
+      margin-right: auto;
+      color: #0f766e;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .attendance-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: #f9fbfd;
+    }
+
+    .attendance-row input {
+      width: 18px;
+      height: 18px;
+    }
+
+    .attendance-status {
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: #edf2f7;
+      color: #475569;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .attendance-status.attended {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .attendance-status.synced {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .attendance-status.unmatched {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .attendance-status.duplicated {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .sheet-result {
+      border-radius: 8px;
+      padding: 9px;
+      background: #f8fafc;
+      color: #334155;
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+
+    .sheet-result strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .sheet-result-section {
+      margin-top: 8px;
+    }
+
+    .copy-unmatched {
+      width: fit-content;
+      min-height: 32px;
+      margin-top: 8px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
     .kakao-widget {
       position: fixed;
       right: 18px;
@@ -1404,6 +1510,8 @@ This account will be used continuously, so please enter the information correctl
     const MEMBER_DIRECTORY_KEY = "le101SimpleMemberDirectory";
     const SHEET_WEBHOOK_KEY = "le101SheetWebhookUrl";
     const SHEET_SYNC_QUEUE_KEY = "le101SheetSyncQueue";
+    const ATTENDANCE_CHECK_KEY = "le101AttendanceChecks";
+    const ATTENDANCE_SHEET_RESULT_KEY = "le101AttendanceSheetResults";
     const SCHEDULE_OVERRIDES_KEY = "le101ScheduleOverrides";
     const CLOSED_EMAIL_KEY = "le101ClosedPollEmails";
     const NOTICE_KEY = "le101SimpleNotice";
@@ -1415,6 +1523,7 @@ This account will be used continuously, so please enter the information correctl
     const ADMIN_PASSWORD = "101language";
     const SUPABASE_URL = "https://wcbfjyejnhbijqwkajnl.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_e5axVxRAtZA1cj9Y5ul1wA_WRYZeUG2";
+    const GOOGLE_SHEETS_ATTENDANCE_URL = "https://script.google.com/macros/s/AKfycbxipWjF_LXqu1orlV1Tz3HJdkCp00nXQgoAsXnDv_yIvc5s4uuWoLgHmohMJnu9PZ33eg/exec";
     const JONGGAK_PLACE = "서울 종로구 종로 80 (종각 드람브르 5층)";
     const NONHYEON_PLACE = "서울 서초구 신반포로 332 1층 (오켈리논현점 1층)";
     const ONLINE_PLACE = "온라인(Zoom) - 신청자에게 별도 링크 발송";
@@ -1448,7 +1557,8 @@ This account will be used continuously, so please enter the information correctl
     const pointRules = {
       attendance: 200,
       heart: 100,
-      earlyBonus: 50
+      earlyBonus: 50,
+      attendanceCheck: 50
     };
     const EARLY_BONUS_LIMIT = 10;
 
@@ -2605,7 +2715,7 @@ This account will be used continuously, so please enter the information correctl
 
     function ensureStatsEntry(stats, member) {
       if (!stats[member.id]) {
-        stats[member.id] = { name: member.name, birth: member.birth, points: 0, attendance: 0, hearts: 0, sentHearts: 0, bonusEvents: {} };
+        stats[member.id] = { name: member.name, birth: member.birth, points: 0, attendance: 0, hearts: 0, sentHearts: 0, bonusEvents: {}, attendanceCheckEvents: {} };
       } else {
         stats[member.id].name = member.name || stats[member.id].name;
         stats[member.id].birth = member.birth || stats[member.id].birth;
@@ -2614,10 +2724,12 @@ This account will be used continuously, so please enter the information correctl
         stats[member.id].hearts = stats[member.id].hearts || 0;
         stats[member.id].sentHearts = stats[member.id].sentHearts || 0;
         stats[member.id].bonusEvents = stats[member.id].bonusEvents || {};
+        stats[member.id].attendanceCheckEvents = stats[member.id].attendanceCheckEvents || {};
       }
       stats[member.id].points =
         stats[member.id].attendance * pointRules.attendance +
         Object.keys(stats[member.id].bonusEvents || {}).length * pointRules.earlyBonus +
+        Object.keys(stats[member.id].attendanceCheckEvents || {}).length * pointRules.attendanceCheck +
         stats[member.id].hearts * pointRules.heart;
       if (isOperatorMember(member)) {
         stats[member.id].points = Math.max(stats[member.id].points, 99000);
@@ -2676,8 +2788,12 @@ This account will be used continuously, so please enter the information correctl
         applyVoteToVotes(votes, eventId, row.vote_option, member);
         if (!meta[eventId]) meta[eventId] = {};
         meta[eventId][member.id] = {
+          rowId: row.id || "",
           option: row.vote_option,
-          createdAt: row.created_at || ""
+          createdAt: row.created_at || "",
+          attended: Boolean(row.attended),
+          syncedToSheet: Boolean(row.synced_to_sheet),
+          sheetSyncStatus: row.sheet_sync_status || ""
         };
       });
       remoteVoteMetaCache = meta;
@@ -3711,25 +3827,302 @@ This account will be used continuously, so please enter the information correctl
       adminAutoStatusEl.textContent = t("autoStatusWaiting", { minutes }) + rosterText;
     }
 
+    function attendanceKey(eventId, memberId) {
+      return `${eventId}|${memberId}`;
+    }
+
+    function getAttendanceChecks() {
+      return readJson(ATTENDANCE_CHECK_KEY, {});
+    }
+
+    function setAttendanceChecked(eventId, memberId, checked) {
+      const checks = getAttendanceChecks();
+      const key = attendanceKey(eventId, memberId);
+      if (checked) {
+        checks[key] = true;
+      } else {
+        delete checks[key];
+      }
+      writeJson(ATTENDANCE_CHECK_KEY, checks);
+    }
+
+    function getAttendanceSheetResults() {
+      return readJson(ATTENDANCE_SHEET_RESULT_KEY, {});
+    }
+
+    function setAttendanceSheetResult(eventId, text) {
+      const results = getAttendanceSheetResults();
+      results[eventId] = text;
+      writeJson(ATTENDANCE_SHEET_RESULT_KEY, results);
+    }
+
+    function statusForAttendance(eventId, memberId, meta) {
+      const result = getAttendanceSheetResults()[eventId] || {};
+      const memberName = memberFromId(memberId).name;
+      const duplicated = namesFromScriptResult(result.duplicated).map(normalizeName).includes(normalizeName(memberName));
+      const unmatched = namesFromScriptResult(result.unmatched).map(normalizeName).includes(normalizeName(memberName));
+      if (unmatched || meta?.sheetSyncStatus === "unmatched") return { label: "❌ 미분류", cls: "unmatched" };
+      if (duplicated) return { label: "⚠️ 이미 반영됨", cls: "duplicated" };
+      if (meta?.syncedToSheet) return { label: "✅ 시트 반영 완료", cls: "synced" };
+      if (meta?.sheetSyncStatus === "unmatched") return { label: "시트 미매칭", cls: "unmatched" };
+      if (getAttendanceChecks()[attendanceKey(eventId, memberId)] || meta?.attended) return { label: "참석 체크됨", cls: "attended" };
+      return { label: "미확인", cls: "" };
+    }
+
+    function formatStudyDateForSheet(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return `${date.getMonth() + 1}월${date.getDate()}일`;
+    }
+
+    function studyTitleForSheet(event, schedule) {
+      if (!event || !schedule) return "";
+      const date = new Date(schedule.start);
+      if (Number.isNaN(date.getTime())) return t(event.title);
+      return `${date.getMonth() + 1}월${date.getDate()}일(${["일", "월", "화", "수", "목", "금", "토"][date.getDay()]}) ${t(event.title)}`;
+    }
+
+    function namesFromScriptResult(value) {
+      if (Array.isArray(value)) {
+        return value.map((item) => typeof item === "string" ? item : item?.name).filter(Boolean);
+      }
+      if (typeof value === "string") {
+        return value.split(",").map((item) => item.trim()).filter(Boolean);
+      }
+      return [];
+    }
+
+    function formatSheetResult(result) {
+      const updated = namesFromScriptResult(result?.updated);
+      const duplicated = namesFromScriptResult(result?.duplicated);
+      const unmatched = namesFromScriptResult(result?.unmatched);
+      return [
+        `✅ 반영 완료: ${updated.length}명`,
+        `⚠️ 중복: ${duplicated.length}명`,
+        `❌ 미분류: ${unmatched.length}명`
+      ].join("\n");
+    }
+
+    function renderNameList(names, emptyText, suffix) {
+      return names.length
+        ? names.map((name) => `- ${escapeHtml(name)}: ${escapeHtml(suffix)}`).join("<br>")
+        : escapeHtml(emptyText);
+    }
+
+    function renderSheetResult(result, eventId) {
+      if (!result) return "";
+      if (typeof result === "string") return `<div class="sheet-result">${escapeHtml(result)}</div>`;
+      const updated = namesFromScriptResult(result.updated);
+      const duplicated = namesFromScriptResult(result.duplicated);
+      const unmatched = namesFromScriptResult(result.unmatched);
+      const studyDate = result.study_date || "";
+      return `
+        <div class="sheet-result">
+          <strong>${escapeHtml(formatSheetResult(result))}</strong>
+          <div class="sheet-result-section">✅ 반영 완료<br>${renderNameList(updated, "없음", `${studyDate} 참석 기록 추가 완료`)}</div>
+          <div class="sheet-result-section">⚠️ 이미 반영됨<br>${renderNameList(duplicated, "없음", `이미 ${studyDate} 기록 있음`)}</div>
+          <div class="sheet-result-section">❌ 미분류 / 시트에서 못 찾음<br>${renderNameList(unmatched, "없음", "구글시트 이름과 매칭 실패")}</div>
+          ${unmatched.length ? `<button type="button" class="btn copy-unmatched" data-copy-unmatched="${escapeHtml(eventId)}">미분류 목록 복사</button>` : ""}
+        </div>
+      `;
+    }
+
+    function realParticipantIds(eventVotes) {
+      return [...new Set(Object.values(eventVotes || {}).flat())]
+        .filter((id) => isRealVisibleMember(id));
+    }
+
+    function isAttendanceChecked(eventId, memberId) {
+      return Boolean(getAttendanceChecks()[attendanceKey(eventId, memberId)]);
+    }
+
+    function selectedAttendanceCount(eventId, ids) {
+      return ids.filter((id) => isAttendanceChecked(eventId, id)).length;
+    }
+
+    function setAttendanceSelection(eventId, ids, predicate) {
+      const checks = getAttendanceChecks();
+      ids.forEach((id) => {
+        const key = attendanceKey(eventId, id);
+        if (predicate(id)) {
+          checks[key] = true;
+        } else {
+          delete checks[key];
+        }
+      });
+      writeJson(ATTENDANCE_CHECK_KEY, checks);
+      renderAdminVoteAudit();
+    }
+
+    async function patchVoteSheetStatus(rowId, fields) {
+      if (!rowId) throw new Error("Supabase row id를 찾지 못했습니다.");
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?id=eq.${encodeURIComponent(rowId)}`, {
+        method: "PATCH",
+        headers: supabaseRestHeaders({
+          "Content-Type": "application/json",
+          Prefer: "return=representation"
+        }),
+        body: JSON.stringify(fields)
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `HTTP ${response.status}`);
+      }
+      return response.json();
+    }
+
+    function awardAttendanceCheckPoints(member, eventId) {
+      if (!member?.id) return;
+      const stats = ensureStats(member);
+      if (stats[member.id].attendanceCheckEvents?.[eventId]) return;
+      stats[member.id].attendanceCheckEvents = stats[member.id].attendanceCheckEvents || {};
+      stats[member.id].attendanceCheckEvents[eventId] = true;
+      stats[member.id].attendance += 1;
+      stats[member.id].points += pointRules.attendanceCheck;
+      writeJson(STATS_KEY, stats);
+      logMemberAction("attendance_checked", member, {
+        event: eventId,
+        option: "attendance",
+        points: pointRules.attendanceCheck,
+        detail: `${recordEventLabel(eventId)} 관리자 참석 체크 +${pointRules.attendanceCheck}P`
+      });
+    }
+
+    async function syncAttendanceToSheets(eventId) {
+      if (!GOOGLE_SHEETS_ATTENDANCE_URL) {
+        setAttendanceSheetResult(eventId, "Google Sheets URL이 설정되지 않았습니다.");
+        renderAdminVoteAudit();
+        return;
+      }
+      const event = resolveEventById(eventId);
+      const schedule = event ? getEvent(event) : null;
+      const eventVotes = getVotes()[eventId] || {};
+      const eventMeta = getVoteMeta()[eventId] || {};
+      const selectedMembers = realParticipantIds(eventVotes)
+        .map((id) => ({ id, member: memberFromId(id), meta: eventMeta[id] || {} }))
+        .filter((item) => isAttendanceChecked(eventId, item.id) && !item.meta.syncedToSheet);
+
+      if (!selectedMembers.length) {
+        setAttendanceSheetResult(eventId, "Google Sheets 반영 대상이 없습니다. 이미 반영 완료됐거나 참석자가 체크되지 않았습니다.");
+        renderAdminVoteAudit();
+        return;
+      }
+
+      const payload = {
+        study_date: schedule ? formatStudyDateForSheet(schedule.start) : "",
+        study_title: studyTitleForSheet(event, schedule),
+        attendees: selectedMembers.map(({ member }) => ({ name: member.name, attended: true }))
+      };
+
+      try {
+        console.log("[Language101] Google Sheets URL", GOOGLE_SHEETS_ATTENDANCE_URL);
+        console.log("[Language101] Google Sheets POST Body", payload);
+        const response = await fetch(GOOGLE_SHEETS_ATTENDANCE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        let result = {};
+        try {
+          result = JSON.parse(text || "{}");
+        } catch {
+          result = { updated: payload.attendees.map((item) => item.name), duplicated: [], unmatched: [], raw: text };
+        }
+        result.study_date = result.study_date || payload.study_date;
+        result.study_title = result.study_title || payload.study_title;
+        console.log("[Language101] Apps Script Response", result);
+
+        const updated = namesFromScriptResult(result.updated);
+        const duplicated = namesFromScriptResult(result.duplicated);
+        const unmatched = namesFromScriptResult(result.unmatched);
+        const syncedNames = new Set([...updated, ...duplicated].map(normalizeName));
+        const updatedNames = new Set(updated.map(normalizeName));
+        const unmatchedNames = new Set(unmatched.map(normalizeName));
+
+        await Promise.all(selectedMembers.map(async ({ member, meta }) => {
+          const nameKey = normalizeName(member.name);
+          if (syncedNames.has(nameKey)) {
+            await patchVoteSheetStatus(meta.rowId, {
+              attended: true,
+              synced_to_sheet: true,
+              sheet_sync_status: "synced",
+              sheet_synced_at: new Date().toISOString()
+            });
+            if (updatedNames.has(nameKey)) awardAttendanceCheckPoints(member, eventId);
+          } else if (unmatchedNames.has(nameKey)) {
+            await patchVoteSheetStatus(meta.rowId, {
+              attended: false,
+              synced_to_sheet: false,
+              sheet_sync_status: "unmatched"
+            });
+          }
+        }));
+
+        selectedMembers.forEach(({ id }) => setAttendanceChecked(eventId, id, false));
+        setAttendanceSheetResult(eventId, result);
+        await loadVotesFromSupabase({ silent: true, force: true });
+      } catch (error) {
+        setAttendanceSheetResult(eventId, `Google Sheets 반영 실패\n${error.message}\n실패 대상: ${selectedMembers.map(({ member }) => member.name).join(", ")}`);
+        renderAdminVoteAudit();
+      }
+    }
+
     function renderAdminVoteAudit() {
       if (!adminVoteAuditEl) return;
       const votes = getVotes();
+      const voteMeta = getVoteMeta();
       const activeSections = [];
       const closedSections = [];
       Object.entries(votes).forEach(([eventId, eventVotes]) => {
         const base = resolveEventById(eventId);
         if (!base) return;
         const schedule = getEvent(base);
-        const total = new Set(Object.values(eventVotes).flat().filter((id) => isRealVisibleMember(id))).size;
+        const participantIds = realParticipantIds(eventVotes);
+        const total = participantIds.length;
         if (!total) return;
+        const isClosed = isPollClosed(schedule);
         const detailLines = [];
+        const selectedCount = selectedAttendanceCount(eventId, participantIds);
+        const toolbar = isClosed ? `
+          <div class="attendance-toolbar">
+            <span class="attendance-count">선택됨 ${selectedCount} / ${total}명</span>
+            <button type="button" class="btn" data-attendance-action="select-unsynced" data-attendance-event="${escapeHtml(eventId)}">✓ 전체 선택 (미반영만)</button>
+            <button type="button" class="btn" data-attendance-action="select-all" data-attendance-event="${escapeHtml(eventId)}">✓ 전체 선택 (모두)</button>
+            <button type="button" class="btn" data-attendance-action="clear" data-attendance-event="${escapeHtml(eventId)}">☐ 전체 해제</button>
+            <button type="button" class="btn" data-attendance-action="attended" data-attendance-event="${escapeHtml(eventId)}">참석자만</button>
+            <button type="button" class="btn" data-attendance-action="unattended" data-attendance-event="${escapeHtml(eventId)}">미참석자만</button>
+            <button type="button" class="btn primary sheet-sync-button" data-sheet-event="${escapeHtml(eventId)}">Google Sheets 반영 (${selectedCount}명)</button>
+          </div>
+        ` : "";
         base.options.forEach((option) => {
           const ids = (eventVotes[option] || []).filter((id) => isRealVisibleMember(id));
           if (!ids.length) return;
-          detailLines.push(`<div><strong>${t(option)}</strong>: ${ids.map((id) => escapeHtml(memberFromId(id).name)).join(", ")}</div>`);
+          if (isClosed) {
+            ids.forEach((id) => {
+              const member = memberFromId(id);
+              const meta = voteMeta[eventId]?.[id] || {};
+              const status = statusForAttendance(eventId, id, meta);
+              const checked = isAttendanceChecked(eventId, id);
+              detailLines.push(`
+                <label class="attendance-row">
+                  <input type="checkbox" data-attendance-event="${escapeHtml(eventId)}" data-attendance-member="${escapeHtml(id)}"${checked ? " checked" : ""}>
+                  <span><strong>${escapeHtml(member.name)}</strong><br><small>${escapeHtml(t(option))}</small></span>
+                  <span class="attendance-status ${status.cls}">${escapeHtml(status.label)}</span>
+                </label>
+              `);
+            });
+          } else {
+            detailLines.push(`<div><strong>${t(option)}</strong>: ${ids.map((id) => escapeHtml(memberFromId(id).name)).join(", ")}</div>`);
+          }
         });
-        const html = `<details data-audit-event="${escapeHtml(eventId)}"${adminAuditOpenKeys.has(eventId) ? " open" : ""}><summary>${escapeHtml(formatDateLabel(schedule.start))} ${escapeHtml(t(base.title))} · ${escapeHtml(t("totalCount", { count: total }))}</summary>${detailLines.join("")}</details>`;
-        if (isPollClosed(schedule)) {
+        const sheetResult = getAttendanceSheetResults()[eventId] || "";
+        const adminBody = isClosed
+          ? `<div class="attendance-admin">${toolbar}${sheetResult ? renderSheetResult(sheetResult, eventId) : ""}${detailLines.join("")}</div>`
+          : detailLines.join("");
+        const html = `<details data-audit-event="${escapeHtml(eventId)}"${adminAuditOpenKeys.has(eventId) ? " open" : ""}><summary>${escapeHtml(formatDateLabel(schedule.start))} ${escapeHtml(t(base.title))} · ${escapeHtml(t("totalCount", { count: total }))}</summary>${adminBody}</details>`;
+        if (isClosed) {
           closedSections.push(html);
         } else {
           activeSections.push(html);
@@ -3748,6 +4141,52 @@ This account will be used continuously, so please enter the information correctl
           } else {
             adminAuditOpenKeys.delete(key);
           }
+        });
+      });
+      adminVoteAuditEl.querySelectorAll("input[data-attendance-event][data-attendance-member]").forEach((input) => {
+        input.addEventListener("change", () => {
+          setAttendanceChecked(input.dataset.attendanceEvent, input.dataset.attendanceMember, input.checked);
+          renderAdminVoteAudit();
+        });
+      });
+      adminVoteAuditEl.querySelectorAll("button[data-attendance-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const eventId = button.dataset.attendanceEvent;
+          const action = button.dataset.attendanceAction;
+          const ids = realParticipantIds(getVotes()[eventId] || {});
+          const meta = getVoteMeta()[eventId] || {};
+          if (action === "select-unsynced") {
+            setAttendanceSelection(eventId, ids, (id) => !meta[id]?.syncedToSheet);
+          } else if (action === "select-all") {
+            if (window.confirm("이미 반영된 사람까지 모두 선택됩니다. 계속할까요?")) {
+              setAttendanceSelection(eventId, ids, () => true);
+            }
+          } else if (action === "clear") {
+            setAttendanceSelection(eventId, ids, () => false);
+          } else if (action === "attended") {
+            setAttendanceSelection(eventId, ids, (id) => Boolean(meta[id]?.attended));
+          } else if (action === "unattended") {
+            setAttendanceSelection(eventId, ids, (id) => !meta[id]?.attended);
+          }
+        });
+      });
+      adminVoteAuditEl.querySelectorAll("button[data-copy-unmatched]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const result = getAttendanceSheetResults()[button.dataset.copyUnmatched] || {};
+          const text = namesFromScriptResult(result.unmatched).join("\n");
+          try {
+            await navigator.clipboard.writeText(text);
+            button.textContent = "복사 완료";
+          } catch {
+            messageEl.textContent = `미분류 목록: ${text}`;
+          }
+        });
+      });
+      adminVoteAuditEl.querySelectorAll("button[data-sheet-event]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          button.disabled = true;
+          button.textContent = "Google Sheets 반영 중...";
+          await syncAttendanceToSheets(button.dataset.sheetEvent);
         });
       });
     }
