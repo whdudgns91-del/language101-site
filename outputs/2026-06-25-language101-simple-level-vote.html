@@ -743,6 +743,10 @@
       padding: 14px;
     }
 
+    .card.applied {
+      border-color: rgba(22, 163, 74, 0.5);
+    }
+
     .card h3 {
       margin-bottom: 4px;
       font-size: 18px;
@@ -764,6 +768,20 @@
       border-radius: 999px;
       padding: 0 10px;
       background: #d82132;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .completion-badge {
+      display: inline-flex;
+      min-height: 30px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 0 10px;
+      background: #16A34A;
       color: #fff;
       font-size: 12px;
       font-weight: 900;
@@ -807,6 +825,39 @@
     .apply-toggle {
       width: 100%;
       margin-top: 12px;
+    }
+
+    .apply-toggle.completed,
+    .apply-toggle.completed:disabled {
+      border-color: #16A34A;
+      background: #16A34A;
+      color: #fff;
+      cursor: default;
+      opacity: 1;
+      box-shadow: none;
+    }
+
+    .apply-toggle.closed,
+    .apply-toggle.closed:disabled {
+      border-color: #d82132;
+      background: #d82132;
+      color: #fff;
+      cursor: default;
+      opacity: 1;
+      box-shadow: none;
+    }
+
+    .apply-complete-note {
+      margin: -2px 0 0;
+      color: #15803d;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.4;
+    }
+
+    .selected-action-slot {
+      display: grid;
+      gap: 8px;
     }
 
     .bonus-banner {
@@ -1506,6 +1557,7 @@ This account will be used continuously, so please enter the information correctl
     let votesPollTimer = null;
     let votesLoadSerial = 0;
     let latestAppliedVotesSerial = 0;
+    let remoteVoteMetaCache = {};
     const adminAuditOpenKeys = new Set();
     const pendingVoteActions = new Set();
 
@@ -1583,11 +1635,14 @@ This account will be used continuously, so please enter the information correctl
         duplicateMember: "이미 같은 이름과 생년월일로 등록되어 있습니다. 영어이름을 바꿔서 다시 입력해주세요.",
         duplicateName: "이미 같은 이름이 있습니다. 동명이인은 영어이름을 바꿔서 로그인해주세요. 예: 방나리아(bang), 방나리아(alod)처럼 현재 없는 이름으로 입력해주세요.",
         started: "{name}님으로 시작합니다.",
-        alreadySelected: "이미 선택한 항목입니다.",
+        alreadySelected: "이미 신청한 스터디입니다.",
         voteProcessing: "신청을 저장하고 있습니다. 잠시만 기다려주세요.",
         cancelConfirm: "정말 이 투표를 취소할까요? 취소하면 신청 인원에서 빠집니다.",
         cancelVote: "취소하기",
         applyToVote: "신청하기",
+        applyCompleted: "✅ 신청 완료",
+        applyClosed: "🚫 신청 마감",
+        appliedAt: "신청일 : {date}",
         foldVote: "접기",
         voteCancelled: "투표를 취소했습니다.",
         voted: "{option}에 투표했습니다. 포인트 +{points}",
@@ -1788,11 +1843,14 @@ This account will be used continuously, so please enter the information correctl
         duplicateMember: "This name and birthdate are already registered. Please change your English name and try again.",
         duplicateName: "This name already exists. If you have the same Korean name, change the English name and log in again. Example: 방나리아(bang), 방나리아(alod).",
         started: "Started as {name}.",
-        alreadySelected: "You already selected this option.",
+        alreadySelected: "You already applied for this study.",
         voteProcessing: "Saving your vote. Please wait a moment.",
         cancelConfirm: "Are you sure you want to cancel this vote? You will be removed from the attendee count.",
         cancelVote: "Cancel My Vote",
         applyToVote: "Apply",
+        applyCompleted: "✅ Applied",
+        applyClosed: "🚫 Closed",
+        appliedAt: "Applied at: {date}",
         foldVote: "Close",
         voteCancelled: "Your vote was cancelled.",
         voted: "Voted for {option}. Points +{points}",
@@ -1993,11 +2051,14 @@ This account will be used continuously, so please enter the information correctl
         duplicateMember: "同じ名前と生年月日ですでに登録されています。英語名を変更して再入力してください。",
         duplicateName: "同じ名前がすでにあります。同名の場合は英語名を変えてログインしてください。例: 방나리아(bang), 방나리아(alod)",
         started: "{name}さんで開始しました。",
-        alreadySelected: "すでに選択済みです。",
+        alreadySelected: "このスタディはすでに申請済みです。",
         voteProcessing: "申請を保存しています。少しお待ちください。",
         cancelConfirm: "本当にこの投票をキャンセルしますか？申請人数から外れます。",
         cancelVote: "自分の投票をキャンセル",
         applyToVote: "申請する",
+        applyCompleted: "✅ 申請完了",
+        applyClosed: "🚫 申請締切",
+        appliedAt: "申請日 : {date}",
         foldVote: "閉じる",
         voteCancelled: "投票をキャンセルしました。",
         voted: "{option}に投票しました。ポイント +{points}",
@@ -2198,11 +2259,14 @@ This account will be used continuously, so please enter the information correctl
         duplicateMember: "相同姓名和出生日期已注册。请更改英文名后再试。",
         duplicateName: "已存在相同姓名。同名时请更改英文名后重新登录。例: 방나리아(bang), 방나리아(alod)。",
         started: "已用{name}开始。",
-        alreadySelected: "已经选择了该选项。",
+        alreadySelected: "已经申请过这个学习活动。",
         voteProcessing: "正在保存申请，请稍等。",
         cancelConfirm: "确定要取消这个投票吗？取消后将从申请人数中移除。",
         cancelVote: "取消我的投票",
         applyToVote: "申请",
+        applyCompleted: "✅ 申请完成",
+        applyClosed: "🚫 申请截止",
+        appliedAt: "申请时间 : {date}",
         foldVote: "收起",
         voteCancelled: "投票已取消。",
         voted: "已投票给{option}。积分 +{points}",
@@ -2354,7 +2418,7 @@ This account will be used continuously, so please enter the information correctl
       let text = i18n[currentLang][key] || i18n.ko[key] || key;
       Object.entries(values).forEach(([name, value]) => {
         text = text.replace(`{${name}}`, value);
-      });
+        });
       return text;
     }
 
@@ -2565,6 +2629,10 @@ This account will be used continuously, so please enter the information correctl
       return remoteVotesCache;
     }
 
+    function getVoteMeta() {
+      return remoteVoteMetaCache;
+    }
+
     function cloneVotes(votes) {
       return JSON.parse(JSON.stringify(votes || {}));
     }
@@ -2600,12 +2668,19 @@ This account will be used continuously, so please enter the information correctl
           const member = makeMember(row.name, row.birth);
           saveDirectoryMember(member);
           latestByMember.set(`${rowInternalEventId(row)}|${member.id}`, { row, member, eventId: rowInternalEventId(row) });
-        });
+      });
       const votes = {};
+      const meta = {};
       latestByMember.forEach(({ row, member, eventId }) => {
         if (row.vote_option === "__cancelled__") return;
         applyVoteToVotes(votes, eventId, row.vote_option, member);
+        if (!meta[eventId]) meta[eventId] = {};
+        meta[eventId][member.id] = {
+          option: row.vote_option,
+          createdAt: row.created_at || ""
+        };
       });
+      remoteVoteMetaCache = meta;
       return votes;
     }
 
@@ -2793,6 +2868,12 @@ This account will be used continuously, so please enter the information correctl
     function formatDateTime(value) {
       const date = new Date(value);
       return `${date.getMonth() + 1}월 ${date.getDate()}일 ${formatTime(value)}`;
+    }
+
+    function formatAppliedDate(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return `${date.getFullYear()}-${padNumber(date.getMonth() + 1)}-${padNumber(date.getDate())} ${padNumber(date.getHours())}:${padNumber(date.getMinutes())}`;
     }
 
     function getDeadline(event) {
@@ -3048,7 +3129,7 @@ This account will be used continuously, so please enter the information correctl
 
     async function insertVoteViaRest(eventId, option, member, useEventIdColumn = true) {
       const existing = await selectExistingVoteViaRest(eventId, member, useEventIdColumn);
-      if (existing?.id) {
+      if (existing?.id && existing.vote_option !== "__cancelled__") {
         try {
           return await updateVoteViaRest(existing.id, eventId, option, member, useEventIdColumn);
         } catch {}
@@ -3132,6 +3213,12 @@ This account will be used continuously, so please enter the information correctl
         .channel(`votes-realtime-${Date.now()}`)
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "votes" }, (payload) => {
           loadVotesFromSupabase({ silent: true, force: true, requiredRow: payload.new }).catch(() => {});
+        })
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "votes" }, (payload) => {
+          loadVotesFromSupabase({ silent: true, force: true, requiredRow: payload.new }).catch(() => {});
+        })
+        .on("postgres_changes", { event: "DELETE", schema: "public", table: "votes" }, () => {
+          loadVotesFromSupabase({ silent: true, force: true }).catch(() => {});
         })
         .subscribe((status) => {
           if (status === "SUBSCRIBED") loadVotesFromSupabase({ silent: true });
@@ -3758,7 +3845,7 @@ This account will be used continuously, so please enter the information correctl
       const votes = getVotes();
       if (!votes[eventId]) votes[eventId] = {};
       const previous = Object.entries(votes[eventId]).find(([, ids]) => ids.includes(member.id));
-      if (previous && previous[0] === option) {
+      if (previous) {
         messageEl.textContent = t("alreadySelected");
         return;
       }
@@ -3775,6 +3862,7 @@ This account will be used continuously, so please enter the information correctl
         const saved = await addVoteForMember(eventId, option, member);
         if (!saved) return;
 
+        expandedPollId = "";
         messageEl.textContent = t("voted", { option: t(option), points: awardedPoints });
         render();
       } finally {
@@ -4041,18 +4129,23 @@ This account will be used continuously, so please enter the information correctl
       visibleTemplates.forEach((event) => {
         const schedule = getEvent(event);
         const eventVotes = votes[event.id] || {};
+        const voteMeta = getVoteMeta()[event.id] || {};
         const selected = Object.entries(eventVotes).find(([, ids]) => ids.includes(member?.id))?.[0];
+        const selectedMeta = member?.id ? voteMeta[member.id] : null;
         const total = canSeeVoterNames
           ? new Set(Object.values(eventVotes).flat().filter((id) => isRealVisibleMember(id))).size
           : getUniqueVoteCount(eventVotes);
         const bonusLeft = getEarlyBonusLeft(eventVotes);
         const bonusOpen = bonusLeft > 0;
         const closed = isPollClosed(schedule);
-        const expanded = expandedPollId === event.id;
+        const expanded = !selected && !closed && expandedPollId === event.id;
         const actionPending = member?.id ? pendingVoteActions.has(`${event.id}|${member.id}`) : false;
         const canCancelVote = Boolean(selected) && !closed;
+        const primaryButtonText = selected ? t("applyCompleted") : (closed ? t("applyClosed") : (expanded ? t("foldVote") : t("applyToVote")));
+        const primaryButtonClass = ["btn", "primary", "apply-toggle", selected ? "completed" : "", closed && !selected ? "closed" : ""].filter(Boolean).join(" ");
+        const appliedDate = selectedMeta?.createdAt ? formatAppliedDate(selectedMeta.createdAt) : "";
         const card = document.createElement("article");
-        card.className = "card";
+        card.className = `card${selected ? " applied" : ""}`;
         card.innerHTML = `
           <div class="card-head">
             <div>
@@ -4064,9 +4157,9 @@ This account will be used continuously, so please enter the information correctl
                 <span>${t("totalCount", { count: total })}</span>
               </div>
             </div>
-            <span class="deadline-badge">${getDeadlineBadge(schedule)}</span>
+            <span class="${selected ? "completion-badge" : "deadline-badge"}">${selected ? t("applyCompleted") : getDeadlineBadge(schedule)}</span>
           </div>
-          ${bonusOpen && !closed ? `
+          ${bonusOpen && !closed && !selected ? `
             <div class="bonus-banner">
               <span>${t("earlyBonusTitle")}</span>
               <span>${t("earlyBonusLeft", { left: bonusLeft, limit: EARLY_BONUS_LIMIT })}</span>
@@ -4074,7 +4167,12 @@ This account will be used continuously, so please enter the information correctl
             </div>
           ` : ""}
           ${closed ? `<p class="small-note warning">${t("voteClosed")}</p>` : ""}
-          <button type="button" class="btn primary apply-toggle">${expanded ? t("foldVote") : (bonusOpen && !selected && !closed ? t("applyWithBonus", { points: pointRules.earlyBonus }) : t("applyToVote"))}</button>
+          <button type="button" class="${primaryButtonClass}"${selected || closed ? " disabled" : ""}>${primaryButtonText}</button>
+          ${selected ? `
+            <div class="selected-action-slot">
+              <p class="apply-complete-note">${appliedDate ? t("appliedAt", { date: appliedDate }) : t("applyCompleted")}</p>
+            </div>
+          ` : ""}
           <div class="poll-detail ${expanded ? "" : "hidden"}">
             <div class="option-list"></div>
             <div class="cancel-slot"></div>
@@ -4085,10 +4183,28 @@ This account will be used continuously, so please enter the information correctl
         const optionList = card.querySelector(".option-list");
         const cancelSlot = card.querySelector(".cancel-slot");
         const voterList = card.querySelector(".voter-list");
+        const selectedActionSlot = card.querySelector(".selected-action-slot");
         toggleButton.addEventListener("click", () => {
+          if (selected) {
+            messageEl.textContent = t("alreadySelected");
+            return;
+          }
+          if (closed) {
+            messageEl.textContent = t("voteClosed");
+            return;
+          }
           expandedPollId = expanded ? "" : event.id;
           renderPolls();
         });
+        if (canCancelVote && selectedActionSlot) {
+          const cancelButton = document.createElement("button");
+          cancelButton.type = "button";
+          cancelButton.className = "btn danger";
+          cancelButton.textContent = t("cancelVote");
+          cancelButton.disabled = actionPending;
+          cancelButton.addEventListener("click", () => cancelVote(event.id));
+          selectedActionSlot.appendChild(cancelButton);
+        }
         if (expanded) {
           event.options.forEach((option) => {
             const optionIds = eventVotes[option] || [];
@@ -4097,7 +4213,7 @@ This account will be used continuously, so please enter the information correctl
             const btn = document.createElement("button");
             btn.type = "button";
             btn.className = ["option-btn", optionColorClass(option), selected === option ? "selected" : ""].filter(Boolean).join(" ");
-            btn.disabled = closed || actionPending;
+            btn.disabled = closed || actionPending || Boolean(selected);
             const label = optionDisplayLabel(option);
             btn.innerHTML = `<span>${selected === option ? "✓ " : ""}${label}</span><span>${countText(count)}</span>`;
             btn.addEventListener("click", () => vote(event.id, option));
