@@ -214,7 +214,50 @@
       color: var(--ink);
     }
 
+    .back-bar {
+      display: flex;
+      margin: -4px 0 12px;
+    }
+
+    .back-button {
+      width: auto;
+      min-height: 38px;
+      border-radius: 999px;
+      padding: 8px 14px;
+      border-color: rgba(7, 146, 126, 0.24);
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--teal);
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(34, 48, 70, 0.08);
+    }
+
+    .back-button:hover {
+      border-color: rgba(7, 146, 126, 0.48);
+      background: #fff;
+    }
+
     .login-guide {
+      white-space: pre-line;
+    }
+
+    .field-help {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .login-error {
+      grid-column: 1 / -1;
+      margin: 0;
+      padding: 10px 12px;
+      border: 1px solid rgba(211, 56, 56, 0.22);
+      border-radius: 8px;
+      background: rgba(255, 240, 240, 0.88);
+      color: #b4232a;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.45;
       white-space: pre-line;
     }
 
@@ -1001,6 +1044,7 @@
       .hero, .login, .like-grid, .admin-lock { grid-template-columns: 1fr; }
       .brand-row { flex-wrap: wrap; }
       .btn, .language-buttons, .hero-tools { width: 100%; }
+      .back-button { width: auto; }
       .hero-tools { justify-content: stretch; }
       .language-menu { flex: 0 0 auto; }
       .language-popover {
@@ -1049,6 +1093,10 @@
         <button type="button" class="icon-btn" id="refreshButton" aria-label="새로고침" title="새로고침">↻</button>
       </div>
     </header>
+
+    <div class="back-bar hidden" id="backBar">
+      <button type="button" class="btn back-button" id="backButton" data-i18n="backButton">← Back</button>
+    </div>
 
     <section class="panel notice hidden" id="noticePanel" aria-label="고정 공지">
       <h2 data-i18n="noticeTitle">고정 공지</h2>
@@ -1190,21 +1238,24 @@
 
     <section class="panel login" id="loginPanel" aria-label="참여자 로그인">
       <div class="field">
-        <label for="memberName" data-i18n="nameLabel">이름: 전호민(HO) (한글 + 영어 이름)</label>
-        <input id="memberName" autocomplete="name" placeholder="예: 전호민(HO)">
+        <label for="memberName" data-i18n="nameLabel">Name</label>
+        <p class="field-help" data-i18n="nameHelp">Korean or English name is okay.</p>
+        <input id="memberName" autocomplete="name" placeholder="Example: Mike / Mike(M) / 전호민(HO)">
         <button type="button" class="name-suggestion hidden" id="nameSuggestion"></button>
       </div>
       <div class="field">
-        <label for="memberBirth" data-i18n="birthLabel">생년월일: 920117 (6자리)</label>
-        <input id="memberBirth" inputmode="numeric" maxlength="6" placeholder="예: 920117">
+        <label for="memberBirth" data-i18n="birthLabel">Birthdate</label>
+        <p class="field-help" data-i18n="birthHelp">6 digits only</p>
+        <input id="memberBirth" inputmode="numeric" maxlength="6" placeholder="Example: 920117">
       </div>
       <div class="login-actions">
-        <button type="button" class="btn primary" id="saveMember" data-i18n="loginButton">🔑 이미 등록하셨나요? → 로그인</button>
-        <button type="button" class="btn" id="registerMember" data-i18n="registerButton">🆕 처음이신가요? → 신규 등록</button>
+        <button type="button" class="btn primary" id="saveMember" data-i18n="loginButton">Already registered? → Login</button>
+        <button type="button" class="btn" id="registerMember" data-i18n="registerButton">First time here? → Sign up</button>
       </div>
-      <p class="helper login-guide" data-i18n="loginHelp">⚠️ 최초 등록한 이름과 생년월일은 등록 후 절대 변경할 수 없습니다.
-카카오톡 오픈채팅 닉네임과 동일한 이름으로 등록해 주세요. (예: 전호민(HO))
-앞으로 계속 사용할 계정 정보이므로 정확하게 입력하고 꼭 기억해 주세요.</p>
+      <p class="helper login-guide" data-i18n="loginHelp">Please use the same name as your Kakao open chat nickname.
+Your name and birthdate cannot be changed after registration.
+This account will be used continuously, so please enter the information correctly.</p>
+      <p class="login-error hidden" id="loginError" role="alert"></p>
     </section>
 
     <p class="message" id="message" role="status" aria-live="polite"></p>
@@ -1363,6 +1414,9 @@
     const memberBirthEl = document.querySelector("#memberBirth");
     const saveMemberEl = document.querySelector("#saveMember");
     const registerMemberEl = document.querySelector("#registerMember");
+    const loginErrorEl = document.querySelector("#loginError");
+    const backBarEl = document.querySelector("#backBar");
+    const backButtonEl = document.querySelector("#backButton");
     const loginPanelEl = document.querySelector("#loginPanel");
     const dashboardSectionEl = document.querySelector("#dashboardSection");
     const voteSectionEl = document.querySelector("#voteSection");
@@ -1457,13 +1511,15 @@
     const i18n = {
       ko: {
         appTitle: "🌍 언어교환101",
-        tagline: "투표하고, 참석하고, 좋아요를 받으면 레벨이 올라갑니다.",
-        nameLabel: "이름: 전호민(HO) (한글 + 영어 이름)",
-        birthLabel: "생년월일: 920117 (6자리)",
+        tagline: "Vote, check attendance, receive likes, and level up.",
+        nameLabel: "Name",
+        nameHelp: "Korean or English name is okay.",
+        birthLabel: "Birthdate",
+        birthHelp: "6 digits only",
         startButton: "로그인 하기",
-        loginButton: "🔑 이미 등록하셨나요? → 로그인",
-        registerButton: "🆕 처음이신가요? → 신규 등록",
-        loginHelp: "⚠️ 최초 등록한 이름과 생년월일은 등록 후 절대 변경할 수 없습니다.\n카카오톡 오픈채팅 닉네임과 동일한 이름으로 등록해 주세요. (예: 전호민(HO))\n앞으로 계속 사용할 계정 정보이므로 정확하게 입력하고 꼭 기억해 주세요.",
+        loginButton: "Already registered? → Login",
+        registerButton: "First time here? → Sign up",
+        loginHelp: "Please use the same name as your Kakao open chat nickname.\nYour name and birthdate cannot be changed after registration.\nThis account will be used continuously, so please enter the information correctly.",
         weeklyTop: "🏆 주간 레벨 TOP 3",
         rankingHelp: "참석 예약 + 받은 좋아요 기준으로 계산됩니다.",
         voteTitle: "🗳️ 이번 주 스터디 투표",
@@ -1499,6 +1555,7 @@
         pointLogButton: "포인트 내역",
         sentHeartLogButton: "보낸 좋아요 보기",
         logoutButton: "로그아웃",
+        backButton: "← Back",
         profileLogEmpty: "아직 기록이 없습니다.",
         earlyBonusTitle: "🎁 선착순 보너스",
         earlyBonusLeft: "남은 자리: {left} / {limit}명",
@@ -1519,9 +1576,9 @@
         chooseLikeEvent: "좋아요를 보낼 수 있는 스터디 날짜를 먼저 선택해주세요.",
         likeWindowClosed: "이 스터디는 아직 종료되지 않았거나 좋아요 가능 시간이 지났습니다.",
         noEventParticipants: "이 날짜에는 아직 다른 참석자가 없습니다.",
-        selectName: "이름을 입력하고 투표를 시작해주세요.",
-        invalidName: "전호민(Ho) 형식으로 이름을 입력해주세요.",
-        invalidBirth: "생년월일은 920117처럼 숫자 6자리로 입력해주세요.",
+        selectName: "Enter your name and birthdate to start voting.",
+        invalidName: "Only Korean, English letters, numbers, spaces, and parentheses are allowed.\n한글, 영어, 숫자, 공백, 괄호만 사용할 수 있습니다.",
+        invalidBirth: "Birthdate must be 6 digits. Example: 920117\n생년월일은 6자리 숫자로 입력해주세요. 예: 920117",
         duplicateMember: "이미 같은 이름과 생년월일로 등록되어 있습니다. 영어이름을 바꿔서 다시 입력해주세요.",
         duplicateName: "이미 같은 이름이 있습니다. 동명이인은 영어이름을 바꿔서 로그인해주세요. 예: 방나리아(bang), 방나리아(alod)처럼 현재 없는 이름으로 입력해주세요.",
         started: "{name}님으로 시작합니다.",
@@ -1659,13 +1716,15 @@
       },
       en: {
         appTitle: "🌍 Language Exchange 101",
-        tagline: "Vote, attend, receive likes, and level up.",
-        nameLabel: "Name: 전호민(HO) (Korean + English name)",
-        birthLabel: "Birthdate: 920117 (6 digits)",
+        tagline: "Vote, check attendance, receive likes, and level up.",
+        nameLabel: "Name",
+        nameHelp: "Korean or English name is okay.",
+        birthLabel: "Birthdate",
+        birthHelp: "6 digits only",
         startButton: "Log In",
-        loginButton: "🔑 Already registered? → Log in",
-        registerButton: "🆕 First time? → Register",
-        loginHelp: "⚠️ Your first registration information cannot be changed. Please enter it accurately and remember it because you will keep using it.",
+        loginButton: "Already registered? → Login",
+        registerButton: "First time here? → Sign up",
+        loginHelp: "Please use the same name as your Kakao open chat nickname.\nYour name and birthdate cannot be changed after registration.\nThis account will be used continuously, so please enter the information correctly.",
         weeklyTop: "🏆 Weekly Level TOP 3",
         rankingHelp: "Calculated from attendance reservations and received likes.",
         voteTitle: "🗳️ This Week's Study Polls",
@@ -1701,6 +1760,7 @@
         pointLogButton: "Point History",
         sentHeartLogButton: "Sent Likes",
         logoutButton: "Log Out",
+        backButton: "← Back",
         profileLogEmpty: "No records yet.",
         earlyBonusTitle: "🎁 Early Bonus",
         earlyBonusLeft: "Seats left: {left} / {limit}",
@@ -1721,9 +1781,9 @@
         chooseLikeEvent: "Choose an available study date first.",
         likeWindowClosed: "This study has not ended yet or the like period has expired.",
         noEventParticipants: "There are no other attendees for this date yet.",
-        selectName: "Enter your name and start voting.",
-        invalidName: "Please use the format 전호민(Ho).",
-        invalidBirth: "Please enter 6 digits like 920117.",
+        selectName: "Enter your name and birthdate to start voting.",
+        invalidName: "Only Korean, English letters, numbers, spaces, and parentheses are allowed.\n한글, 영어, 숫자, 공백, 괄호만 사용할 수 있습니다.",
+        invalidBirth: "Birthdate must be 6 digits. Example: 920117\n생년월일은 6자리 숫자로 입력해주세요. 예: 920117",
         duplicateMember: "This name and birthdate are already registered. Please change your English name and try again.",
         duplicateName: "This name already exists. If you have the same Korean name, change the English name and log in again. Example: 방나리아(bang), 방나리아(alod).",
         started: "Started as {name}.",
@@ -1862,8 +1922,10 @@
       ja: {
         appTitle: "🌍 言語交換101",
         tagline: "投票、参加、いいねでレベルアップします。",
-        nameLabel: "名前: 전호민(HO)（韓国語名 + 英語名）",
-        birthLabel: "生年月日: 920117（6桁）",
+        nameLabel: "Name",
+        nameHelp: "Korean or English name is okay.",
+        birthLabel: "Birthdate",
+        birthHelp: "6 digits only",
         startButton: "ログイン",
         loginButton: "🔑 登録済みですか？ → ログイン",
         registerButton: "🆕 初めてですか？ → 新規登録",
@@ -1903,6 +1965,7 @@
         pointLogButton: "ポイント履歴",
         sentHeartLogButton: "送ったいいね",
         logoutButton: "ログアウト",
+        backButton: "← Back",
         profileLogEmpty: "まだ記録がありません。",
         earlyBonusTitle: "🎁 先着ボーナス",
         earlyBonusLeft: "残り枠: {left} / {limit}名",
@@ -1924,8 +1987,8 @@
         likeWindowClosed: "このスタディはまだ終了していないか、いいね可能時間が過ぎました。",
         noEventParticipants: "この日程には他の参加者がまだいません。",
         selectName: "名前を入力して投票を始めてください。",
-        invalidName: "전호민(Ho) の形式で名前を入力してください。",
-        invalidBirth: "生年月日は920117のように数字6桁で入力してください。",
+        invalidName: "Only Korean, English letters, numbers, spaces, and parentheses are allowed.\n한글, 영어, 숫자, 공백, 괄호만 사용할 수 있습니다.",
+        invalidBirth: "Birthdate must be 6 digits. Example: 920117\n생년월일은 6자리 숫자로 입력해주세요. 예: 920117",
         duplicateMember: "同じ名前と生年月日ですでに登録されています。英語名を変更して再入力してください。",
         duplicateName: "同じ名前がすでにあります。同名の場合は英語名を変えてログインしてください。例: 방나리아(bang), 방나리아(alod)",
         started: "{name}さんで開始しました。",
@@ -2064,8 +2127,10 @@
       zh: {
         appTitle: "🌍 语言交换101",
         tagline: "投票、参加、收到喜欢后即可升级。",
-        nameLabel: "姓名：전호민(HO)（韩文名 + 英文名）",
-        birthLabel: "出生日期：920117（6位）",
+        nameLabel: "Name",
+        nameHelp: "Korean or English name is okay.",
+        birthLabel: "Birthdate",
+        birthHelp: "6 digits only",
         startButton: "登录",
         loginButton: "🔑 已注册？→ 登录",
         registerButton: "🆕 第一次？→ 新注册",
@@ -2105,6 +2170,7 @@
         pointLogButton: "积分记录",
         sentHeartLogButton: "发送喜欢",
         logoutButton: "退出登录",
+        backButton: "← Back",
         profileLogEmpty: "暂无记录。",
         earlyBonusTitle: "🎁 先到奖励",
         earlyBonusLeft: "剩余名额: {left} / {limit}人",
@@ -2126,8 +2192,8 @@
         likeWindowClosed: "该学习尚未结束或喜欢时间已结束。",
         noEventParticipants: "该日期暂无其他参加者。",
         selectName: "请输入姓名并开始投票。",
-        invalidName: "请按 전호민(Ho) 格式输入姓名。",
-        invalidBirth: "出生日期请输入920117这样的6位数字。",
+        invalidName: "Only Korean, English letters, numbers, spaces, and parentheses are allowed.\n한글, 영어, 숫자, 공백, 괄호만 사용할 수 있습니다.",
+        invalidBirth: "Birthdate must be 6 digits. Example: 920117\n생년월일은 6자리 숫자로 입력해주세요. 예: 920117",
         duplicateMember: "相同姓名和出生日期已注册。请更改英文名后再试。",
         duplicateName: "已存在相同姓名。同名时请更改英文名后重新登录。例: 방나리아(bang), 방나리아(alod)。",
         started: "已用{name}开始。",
@@ -2330,7 +2396,8 @@
       return {
         id: `${cleanBirth}|${normalizeName(cleanName)}`,
         name: cleanName,
-        birth: cleanBirth
+        birth: cleanBirth,
+        birthdate: cleanBirth
       };
     }
 
@@ -2391,19 +2458,48 @@
       if (!saved) return null;
       try {
         const parsed = JSON.parse(saved);
-        if (parsed?.name && parsed?.birth) return makeMember(parsed.name, parsed.birth);
+        if (parsed?.name && (parsed?.birth || parsed?.birthdate)) return makeMember(parsed.name, parsed.birth || parsed.birthdate);
         if (parsed?.id && parsed?.name) return parsed;
       } catch {}
       return memberFromId(saved);
     }
 
-    function isNameValid(name) {
+    function getNameValidationError(name) {
       const value = name.trim();
-      return /^[가-힣]{2,}\([A-Za-z][A-Za-z0-9 ._-]{1,20}\)$/.test(value) || /^[A-Za-z][A-Za-z0-9 ._-]{1,30}$/.test(value);
+      if (!value) return "Please enter your name.\n이름을 입력해주세요.";
+      if (value.length < 2) return "Name must be at least 2 characters.\n이름은 최소 2글자 이상 입력해주세요.";
+      if (!/^[가-힣A-Za-z0-9() ]+$/.test(value)) {
+        return "Only Korean, English letters, numbers, spaces, and parentheses are allowed.\n한글, 영어, 숫자, 공백, 괄호만 사용할 수 있습니다.";
+      }
+      return "";
+    }
+
+    function isNameValid(name) {
+      return !getNameValidationError(name);
+    }
+
+    function getBirthValidationError(birth) {
+      const value = birth.trim();
+      if (!value) return "Please enter your birthdate.\n생년월일 6자리를 입력해주세요.";
+      if (!/^\d{6}$/.test(value)) {
+        return "Birthdate must be 6 digits. Example: 920117\n생년월일은 6자리 숫자로 입력해주세요. 예: 920117";
+      }
+      return "";
     }
 
     function isBirthValid(birth) {
-      return /^\d{6}$/.test(birth.trim());
+      return !getBirthValidationError(birth);
+    }
+
+    function showLoginError(text) {
+      if (!loginErrorEl) return;
+      loginErrorEl.textContent = text;
+      loginErrorEl.classList.toggle("hidden", !text);
+      if (text) messageEl.textContent = text;
+    }
+
+    function clearLoginError() {
+      showLoginError("");
     }
 
     function getSuggestedEnglishName(koreanName) {
@@ -3091,6 +3187,7 @@
         activeProfileDetail = "";
         profileDetailEl.classList.add("hidden");
         profileDetailEl.textContent = "";
+        updateBackButton();
         return;
       }
       const records = getMemberRecords(member);
@@ -3115,10 +3212,15 @@
       activeProfileDetail = kind;
       profileDetailEl.textContent = lines.length ? lines.join("\n") : t("profileLogEmpty");
       profileDetailEl.classList.remove("hidden");
+      updateBackButton();
     }
 
     function logoutMember() {
       localStorage.removeItem(MEMBER_KEY);
+      adminUnlocked = false;
+      adminPanelEl.classList.add("hidden");
+      adminLockEl.classList.remove("hidden");
+      adminToolsEl.classList.add("hidden");
       activeProfileDetail = "";
       profileDetailEl.classList.add("hidden");
       profileDetailEl.textContent = "";
@@ -3133,12 +3235,54 @@
       render();
       loginPanelEl.scrollIntoView({ behavior: "smooth", block: "start" });
       memberNameEl.focus();
+      updateBackButton();
     }
 
     function goLoginPage() {
       adminPanelEl.classList.add("hidden");
       loginPanelEl.scrollIntoView({ behavior: "smooth", block: "start" });
       memberNameEl.focus();
+    }
+
+    function hasOpenSubView() {
+      return !profileDetailEl.classList.contains("hidden") ||
+        !levelGuideEl.classList.contains("hidden") ||
+        !likePanelEl.classList.contains("hidden") ||
+        !materialsPanelEl.classList.contains("hidden") ||
+        !adminPanelEl.classList.contains("hidden");
+    }
+
+    function closeSubViews() {
+      activeProfileDetail = "";
+      profileDetailEl.classList.add("hidden");
+      profileDetailEl.textContent = "";
+      levelGuideEl.classList.add("hidden");
+      likePanelEl.classList.add("hidden");
+      materialsPanelEl.classList.add("hidden");
+      if (!adminUnlocked) adminPanelEl.classList.add("hidden");
+      updateContentMode();
+    }
+
+    function updateBackButton() {
+      const shouldShow = Boolean(getMember());
+      backBarEl.classList.toggle("hidden", !shouldShow);
+    }
+
+    function handleBack() {
+      if (hasOpenSubView()) {
+        closeSubViews();
+        voteSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      if (window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+      if (!getMember()) {
+        goLoginPage();
+        return;
+      }
+      voteSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function eventFromStoredId(eventId) {
@@ -3279,6 +3423,14 @@
       } else if (!isSyntheticMember(member)) {
         logMemberAction("vote", member, { event: eventId, option });
       }
+      return true;
+    }
+
+    async function addAdminSyntheticVote(eventId, option, member) {
+      if (!member?.id) return false;
+      saveDirectoryMember(member);
+      const saved = await insertSupabaseVote(eventId, option, member);
+      if (!saved) return false;
       return true;
     }
 
@@ -3510,20 +3662,24 @@
     function readMemberForm() {
       const name = memberNameEl.value.trim();
       const birth = memberBirthEl.value.trim();
-      if (!isNameValid(name)) {
-        messageEl.textContent = t("invalidName");
+      const nameError = getNameValidationError(name);
+      if (nameError) {
+        showLoginError(nameError);
         memberNameEl.focus();
         return null;
       }
-      if (!isBirthValid(birth)) {
-        messageEl.textContent = t("invalidBirth");
+      const birthError = getBirthValidationError(birth);
+      if (birthError) {
+        showLoginError(birthError);
         memberBirthEl.focus();
         return null;
       }
+      clearLoginError();
       return makeMember(name, birth);
     }
 
     function enterMember(member, action = "login") {
+      clearLoginError();
       localStorage.setItem(MEMBER_KEY, JSON.stringify(member));
       saveDirectoryMember(member);
       ensureStats(member);
@@ -3543,20 +3699,18 @@
     function registerMember() {
       const member = readMemberForm();
       if (!member) return null;
-      const ok = window.confirm("⚠️ 최초 등록한 이름과 생년월일은 등록 후 절대 변경할 수 없습니다.\n카카오톡 오픈채팅 닉네임과 동일한 이름으로 등록해 주세요. (예: 전호민(HO))\n앞으로 계속 사용할 계정 정보이므로 정확하게 입력하고 꼭 기억해 주세요.");
+      const ok = window.confirm("Please use the same name as your Kakao open chat nickname.\nYour name and birthdate cannot be changed after registration.\nThis account will be used continuously, so please enter the information correctly.\n\n카카오톡 오픈채팅 닉네임과 같은 이름을 사용해주세요.\n등록 후 이름과 생년월일은 변경할 수 없습니다.");
       if (!ok) return null;
       const directory = getDirectory();
       const sameNameExists = Object.entries(directory).some(([id, saved]) => saved.name === member.name && id !== member.id);
       if (sameNameExists) {
         const text = t("duplicateName");
-        messageEl.textContent = text;
-        window.alert(text);
+        showLoginError(text);
         memberNameEl.focus();
         return null;
       }
       if (directory[member.id]) {
-        messageEl.textContent = t("duplicateMember");
-        window.alert(t("duplicateMember"));
+        showLoginError(t("duplicateMember"));
         memberNameEl.focus();
         return null;
       }
@@ -4071,6 +4225,7 @@
           adminPasswordEl.focus();
         }
       }
+      updateBackButton();
     }
 
     function unlockAdmin() {
@@ -4091,6 +4246,7 @@
       renderAdminHeartAudit();
       renderEventPosts();
       adminToolsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      updateBackButton();
     }
 
     function saveNotice() {
@@ -4167,15 +4323,33 @@
       const count = Math.min(5, Math.max(1, Number(adminCountSelectEl.value || 1)));
       const option = adminOptionSelectEl.value;
       const eventId = adminEventSelectEl.value;
-      const names = [];
-      for (let index = 0; index < count; index += 1) {
-        const member = makeAdminRandomMember(eventId, option, index);
-        const saved = await addVoteForMember(eventId, option, member);
-        if (saved) names.push(member.name);
+      if (!eventId || !option) {
+        messageEl.textContent = "일정과 레벨을 선택해주세요.";
+        return;
       }
-      if (!names.length) return;
-      messageEl.textContent = t("adminAddedVote", { name: `${names.length}명`, option: t(option) });
-      render();
+      adminAddVoteEl.disabled = true;
+      messageEl.textContent = "관리자 투표 인원을 추가하는 중입니다...";
+      const names = [];
+      try {
+        for (let index = 0; index < count; index += 1) {
+          const member = makeAdminRandomMember(eventId, option, index);
+          const saved = await addAdminSyntheticVote(eventId, option, member);
+          if (saved) names.push(member.name);
+        }
+        if (!names.length) {
+          messageEl.textContent = "투표 인원을 추가하지 못했습니다. Supabase 저장 권한을 확인해주세요.";
+          return;
+        }
+        const loaded = await loadVotesFromSupabase({ silent: false, force: true });
+        if (!loaded) {
+          messageEl.textContent = "투표 인원은 저장됐지만 화면 갱신에 실패했습니다. 새로고침을 눌러 확인해주세요.";
+          return;
+        }
+        messageEl.textContent = t("adminAddedVote", { name: `${names.length}명`, option: t(option) });
+        render();
+      } finally {
+        adminAddVoteEl.disabled = false;
+      }
     }
 
     async function addAdminRealVote() {
@@ -4187,11 +4361,17 @@
         return;
       }
       const option = adminRealOptionSelectEl.value;
-      const saved = await addVoteForMember(adminRealEventSelectEl.value, option, member);
-      if (!saved) return;
-      adminRealNameInputEl.value = "";
-      messageEl.textContent = t("adminRealAdded", { name: member.name, option: t(option) });
-      render();
+      adminAddRealVoteEl.disabled = true;
+      messageEl.textContent = "실제 회원을 투표에 추가하는 중입니다...";
+      try {
+        const saved = await addVoteForMember(adminRealEventSelectEl.value, option, member);
+        if (!saved) return;
+        adminRealNameInputEl.value = "";
+        messageEl.textContent = t("adminRealAdded", { name: member.name, option: t(option) });
+        render();
+      } finally {
+        adminAddRealVoteEl.disabled = false;
+      }
     }
 
     function saveSchedule() {
@@ -4263,12 +4443,14 @@
         materialsPanelEl.classList.add("hidden");
         activeProfileDetail = "";
         profileDetailEl.classList.add("hidden");
+        updateBackButton();
         return;
       }
       const showingEvents = activeFilter === "event";
       pollsEl.classList.toggle("hidden", showingEvents);
       eventPanelEl.classList.toggle("hidden", !showingEvents);
       materialsPanelEl.classList.add("hidden");
+      updateBackButton();
     }
 
     function toggleLikePanel() {
@@ -4278,6 +4460,7 @@
         renderLikeEvents();
         renderLikeTargets();
       }
+      updateBackButton();
     }
 
     function render() {
@@ -4321,6 +4504,7 @@
       materialsPanelEl.classList.remove("hidden");
       document.querySelectorAll(".tab").forEach((item) => item.classList.toggle("active", item === materialsToggleEl));
       renderMaterials();
+      updateBackButton();
     });
 
     document.querySelectorAll(".material-tab").forEach((tab) => {
@@ -4336,7 +4520,10 @@
     memberNameEl.addEventListener("keydown", (event) => {
       if (event.key === "Enter") saveMember();
     });
-    memberNameEl.addEventListener("input", updateNameSuggestion);
+    memberNameEl.addEventListener("input", () => {
+      clearLoginError();
+      updateNameSuggestion();
+    });
     nameSuggestionEl.addEventListener("click", () => {
       if (!nameSuggestionEl.dataset.suggestedName) return;
       memberNameEl.value = nameSuggestionEl.dataset.suggestedName;
@@ -4346,6 +4533,7 @@
     memberBirthEl.addEventListener("keydown", (event) => {
       if (event.key === "Enter") saveMember();
     });
+    memberBirthEl.addEventListener("input", clearLoginError);
     sendHeartEl.addEventListener("click", sendHeart);
     toggleLikePanelEl.addEventListener("click", toggleLikePanel);
     showAttendanceLogEl.addEventListener("click", () => showProfileDetail("attendance"));
@@ -4355,8 +4543,10 @@
     pointPillEl.addEventListener("click", () => showProfileDetail("points"));
     sentHeartPillEl.addEventListener("click", () => showProfileDetail("sentHearts"));
     logoutButtonEl.addEventListener("click", logoutMember);
+    backButtonEl.addEventListener("click", handleBack);
     levelGuideToggleEl.addEventListener("click", () => {
       levelGuideEl.classList.toggle("hidden");
+      updateBackButton();
     });
     adminToggleEl.addEventListener("click", toggleAdminPanel);
     adminLoginEl.addEventListener("click", unlockAdmin);
@@ -4400,7 +4590,7 @@
       languagePopoverEl.classList.add("hidden");
     });
 
-    messageEl.textContent = t("selectName");
+    messageEl.textContent = getMember() ? t("started", { name: getMember().name }) : t("selectName");
     setInterval(() => {
       render();
     }, 60000);
