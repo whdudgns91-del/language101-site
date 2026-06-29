@@ -1306,7 +1306,7 @@ This account will be used continuously, so please enter the information correctl
       <aside class="panel ranking">
         <h2 data-i18n="weeklyTop">🏆 주간 레벨 TOP 3</h2>
         <ol class="rank-list" id="rankingList"></ol>
-        <p class="small-note" data-i18n="rankingHelp">참석 예약 + 받은 좋아요 기준으로 계산됩니다.</p>
+        <p class="small-note" data-i18n="rankingHelp">월요일~일요일 사이 받은 주간 포인트 기준으로 실시간 계산됩니다.</p>
       </aside>
     </section>
 
@@ -1506,6 +1506,7 @@ This account will be used continuously, so please enter the information correctl
     let votesPollTimer = null;
     let votesLoadSerial = 0;
     let latestAppliedVotesSerial = 0;
+    const adminAuditOpenKeys = new Set();
     const pendingVoteActions = new Set();
 
     const i18n = {
@@ -1521,7 +1522,7 @@ This account will be used continuously, so please enter the information correctl
         registerButton: "First time here? → Sign up",
         loginHelp: "Please use the same name as your Kakao open chat nickname.\nYour name and birthdate cannot be changed after registration.\nThis account will be used continuously, so please enter the information correctly.",
         weeklyTop: "🏆 주간 레벨 TOP 3",
-        rankingHelp: "참석 예약 + 받은 좋아요 기준으로 계산됩니다.",
+        rankingHelp: "월요일~일요일 사이 받은 주간 포인트 기준으로 실시간 계산됩니다.",
         voteTitle: "🗳️ 이번 주 스터디 투표",
         voteHelp: "참여 가능한 일정과 레벨을 고르세요. 투표하면 참석 포인트가 쌓입니다.",
         filterAll: "전체",
@@ -1726,7 +1727,7 @@ This account will be used continuously, so please enter the information correctl
         registerButton: "First time here? → Sign up",
         loginHelp: "Please use the same name as your Kakao open chat nickname.\nYour name and birthdate cannot be changed after registration.\nThis account will be used continuously, so please enter the information correctly.",
         weeklyTop: "🏆 Weekly Level TOP 3",
-        rankingHelp: "Calculated from attendance reservations and received likes.",
+        rankingHelp: "Calculated in realtime from points received between Monday and Sunday.",
         voteTitle: "🗳️ This Week's Study Polls",
         voteHelp: "Choose the schedule and level you can join. Voting gives attendance points.",
         filterAll: "All",
@@ -1931,7 +1932,7 @@ This account will be used continuously, so please enter the information correctl
         registerButton: "🆕 初めてですか？ → 新規登録",
         loginHelp: "⚠️ 初回登録情報は変更できません。正確に入力してください。今後も使う情報なので必ず覚えておいてください。",
         weeklyTop: "🏆 週間レベルTOP 3",
-        rankingHelp: "参加予約と受け取ったいいねを基準に計算されます。",
+        rankingHelp: "月曜日から日曜日までに獲得した週間ポイントでリアルタイム計算されます。",
         voteTitle: "🗳️ 今週のスタディ投票",
         voteHelp: "参加できる日程とレベルを選んでください。投票すると参加ポイントが貯まります。",
         filterAll: "全体",
@@ -2136,7 +2137,7 @@ This account will be used continuously, so please enter the information correctl
         registerButton: "🆕 第一次？→ 新注册",
         loginHelp: "⚠️ 首次注册信息无法更改。请准确输入，并记住以后会继续使用的信息。",
         weeklyTop: "🏆 本周等级 TOP 3",
-        rankingHelp: "根据参加预约和收到的喜欢计算。",
+        rankingHelp: "根据周一到周日获得的每周积分实时计算。",
         voteTitle: "🗳️ 本周学习投票",
         voteHelp: "选择可参加的日程和等级。投票后会获得参加积分。",
         filterAll: "全部",
@@ -2796,6 +2797,22 @@ This account will be used continuously, so please enter the information correctl
 
     function getDeadline(event) {
       return new Date(new Date(event.start).getTime() - 4 * 60 * 60 * 1000);
+    }
+
+    function getCurrentWeekRange() {
+      const todayParts = getKstDateParts();
+      const todayUtcDate = getUtcDateFromParts(todayParts);
+      const daysSinceMonday = (todayUtcDate.getUTCDay() + 6) % 7;
+      const start = addDaysToUtcDate(todayUtcDate, -daysSinceMonday);
+      const end = addDaysToUtcDate(start, 7);
+      return { start, end };
+    }
+
+    function isEventInCurrentWeek(event) {
+      if (!event?.start) return false;
+      const eventDate = getUtcDateFromParts(getKstDateParts(new Date(event.start)));
+      const { start, end } = getCurrentWeekRange();
+      return eventDate >= start && eventDate < end;
     }
 
     function isPollClosed(event) {
@@ -3624,7 +3641,7 @@ This account will be used continuously, so please enter the information correctl
           if (!ids.length) return;
           detailLines.push(`<div><strong>${t(option)}</strong>: ${ids.map((id) => escapeHtml(memberFromId(id).name)).join(", ")}</div>`);
         });
-        const html = `<details><summary>${escapeHtml(formatDateLabel(schedule.start))} ${escapeHtml(t(base.title))} · ${escapeHtml(t("totalCount", { count: total }))}</summary>${detailLines.join("")}</details>`;
+        const html = `<details data-audit-event="${escapeHtml(eventId)}"${adminAuditOpenKeys.has(eventId) ? " open" : ""}><summary>${escapeHtml(formatDateLabel(schedule.start))} ${escapeHtml(t(base.title))} · ${escapeHtml(t("totalCount", { count: total }))}</summary>${detailLines.join("")}</details>`;
         if (isPollClosed(schedule)) {
           closedSections.push(html);
         } else {
@@ -3635,6 +3652,17 @@ This account will be used continuously, so please enter the information correctl
       adminVoteAuditEl.innerHTML = hasAny
         ? `<strong>진행 중 투표자 확인</strong>${activeSections.join("") || `<div>${escapeHtml(t("adminNoVotes"))}</div>`}<br><strong>종료 된 투표자 확인</strong>${closedSections.join("") || `<div>${escapeHtml(t("adminNoVotes"))}</div>`}`
         : escapeHtml(t("adminNoVotes"));
+      adminVoteAuditEl.querySelectorAll("details[data-audit-event]").forEach((item) => {
+        item.addEventListener("toggle", () => {
+          const key = item.dataset.auditEvent;
+          if (!key) return;
+          if (item.open) {
+            adminAuditOpenKeys.add(key);
+          } else {
+            adminAuditOpenKeys.delete(key);
+          }
+        });
+      });
     }
 
     function renderAdminHeartAudit() {
@@ -3926,23 +3954,47 @@ This account will be used continuously, so please enter the information correctl
       sentHeartPillEl.textContent = t("sentHearts", { count: stats.sentHearts });
     }
 
-    function renderRanking() {
-      const stats = getStats();
-      Object.keys(stats).forEach((id) => ensureStatsEntry(stats, memberFromId(id)));
-      writeJson(STATS_KEY, stats);
-      const rows = Object.entries(stats)
-        .filter(([id]) => isRankingVisibleMember(id))
-        .sort((a, b) => b[1].points - a[1].points)
+    function getWeeklyRankingRows() {
+      const ranking = {};
+      Object.entries(getVotes()).forEach(([eventId, eventVotes]) => {
+        const base = resolveEventById(eventId);
+        if (!base) return;
+        const event = getEvent(base);
+        if (!isEventInCurrentWeek(event)) return;
+
+        const uniqueIds = [];
+        Object.values(eventVotes || {}).forEach((ids) => {
+          ids.forEach((id) => {
+            if (!uniqueIds.includes(id)) uniqueIds.push(id);
+          });
+        });
+
+        uniqueIds.forEach((id, index) => {
+          const member = memberFromId(id);
+          if (!isRankingVisibleMember(member)) return;
+          if (!ranking[id]) ranking[id] = { id, name: member.name, points: 0, attendance: 0 };
+          ranking[id].attendance += 1;
+          ranking[id].points += pointRules.attendance;
+          if (index < EARLY_BONUS_LIMIT) ranking[id].points += pointRules.earlyBonus;
+        });
+      });
+
+      return Object.values(ranking)
+        .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))
         .slice(0, 3);
+    }
+
+    function renderRanking() {
+      const rows = getWeeklyRankingRows();
       rankingListEl.innerHTML = "";
       if (!rows.length) {
         rankingListEl.innerHTML = `<li><strong>${t("noRanking")}</strong><small>0 pt</small></li>`;
         return;
       }
-      rows.forEach(([id, value], index) => {
+      rows.forEach((value, index) => {
         const li = document.createElement("li");
         const medals = ["🥇", "🥈", "🥉"];
-        li.innerHTML = `<strong>${medals[index] || `${index + 1}.`} ${value.name || memberFromId(id).name}</strong><small>Lv.${getLevel(value.points)} · ${value.points} pt</small>`;
+        li.innerHTML = `<strong>${medals[index] || `${index + 1}.`} ${escapeHtml(value.name)}</strong><small>Lv.${getLevel(value.points)} · ${value.points} pt</small>`;
         rankingListEl.appendChild(li);
       });
     }
