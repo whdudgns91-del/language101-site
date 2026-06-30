@@ -20,50 +20,59 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      color-scheme: light;
-      --ink: #151a22;
-      --muted: #657184;
-      --line: #dce4ee;
-      --bg: #f5f8fb;
-      --paper: #fff;
-      --teal: #07927e;
-      --blue: #246fcf;
+      color-scheme: dark;
+      --ink: #f7fafc;
+      --muted: #94a3b8;
+      --line: rgba(148, 163, 184, 0.18);
+      --bg: #080f18;
+      --paper: #111b27;
+      --teal: #16a34a;
+      --blue: #2563eb;
       --yellow: #ffe100;
       --heart: #e84b6a;
-      --shadow: 0 16px 42px rgba(34, 48, 70, 0.11);
+      --shadow: 0 16px 42px rgba(0, 0, 0, 0.28);
     }
 
     * { box-sizing: border-box; }
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      font-family: "Pretendard", "Noto Sans KR", "Inter", sans-serif;
       color: var(--ink);
-      background: linear-gradient(135deg, rgba(7, 146, 126, 0.13), transparent 36%), var(--bg);
+      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 32%), var(--bg);
     }
 
     button, input, select { font: inherit; }
     button { cursor: pointer; }
 
     .app {
-      width: min(1120px, calc(100% - 28px));
+      width: min(860px, calc(100% - 24px));
       margin: 0 auto;
-      padding: 22px 0 44px;
+      padding: 16px 0 92px;
     }
 
     .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       min-width: 0;
+    }
+
+    .brand-logo {
+      width: 92px;
+      height: 42px;
+      flex: 0 0 auto;
+      object-fit: contain;
+      border-radius: 6px;
+      background: transparent;
     }
 
     .brand-row {
@@ -75,19 +84,19 @@
 
     .social-links {
       display: flex;
-      gap: 7px;
+      gap: 5px;
       align-items: center;
       flex: 0 0 auto;
     }
 
     .social-link {
       display: grid;
-      width: 36px;
-      height: 36px;
+      width: 23px;
+      height: 23px;
       place-items: center;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
       overflow: hidden;
     }
 
@@ -100,15 +109,24 @@
     h1, h2, h3, p { margin-top: 0; }
     h1 {
       margin-bottom: 4px;
-      font-size: clamp(27px, 4vw, 42px);
-      line-height: 1.08;
+      font-size: clamp(16px, 3vw, 22px);
+      line-height: 1.12;
       letter-spacing: 0;
+    }
+
+    .header-user {
+      margin: 0 0 2px;
+      font-size: clamp(18px, 3vw, 26px);
+      font-weight: 900;
+      line-height: 1.18;
+      color: var(--ink);
+      overflow-wrap: anywhere;
     }
 
     .hero p, .helper {
       margin-bottom: 0;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 11px;
       line-height: 1.45;
     }
 
@@ -130,23 +148,23 @@
       display: flex;
       gap: 6px;
       border: 1px solid var(--line);
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 8px;
-      background: #fff;
+      background: #0d1622;
       box-shadow: var(--shadow);
     }
 
     .icon-btn, .flag-btn {
       display: grid;
-      min-width: 40px;
-      height: 40px;
+      min-width: 34px;
+      height: 34px;
       place-items: center;
       min-height: 40px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
+      border-radius: 999px;
+      background: #101a26;
       color: var(--ink);
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 900;
     }
 
@@ -156,20 +174,21 @@
     }
 
     .icon-btn {
-      font-size: 24px;
+      font-size: 18px;
     }
 
     .hero-tools {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
       justify-content: flex-end;
+      flex-wrap: wrap;
     }
 
     .panel, .card {
-      border: 1px solid rgba(220, 228, 238, 0.95);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
       box-shadow: var(--shadow);
     }
 
@@ -275,7 +294,7 @@
 
     .field { display: grid; gap: 7px; }
     label {
-      color: #354254;
+      color: #cbd5e1;
       font-size: 13px;
       font-weight: 900;
     }
@@ -286,7 +305,7 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 0 12px;
-      background: #fff;
+      background: #0d1622;
       color: var(--ink);
       outline: none;
     }
@@ -302,7 +321,7 @@
       border-radius: 8px;
       padding: 0 14px;
       color: var(--ink);
-      background: #fff;
+      background: #0d1622;
       font-weight: 900;
       white-space: nowrap;
     }
@@ -364,8 +383,8 @@
     .message {
       min-height: 22px;
       margin: 0 0 12px;
-      color: var(--teal);
-      font-size: 14px;
+      color: #35d07f;
+      font-size: 12px;
       font-weight: 900;
     }
 
@@ -375,6 +394,7 @@
       margin-bottom: 14px;
       padding: 14px;
       border-color: rgba(7, 146, 126, 0.24);
+      background: #111b27;
     }
 
     .notice h2 {
@@ -385,7 +405,7 @@
 
     .notice p {
       margin-bottom: 0;
-      color: #354254;
+      color: #cbd5e1;
       font-size: 14px;
       line-height: 1.5;
       white-space: pre-line;
@@ -613,23 +633,35 @@
 
     .section {
       margin-bottom: 14px;
-      padding: 16px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
     }
 
     .category-tabs, .material-tabs {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 14px;
+      flex-wrap: nowrap;
+      gap: 7px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      padding: 4px 2px 10px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .category-tabs::-webkit-scrollbar, .material-tabs::-webkit-scrollbar {
+      display: none;
     }
 
     .tab, .material-tab {
-      min-height: 38px;
+      min-height: 30px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      padding: 0 13px;
-      background: #fff;
+      padding: 0 11px;
+      background: #101a26;
       color: var(--ink);
+      font-size: 11px;
       font-weight: 900;
       white-space: nowrap;
     }
@@ -660,7 +692,7 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 14px;
-      background: #fff;
+      background: #111b27;
     }
 
     .event-post h3 {
@@ -671,7 +703,7 @@
 
     .event-post p {
       margin-bottom: 0;
-      color: #354254;
+      color: #cbd5e1;
       font-size: 14px;
       line-height: 1.5;
       white-space: pre-line;
@@ -686,8 +718,8 @@
 
     .btn.danger {
       border-color: #d84646;
-      color: #b42323;
-      background: #fff5f5;
+      color: #ff5f66;
+      background: rgba(216, 33, 50, 0.12);
     }
 
     .materials {
@@ -707,7 +739,7 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 13px;
-      background: #fff;
+      background: #111b27;
     }
 
     .material-group h3 {
@@ -733,57 +765,124 @@
 
     .polls {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      border-top: 0;
     }
 
     .card {
       display: grid;
-      gap: 12px;
-      padding: 14px;
+      grid-template-columns: 58px minmax(0, 1fr);
+      gap: 11px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: linear-gradient(180deg, rgba(17, 27, 39, 0.98), rgba(13, 22, 34, 0.98));
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.24);
     }
 
     .card.applied {
-      border-color: rgba(22, 163, 74, 0.5);
+      border-color: rgba(34, 197, 94, 0.36);
+      background: linear-gradient(180deg, rgba(17, 33, 31, 0.98), rgba(13, 22, 34, 0.98));
+    }
+
+    .study-thumb {
+      display: grid;
+      width: 54px;
+      height: 72px;
+      place-items: center;
+      align-content: center;
+      justify-self: center;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: linear-gradient(180deg, #12365d, #0f2238);
+      color: #dbeafe;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.05;
+      text-align: center;
+    }
+
+    .study-thumb small {
+      display: block;
+      margin-top: 2px;
+      color: #f8fafc;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .study-thumb span {
+      display: block;
+      color: #93c5fd;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .study-thumb strong {
+      display: block;
+      color: #fff;
+      font-size: 22px;
+      line-height: 1.05;
+    }
+
+    .study-thumb small {
+      color: #c7d2fe;
+      font-size: 10px;
+    }
+
+    .study-body {
+      display: grid;
+      min-width: 0;
+      gap: 9px;
     }
 
     .card h3 {
       margin-bottom: 4px;
-      font-size: 18px;
+      font-size: 15px;
       line-height: 1.22;
+    }
+
+    .card .btn.primary {
+      width: 100%;
+      min-height: 34px;
+      border-radius: 7px;
+      background: linear-gradient(180deg, #18b65b, #139447);
+      border-color: transparent;
+      box-shadow: 0 8px 16px rgba(20, 164, 80, 0.18);
+      font-size: 12px;
     }
 
     .card-head {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
-      gap: 10px;
+      gap: 8px;
       align-items: start;
     }
 
     .deadline-badge {
       display: inline-flex;
-      min-height: 30px;
+      min-height: 26px;
       align-items: center;
       justify-content: center;
       border-radius: 999px;
       padding: 0 10px;
       background: #d82132;
       color: #fff;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 900;
       white-space: nowrap;
     }
 
     .completion-badge {
       display: inline-flex;
-      min-height: 30px;
+      min-height: 26px;
       align-items: center;
       justify-content: center;
       border-radius: 999px;
       padding: 0 10px;
       background: #16A34A;
       color: #fff;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 900;
       white-space: nowrap;
     }
@@ -792,8 +891,43 @@
       display: grid;
       gap: 4px;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       line-height: 1.35;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 70;
+      display: none;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 -10px 28px rgba(34, 48, 70, 0.1);
+      backdrop-filter: blur(12px);
+    }
+
+    .bottom-nav button {
+      display: grid;
+      gap: 2px;
+      min-height: 62px;
+      place-items: center;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .bottom-nav span {
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .bottom-nav button.active {
+      color: var(--teal);
     }
 
     .option-list {
@@ -1194,15 +1328,36 @@
     }
 
     @media (max-width: 900px) {
-      .dashboard, .polls, .material-groups, .admin-grid, .event-panel, .like-target-list, .like-event-list { grid-template-columns: 1fr; }
+      .dashboard, .material-groups, .admin-grid, .event-panel, .like-target-list, .like-event-list { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
-      .hero, .login, .like-grid, .admin-lock { grid-template-columns: 1fr; }
+      .app {
+        width: min(100% - 20px, 1040px);
+        padding-top: 12px;
+      }
+      .login, .like-grid, .admin-lock { grid-template-columns: 1fr; }
+      .hero {
+        align-items: flex-start;
+      }
+      .brand {
+        align-items: flex-start;
+      }
+      .brand-logo {
+        width: 58px;
+        height: 38px;
+      }
       .brand-row { flex-wrap: wrap; }
-      .btn, .language-buttons, .hero-tools { width: 100%; }
+      .social-link {
+        width: 30px;
+        height: 30px;
+      }
+      .hero p {
+        font-size: 12px;
+      }
+      .btn, .language-buttons { width: 100%; }
       .back-button { width: auto; }
-      .hero-tools { justify-content: stretch; }
+      .hero-tools { justify-content: flex-end; }
       .language-menu { flex: 0 0 auto; }
       .language-popover {
         position: fixed;
@@ -1212,6 +1367,32 @@
         z-index: 100;
         flex-direction: column;
       }
+      .section {
+        border: 0;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+      .section h2 {
+        padding: 0 2px;
+        font-size: 18px;
+      }
+      .section > .helper {
+        padding: 0 2px;
+      }
+      .card {
+        grid-template-columns: 58px minmax(0, 1fr);
+      }
+      .study-thumb {
+        width: 54px;
+        height: 72px;
+      }
+      .bottom-nav {
+        display: grid;
+      }
+      .logout-panel {
+        margin-bottom: 72px;
+      }
     }
   </style>
 </head>
@@ -1219,25 +1400,28 @@
   <main class="app">
     <header class="hero">
       <div class="brand">
+        <img class="brand-logo" src="2026-06-30-language101-logo.png" alt="언어교환101">
         <div>
           <div class="brand-row">
-            <h1 data-i18n="appTitle">🌍 언어교환101</h1>
-            <div class="social-links" aria-label="언어교환101 소셜 링크">
-              <a class="social-link" href="https://www.instagram.com/language___class/" target="_blank" rel="noreferrer" aria-label="Instagram">
-                <img src="2026-06-25-instagram-icon.png" alt="">
-              </a>
-              <a class="social-link" href="https://www.youtube.com/@LanguageExchange-mq3sh" target="_blank" rel="noreferrer" aria-label="YouTube">
-                <img src="2026-06-25-youtube-icon.png" alt="">
-              </a>
-              <a class="social-link" href="https://pf.kakao.com/_xbMxiVxb" target="_blank" rel="noreferrer" aria-label="KakaoTalk">
-                <img src="2026-06-25-kakao-talk-contact-icon.png" alt="">
-              </a>
-            </div>
+            <h1 class="header-user" id="headerUserName" data-i18n="appTitle">언어교환101</h1>
           </div>
           <p data-i18n="tagline">투표하고, 참석하고, 좋아요를 받으면 레벨이 올라갑니다.</p>
         </div>
       </div>
       <div class="hero-tools">
+        <div class="social-links" aria-label="언어교환101 소셜 링크">
+          <a class="social-link" href="https://www.instagram.com/language___class/" target="_blank" rel="noreferrer" aria-label="Instagram">
+            <img src="2026-06-25-instagram-icon.png" alt="">
+          </a>
+          <a class="social-link" href="https://www.youtube.com/@LanguageExchange-mq3sh" target="_blank" rel="noreferrer" aria-label="YouTube">
+            <img src="2026-06-25-youtube-icon.png" alt="">
+          </a>
+          <a class="social-link" href="https://pf.kakao.com/_xbMxiVxb" target="_blank" rel="noreferrer" aria-label="KakaoTalk">
+            <img src="2026-06-25-kakao-talk-contact-icon.png" alt="">
+          </a>
+        </div>
+        <button type="button" class="icon-btn" id="profileOpen" aria-label="나의 프로필" title="나의 프로필">👤</button>
+        <button type="button" class="icon-btn hidden" id="adminShortcut" aria-label="관리자" title="관리자">⚙</button>
         <div class="language-menu" aria-label="번역 언어 선택">
           <button type="button" class="icon-btn" id="languageToggle" aria-label="번역 언어 선택" title="번역 언어 선택">🌐</button>
           <div class="language-popover hidden" id="languagePopover">
@@ -1501,6 +1685,13 @@ This account will be used continuously, so please enter the information correctl
 
     <div class="heart-burst hidden" id="heartBurst" aria-hidden="true"></div>
 
+    <nav class="bottom-nav hidden" id="bottomNav" aria-label="모바일 하단 메뉴">
+      <button type="button" id="bottomHome" class="active"><span aria-hidden="true">🏠</span><span>홈</span></button>
+      <button type="button" id="bottomVote"><span aria-hidden="true">🗳️</span><span>투표</span></button>
+      <button type="button" id="bottomProfile"><span aria-hidden="true">👤</span><span>나의 프로필</span></button>
+      <button type="button" id="bottomAdmin" class="hidden"><span aria-hidden="true">⚙</span><span>관리자</span></button>
+    </nav>
+
   </main>
 
   <script>
@@ -1575,6 +1766,14 @@ This account will be used continuously, so please enter the information correctl
     const memberBirthEl = document.querySelector("#memberBirth");
     const saveMemberEl = document.querySelector("#saveMember");
     const registerMemberEl = document.querySelector("#registerMember");
+    const headerUserNameEl = document.querySelector("#headerUserName");
+    const profileOpenEl = document.querySelector("#profileOpen");
+    const adminShortcutEl = document.querySelector("#adminShortcut");
+    const bottomNavEl = document.querySelector("#bottomNav");
+    const bottomHomeEl = document.querySelector("#bottomHome");
+    const bottomVoteEl = document.querySelector("#bottomVote");
+    const bottomProfileEl = document.querySelector("#bottomProfile");
+    const bottomAdminEl = document.querySelector("#bottomAdmin");
     const loginErrorEl = document.querySelector("#loginError");
     const backBarEl = document.querySelector("#backBar");
     const backButtonEl = document.querySelector("#backButton");
@@ -1654,6 +1853,7 @@ This account will be used continuously, so please enter the information correctl
 
     let activeFilter = "all";
     let activeMaterial = "english";
+    let activeView = "home";
     let currentLang = "ko";
     let adminUnlocked = false;
     let editingPostIndex = null;
@@ -1673,7 +1873,7 @@ This account will be used continuously, so please enter the information correctl
 
     const i18n = {
       ko: {
-        appTitle: "🌍 언어교환101",
+        appTitle: "언어교환101",
         tagline: "Vote, check attendance, receive likes, and level up.",
         nameLabel: "Name",
         nameHelp: "Korean or English name is okay.",
@@ -1881,7 +2081,7 @@ This account will be used continuously, so please enter the information correctl
         langMessage: "한국어 보기로 설정했습니다."
       },
       en: {
-        appTitle: "🌍 Language Exchange 101",
+        appTitle: "Language Exchange 101",
         tagline: "Vote, check attendance, receive likes, and level up.",
         nameLabel: "Name",
         nameHelp: "Korean or English name is okay.",
@@ -2089,7 +2289,7 @@ This account will be used continuously, so please enter the information correctl
         langMessage: "English view selected."
       },
       ja: {
-        appTitle: "🌍 言語交換101",
+        appTitle: "言語交換101",
         tagline: "投票、参加、いいねでレベルアップします。",
         nameLabel: "Name",
         nameHelp: "Korean or English name is okay.",
@@ -2297,7 +2497,7 @@ This account will be used continuously, so please enter the information correctl
         langMessage: "日本語表示を選択しました。"
       },
       zh: {
-        appTitle: "🌍 语言交换101",
+        appTitle: "语言交换101",
         tagline: "投票、参加、收到喜欢后即可升级。",
         nameLabel: "Name",
         nameHelp: "Korean or English name is okay.",
@@ -3448,6 +3648,7 @@ This account will be used continuously, so please enter the information correctl
       selectedLikeTargets = [];
       selectedLikeEventId = "";
       expandedPollId = "";
+      activeView = "home";
       memberNameEl.value = "";
       memberBirthEl.value = "";
       updateNameSuggestion();
@@ -3460,8 +3661,38 @@ This account will be used continuously, so please enter the information correctl
 
     function goLoginPage() {
       adminPanelEl.classList.add("hidden");
+      activeView = "home";
       loginPanelEl.scrollIntoView({ behavior: "smooth", block: "start" });
       memberNameEl.focus();
+    }
+
+    function setActiveView(view) {
+      activeView = view;
+      if (view === "home") {
+        activeFilter = "all";
+        expandedPollId = "";
+      }
+      if (view === "vote" && activeFilter === "event") {
+        activeFilter = "all";
+      }
+      if (view === "profile") {
+        adminPanelEl.classList.add("hidden");
+      }
+      if (view === "admin") {
+        adminPanelEl.classList.remove("hidden");
+        renderAdminEventOptions();
+        renderAdminRealEventOptions();
+        renderAdminStatus();
+        if (adminUnlocked) {
+          adminLockEl.classList.add("hidden");
+          adminToolsEl.classList.remove("hidden");
+        } else {
+          adminLockEl.classList.remove("hidden");
+          adminToolsEl.classList.add("hidden");
+        }
+      }
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function hasOpenSubView() {
@@ -3492,6 +3723,10 @@ This account will be used continuously, so please enter the information correctl
       if (hasOpenSubView()) {
         closeSubViews();
         voteSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      if (activeView === "profile" || activeView === "admin") {
+        setActiveView("home");
         return;
       }
       if (window.history.length > 1) {
@@ -4554,6 +4789,14 @@ This account will be used continuously, so please enter the information correctl
       return Math.max(0, EARLY_BONUS_LIMIT - getUniqueVoteCount(eventVotes));
     }
 
+    function getStudyThumb(event, schedule) {
+      const date = new Date(schedule.start);
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const weekday = ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
+      return `<span>${month}월</span><strong>${day}</strong><small>(${weekday})</small>`;
+    }
+
     function renderPolls() {
       const votes = getVotes();
       const member = getMember();
@@ -4586,36 +4829,39 @@ This account will be used continuously, so please enter the information correctl
         const card = document.createElement("article");
         card.className = `card${selected ? " applied" : ""}`;
         card.innerHTML = `
-          <div class="card-head">
-            <div>
-              <h3>${formatDateLabel(schedule.start)} ${t(event.title)}</h3>
-              <div class="meta">
-                <span>${t("scheduleTime", { time: `${formatTime(schedule.start)} ~ ${formatTime(schedule.end)}` })}</span>
-                <span>${schedule.place}</span>
-                <span>${t("deadlineTime", { deadline: formatDateTime(getDeadline(schedule)) })}</span>
-                <span>${t("totalCount", { count: total })}</span>
+          <div class="study-thumb" aria-hidden="true">${getStudyThumb(event, schedule)}</div>
+          <div class="study-body">
+            <div class="card-head">
+              <div>
+                <h3>${formatDateLabel(schedule.start)} ${t(event.title)}</h3>
+                <div class="meta">
+                  <span>${t("scheduleTime", { time: `${formatTime(schedule.start)} ~ ${formatTime(schedule.end)}` })}</span>
+                  <span>${schedule.place}</span>
+                  <span>${t("deadlineTime", { deadline: formatDateTime(getDeadline(schedule)) })}</span>
+                  <span>${t("totalCount", { count: total })}</span>
+                </div>
               </div>
+              <span class="${selected ? "completion-badge" : "deadline-badge"}">${selected ? t("applyCompleted") : getDeadlineBadge(schedule)}</span>
             </div>
-            <span class="${selected ? "completion-badge" : "deadline-badge"}">${selected ? t("applyCompleted") : getDeadlineBadge(schedule)}</span>
-          </div>
-          ${bonusOpen && !closed && !selected ? `
-            <div class="bonus-banner">
-              <span>${t("earlyBonusTitle")}</span>
-              <span>${t("earlyBonusLeft", { left: bonusLeft, limit: EARLY_BONUS_LIMIT })}</span>
-              <span>${t("earlyBonusPoint", { points: pointRules.earlyBonus })}</span>
+            ${bonusOpen && !closed && !selected ? `
+              <div class="bonus-banner">
+                <span>${t("earlyBonusTitle")}</span>
+                <span>${t("earlyBonusLeft", { left: bonusLeft, limit: EARLY_BONUS_LIMIT })}</span>
+                <span>${t("earlyBonusPoint", { points: pointRules.earlyBonus })}</span>
+              </div>
+            ` : ""}
+            ${closed ? `<p class="small-note warning">${t("voteClosed")}</p>` : ""}
+            <button type="button" class="${primaryButtonClass}"${selected || closed ? " disabled" : ""}>${primaryButtonText}</button>
+            ${selected ? `
+              <div class="selected-action-slot">
+                <p class="apply-complete-note">${appliedDate ? t("appliedAt", { date: appliedDate }) : t("applyCompleted")}</p>
+              </div>
+            ` : ""}
+            <div class="poll-detail ${expanded ? "" : "hidden"}">
+              <div class="option-list"></div>
+              <div class="cancel-slot"></div>
+              <div class="voter-list"></div>
             </div>
-          ` : ""}
-          ${closed ? `<p class="small-note warning">${t("voteClosed")}</p>` : ""}
-          <button type="button" class="${primaryButtonClass}"${selected || closed ? " disabled" : ""}>${primaryButtonText}</button>
-          ${selected ? `
-            <div class="selected-action-slot">
-              <p class="apply-complete-note">${appliedDate ? t("appliedAt", { date: appliedDate }) : t("applyCompleted")}</p>
-            </div>
-          ` : ""}
-          <div class="poll-detail ${expanded ? "" : "hidden"}">
-            <div class="option-list"></div>
-            <div class="cancel-slot"></div>
-            <div class="voter-list"></div>
           </div>
         `;
         const toggleButton = card.querySelector(".apply-toggle");
@@ -4819,6 +5065,7 @@ This account will be used continuously, so please enter the information correctl
     function toggleAdminPanel() {
       adminPanelEl.classList.toggle("hidden");
       if (!adminPanelEl.classList.contains("hidden")) {
+        activeView = "admin";
         renderAdminEventOptions();
         renderAdminRealEventOptions();
         renderAdminStatus();
@@ -4832,6 +5079,7 @@ This account will be used continuously, so please enter the information correctl
           adminPasswordEl.focus();
         }
       }
+      if (adminPanelEl.classList.contains("hidden") && activeView === "admin") activeView = "home";
       updateBackButton();
     }
 
@@ -4842,6 +5090,7 @@ This account will be used continuously, so please enter the information correctl
         return;
       }
       adminUnlocked = true;
+      activeView = "admin";
       adminLockEl.classList.add("hidden");
       adminToolsEl.classList.remove("hidden");
       messageEl.textContent = t("adminUnlocked");
@@ -5039,15 +5288,41 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function updateContentMode() {
-      const isLoggedIn = Boolean(getMember());
+      const member = getMember();
+      const isLoggedIn = Boolean(member);
+      if (headerUserNameEl) headerUserNameEl.textContent = isLoggedIn ? `📍 ${member.name}님` : t("appTitle");
       loginPanelEl.classList.toggle("hidden", isLoggedIn);
-      dashboardSectionEl.classList.toggle("hidden", !isLoggedIn);
-      voteSectionEl.classList.toggle("hidden", !isLoggedIn);
+      const showProfile = isLoggedIn && activeView === "profile";
+      const showAdmin = isLoggedIn && activeView === "admin" && adminUnlocked;
+      dashboardSectionEl.classList.toggle("hidden", !showProfile);
+      voteSectionEl.classList.toggle("hidden", !isLoggedIn || showProfile || showAdmin);
       logoutPanelEl.classList.toggle("hidden", !isLoggedIn);
-      if (!isLoggedIn) {
+      profileOpenEl.classList.toggle("hidden", !isLoggedIn);
+      bottomNavEl.classList.toggle("hidden", !isLoggedIn);
+      adminShortcutEl.classList.toggle("hidden", !adminUnlocked);
+      bottomAdminEl.classList.toggle("hidden", !adminUnlocked);
+      bottomHomeEl.classList.toggle("active", activeView === "home");
+      bottomVoteEl.classList.toggle("active", activeView === "vote");
+      bottomProfileEl.classList.toggle("active", activeView === "profile");
+      bottomAdminEl.classList.toggle("active", activeView === "admin");
+      if (showProfile) {
         pollsEl.classList.add("hidden");
         eventPanelEl.classList.add("hidden");
         materialsPanelEl.classList.add("hidden");
+        updateBackButton();
+        return;
+      }
+      if (activeView !== "admin" && adminUnlocked) {
+        adminPanelEl.classList.add("hidden");
+      }
+      if (!isLoggedIn) {
+        bottomNavEl.classList.add("hidden");
+        profileOpenEl.classList.add("hidden");
+        adminShortcutEl.classList.add("hidden");
+        pollsEl.classList.add("hidden");
+        eventPanelEl.classList.add("hidden");
+        materialsPanelEl.classList.add("hidden");
+        adminPanelEl.classList.add("hidden");
         activeProfileDetail = "";
         profileDetailEl.classList.add("hidden");
         updateBackButton();
@@ -5097,6 +5372,7 @@ This account will be used continuously, so please enter the information correctl
     document.querySelectorAll(".tab").forEach((tab) => {
       if (tab.id === "materialsToggle") return;
       tab.addEventListener("click", () => {
+        activeView = "vote";
         activeFilter = tab.dataset.filter;
         updateContentMode();
         document.querySelectorAll(".tab").forEach((item) => item.classList.toggle("active", item === tab));
@@ -5106,6 +5382,7 @@ This account will be used continuously, so please enter the information correctl
     });
 
     materialsToggleEl.addEventListener("click", () => {
+      activeView = "vote";
       pollsEl.classList.add("hidden");
       eventPanelEl.classList.add("hidden");
       materialsPanelEl.classList.remove("hidden");
@@ -5124,6 +5401,12 @@ This account will be used continuously, so please enter the information correctl
 
     saveMemberEl.addEventListener("click", saveMember);
     registerMemberEl.addEventListener("click", registerMember);
+    profileOpenEl.addEventListener("click", () => setActiveView("profile"));
+    adminShortcutEl.addEventListener("click", () => setActiveView("admin"));
+    bottomHomeEl.addEventListener("click", () => setActiveView("home"));
+    bottomVoteEl.addEventListener("click", () => setActiveView("vote"));
+    bottomProfileEl.addEventListener("click", () => setActiveView("profile"));
+    bottomAdminEl.addEventListener("click", () => setActiveView("admin"));
     memberNameEl.addEventListener("keydown", (event) => {
       if (event.key === "Enter") saveMember();
     });
