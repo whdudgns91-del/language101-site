@@ -67,8 +67,8 @@
     }
 
     .brand-logo {
-      width: 92px;
-      height: 42px;
+      width: 112px;
+      height: 44px;
       flex: 0 0 auto;
       object-fit: contain;
       border-radius: 6px;
@@ -646,8 +646,17 @@
       margin-bottom: 12px;
       overflow-x: auto;
       padding: 4px 2px 10px;
+      scroll-behavior: smooth;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
+    }
+
+    .category-scroller {
+      display: block;
+    }
+
+    .category-arrow {
+      display: none;
     }
 
     .category-tabs::-webkit-scrollbar, .material-tabs::-webkit-scrollbar {
@@ -674,39 +683,6 @@
 
     .materials.hidden, .polls.hidden {
       display: none;
-    }
-
-    .event-panel.hidden {
-      display: none;
-    }
-
-    .event-panel {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .event-post {
-      display: grid;
-      gap: 9px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 14px;
-      background: #111b27;
-    }
-
-    .event-post h3 {
-      margin-bottom: 0;
-      font-size: 18px;
-      line-height: 1.3;
-    }
-
-    .event-post p {
-      margin-bottom: 0;
-      color: #cbd5e1;
-      font-size: 14px;
-      line-height: 1.5;
-      white-space: pre-line;
     }
 
     .post-actions {
@@ -904,8 +880,8 @@
       display: none;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       border-top: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.96);
-      box-shadow: 0 -10px 28px rgba(34, 48, 70, 0.1);
+      background: rgba(8, 15, 24, 0.94);
+      box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.28);
       backdrop-filter: blur(12px);
     }
 
@@ -916,9 +892,19 @@
       place-items: center;
       border: 0;
       background: transparent;
-      color: var(--muted);
-      font-size: 19px;
+      color: #8b95a5;
+      font-size: 18px;
       font-weight: 900;
+    }
+
+    .bottom-nav svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .bottom-nav span {
@@ -927,7 +913,7 @@
     }
 
     .bottom-nav button.active {
-      color: var(--teal);
+      color: #16a34a;
     }
 
     .option-list {
@@ -1028,47 +1014,77 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 8px 10px;
-      background: #fff;
+      background: #101a26;
       color: var(--ink);
       text-align: left;
       font-weight: 900;
     }
 
+    .option-btn span:last-child {
+      color: #f8fafc;
+      font-weight: 900;
+    }
+
     .option-btn.selected {
       border-color: var(--teal);
-      background: rgba(7, 146, 126, 0.1);
+      background: rgba(22, 163, 74, 0.16);
     }
 
     .option-btn.level-green {
       border-color: rgba(34, 197, 94, 0.45);
+      background: rgba(34, 197, 94, 0.16);
+      color: #dcfce7;
     }
 
     .option-btn.level-green.selected {
       border-color: #22c55e;
-      background: rgba(34, 197, 94, 0.12);
+      background: linear-gradient(180deg, rgba(34, 197, 94, 0.36), rgba(21, 128, 61, 0.28));
     }
 
     .option-btn.level-yellow {
-      border-color: rgba(251, 191, 36, 0.58);
+      border-color: rgba(59, 130, 246, 0.58);
+      background: rgba(59, 130, 246, 0.16);
+      color: #dbeafe;
     }
 
     .option-btn.level-yellow.selected {
-      border-color: #fbbf24;
-      background: rgba(251, 191, 36, 0.18);
+      border-color: #3b82f6;
+      background: linear-gradient(180deg, rgba(59, 130, 246, 0.38), rgba(30, 64, 175, 0.26));
     }
 
     .option-btn.level-blue {
-      border-color: rgba(59, 130, 246, 0.48);
+      border-color: rgba(168, 85, 247, 0.5);
+      background: rgba(168, 85, 247, 0.15);
+      color: #f3e8ff;
     }
 
     .option-btn.level-blue.selected {
-      border-color: #3b82f6;
-      background: rgba(59, 130, 246, 0.12);
+      border-color: #a855f7;
+      background: linear-gradient(180deg, rgba(168, 85, 247, 0.38), rgba(88, 28, 135, 0.26));
     }
 
     .option-btn:disabled {
       cursor: not-allowed;
       opacity: 0.55;
+    }
+
+    .floating-event-btn {
+      position: fixed;
+      right: 18px;
+      bottom: 84px;
+      z-index: 72;
+      display: none;
+      min-width: 58px;
+      min-height: 58px;
+      border: 0;
+      border-radius: 999px;
+      padding: 0 12px;
+      background: linear-gradient(135deg, #f97316, #16a34a);
+      color: #fff;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.36);
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.1;
     }
 
     .like-grid {
@@ -1328,7 +1344,7 @@
     }
 
     @media (max-width: 900px) {
-      .dashboard, .material-groups, .admin-grid, .event-panel, .like-target-list, .like-event-list { grid-template-columns: 1fr; }
+      .dashboard, .material-groups, .admin-grid, .like-target-list, .like-event-list { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
@@ -1380,6 +1396,44 @@
       .section > .helper {
         padding: 0 2px;
       }
+      .category-scroller {
+        display: grid;
+        grid-template-columns: 34px minmax(0, 1fr) 34px;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .category-tabs {
+        margin-bottom: 0;
+        padding: 3px 0;
+      }
+      .category-arrow {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border: 1px solid #d7dde6;
+        border-radius: 999px;
+        background: #fff;
+        color: #111827;
+        font-size: 15px;
+        font-weight: 900;
+      }
+      .category-arrow:disabled {
+        cursor: default;
+        opacity: 0.35;
+      }
+      .tab {
+        min-height: 32px;
+        border-color: #d7dde6;
+        background: #fff;
+        color: #4b5563;
+      }
+      .tab.active {
+        border-color: #16a34a;
+        background: #16a34a;
+        color: #fff;
+      }
       .card {
         grid-template-columns: 58px minmax(0, 1fr);
       }
@@ -1400,7 +1454,7 @@
   <main class="app">
     <header class="hero">
       <div class="brand">
-        <img class="brand-logo" src="2026-06-30-language101-logo.png" alt="언어교환101">
+        <img class="brand-logo" src="2026-06-30-language101-header-logo.png" alt="언어교환101">
         <div>
           <div class="brand-row">
             <h1 class="header-user" id="headerUserName" data-i18n="appTitle">언어교환101</h1>
@@ -1549,21 +1603,6 @@
         </section>
 
         <section class="admin-card">
-          <h3 data-i18n="adminPostTitle">공지/이벤트 글쓰기</h3>
-          <div class="field">
-            <label for="adminPostTitleInput" data-i18n="adminPostLabel">제목</label>
-            <input id="adminPostTitleInput" placeholder="예: 6월 Drinking Party">
-          </div>
-          <div class="field">
-            <label for="adminPostBodyInput" data-i18n="adminPostBodyLabel">내용</label>
-            <textarea id="adminPostBodyInput" placeholder="회원에게 보여줄 공지나 이벤트 내용을 입력하세요."></textarea>
-          </div>
-          <button type="button" class="btn primary" id="adminSavePost" data-i18n="adminSavePost">글 올리기</button>
-          <button type="button" class="btn hidden" id="adminCancelEdit" data-i18n="cancelEdit">수정 취소</button>
-          <p class="small-note" data-i18n="adminPostHelp">공지/이벤트 탭에 투표 버튼 없이 글 형태로 표시됩니다.</p>
-        </section>
-
-        <section class="admin-card">
           <h3 data-i18n="adminVoteAuditTitle">실시간 투표자 확인</h3>
           <p class="helper" data-i18n="adminVoteAuditHelp">일정별로 누가 어떤 레벨에 신청했는지 관리자만 확인할 수 있습니다.</p>
           <div class="small-note" id="adminVoteAudit"></div>
@@ -1654,17 +1693,19 @@ This account will be used continuously, so please enter the information correctl
     <section class="panel section hidden" id="voteSection">
       <h2 data-i18n="voteTitle">🗳️ 이번 주 스터디 투표</h2>
       <p class="helper" data-i18n="voteHelp">참여 가능한 일정과 레벨을 고르세요. 투표하면 참석 포인트가 쌓입니다.</p>
-      <nav class="category-tabs" aria-label="투표 분류">
-        <button type="button" class="tab active" data-filter="all" data-i18n="filterAll">전체</button>
-        <button type="button" class="tab" data-filter="offline" data-i18n="filterOffline">오프라인 영어</button>
-        <button type="button" class="tab" data-filter="online" data-i18n="filterOnline">온라인 영어</button>
-        <button type="button" class="tab" data-filter="language" data-i18n="filterLanguage">일본어/중국어</button>
-        <button type="button" class="tab" data-filter="closed" data-i18n="filterClosed">종료된 투표</button>
-        <button type="button" class="tab" data-filter="event" data-i18n="filterEvent">공지/이벤트</button>
-        <button type="button" class="tab" id="materialsToggle" data-i18n="filterMaterials">자료 메뉴</button>
-      </nav>
+      <div class="category-scroller">
+        <button type="button" class="category-arrow" id="categoryPrev" aria-label="이전 카테고리">◀</button>
+        <nav class="category-tabs" id="categoryTabs" aria-label="투표 분류">
+          <button type="button" class="tab active" data-filter="all" data-i18n="filterAll">전체</button>
+          <button type="button" class="tab" data-filter="offline" data-i18n="filterOffline">오프라인 영어</button>
+          <button type="button" class="tab" data-filter="online" data-i18n="filterOnline">온라인 영어</button>
+          <button type="button" class="tab" data-filter="language" data-i18n="filterLanguage">일본어/중국어</button>
+          <button type="button" class="tab" id="materialsToggle" data-i18n="filterMaterials">자료 메뉴</button>
+          <button type="button" class="tab" data-filter="closed" data-i18n="filterClosed">종료된 투표</button>
+        </nav>
+        <button type="button" class="category-arrow" id="categoryNext" aria-label="다음 카테고리">▶</button>
+      </div>
       <div class="polls" id="polls"></div>
-      <section class="event-panel hidden" id="eventPanel" aria-label="공지와 이벤트 글"></section>
       <section class="materials hidden" id="materialsPanel" aria-label="스터디 자료 메뉴">
         <div class="material-tabs">
           <button type="button" class="material-tab active" data-material="english" data-i18n="materialEnglish">영어</button>
@@ -1673,6 +1714,11 @@ This account will be used continuously, so please enter the information correctl
         </div>
         <div class="material-groups" id="materialGroups"></div>
       </section>
+    </section>
+
+    <section class="panel section event-page hidden" id="eventPage" aria-label="이벤트">
+      <h2>🎉 이벤트</h2>
+      <p class="helper">준비중입니다.</p>
     </section>
 
     <section class="logout-panel hidden" id="logoutPanel">
@@ -1686,10 +1732,10 @@ This account will be used continuously, so please enter the information correctl
     <div class="heart-burst hidden" id="heartBurst" aria-hidden="true"></div>
 
     <nav class="bottom-nav hidden" id="bottomNav" aria-label="모바일 하단 메뉴">
-      <button type="button" id="bottomHome" class="active"><span aria-hidden="true">🏠</span><span>홈</span></button>
-      <button type="button" id="bottomVote"><span aria-hidden="true">🗳️</span><span>투표</span></button>
-      <button type="button" id="bottomProfile"><span aria-hidden="true">👤</span><span>나의 프로필</span></button>
-      <button type="button" id="bottomAdmin" class="hidden"><span aria-hidden="true">⚙</span><span>관리자</span></button>
+      <button type="button" id="bottomHome" class="active" aria-label="홈"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg><span>홈</span></button>
+      <button type="button" id="bottomVote" aria-label="투표"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M21 8H3l2-5h14l2 5Z"></path><path d="M3 8v13h18V8"></path><path d="m9 14 2 2 4-5"></path></svg><span>투표</span></button>
+      <button type="button" id="bottomProfile" aria-label="나의 프로필"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg><span>나의 프로필</span></button>
+      <button type="button" id="bottomEvent" aria-label="이벤트"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7H7.5a2.5 2.5 0 1 1 2-4c.9 1.2 2.5 4 2.5 4Z"></path><path d="M12 7h4.5a2.5 2.5 0 1 0-2-4c-.9 1.2-2.5 4-2.5 4Z"></path></svg><span>이벤트</span></button>
     </nav>
 
   </main>
@@ -1706,7 +1752,6 @@ This account will be used continuously, so please enter the information correctl
     const SCHEDULE_OVERRIDES_KEY = "le101ScheduleOverrides";
     const CLOSED_EMAIL_KEY = "le101ClosedPollEmails";
     const NOTICE_KEY = "le101SimpleNotice";
-    const EVENT_POSTS_KEY = "le101SimpleEventPosts";
     const AUTO_UPLOAD_KEY = "le101SimpleAutoUploadAt";
     const AUTO_DONE_KEY = "le101SimpleAutoDone";
     const AUTO_RUN_KEY = "le101SimpleAutoRun";
@@ -1738,13 +1783,6 @@ This account will be used continuously, so please enter the information correctl
     let closedTemplates = [];
     let expandedPollId = "";
 
-    const defaultEventPosts = [
-      {
-        title: "6월 Drinking Party",
-        body: "매달 마지막 토요일에는 언어교환101 술파티를 진행합니다.\n외국인&한국인 친구들과 편하게 친해지고, 맛있는 음식과 술을 즐기면서 다양한 언어를 자연스럽게 연습해보세요."
-      }
-    ];
-
     const pointRules = {
       attendance: 200,
       heart: 100,
@@ -1773,7 +1811,7 @@ This account will be used continuously, so please enter the information correctl
     const bottomHomeEl = document.querySelector("#bottomHome");
     const bottomVoteEl = document.querySelector("#bottomVote");
     const bottomProfileEl = document.querySelector("#bottomProfile");
-    const bottomAdminEl = document.querySelector("#bottomAdmin");
+    const bottomEventEl = document.querySelector("#bottomEvent");
     const loginErrorEl = document.querySelector("#loginError");
     const backBarEl = document.querySelector("#backBar");
     const backButtonEl = document.querySelector("#backButton");
@@ -1782,9 +1820,12 @@ This account will be used continuously, so please enter the information correctl
     const voteSectionEl = document.querySelector("#voteSection");
     const messageEl = document.querySelector("#message");
     const pollsEl = document.querySelector("#polls");
-    const eventPanelEl = document.querySelector("#eventPanel");
+    const eventPageEl = document.querySelector("#eventPage");
     const materialsPanelEl = document.querySelector("#materialsPanel");
     const materialsToggleEl = document.querySelector("#materialsToggle");
+    const categoryTabsEl = document.querySelector("#categoryTabs");
+    const categoryPrevEl = document.querySelector("#categoryPrev");
+    const categoryNextEl = document.querySelector("#categoryNext");
     const materialGroupsEl = document.querySelector("#materialGroups");
     const levelNumberEl = document.querySelector("#levelNumber");
     const rankEmblemEl = document.querySelector("#rankEmblem");
@@ -1825,10 +1866,6 @@ This account will be used continuously, so please enter the information correctl
     const adminGoLoginEl = document.querySelector("#adminGoLogin");
     const adminNoticeInputEl = document.querySelector("#adminNoticeInput");
     const saveNoticeEl = document.querySelector("#saveNotice");
-    const adminPostTitleInputEl = document.querySelector("#adminPostTitleInput");
-    const adminPostBodyInputEl = document.querySelector("#adminPostBodyInput");
-    const adminSavePostEl = document.querySelector("#adminSavePost");
-    const adminCancelEditEl = document.querySelector("#adminCancelEdit");
     const adminEventSelectEl = document.querySelector("#adminEventSelect");
     const adminOptionSelectEl = document.querySelector("#adminOptionSelect");
     const adminRealEventSelectEl = document.querySelector("#adminRealEventSelect");
@@ -1856,7 +1893,6 @@ This account will be used continuously, so please enter the information correctl
     let activeView = "home";
     let currentLang = "ko";
     let adminUnlocked = false;
-    let editingPostIndex = null;
     let selectedLikeTargets = [];
     let selectedLikeEventId = "";
     let activeProfileDetail = "";
@@ -1892,7 +1928,6 @@ This account will be used continuously, so please enter the information correctl
         filterOnline: "온라인 영어",
         filterLanguage: "일본어/중국어",
         filterClosed: "종료된 투표",
-        filterEvent: "공지/이벤트",
         filterMaterials: "자료 메뉴",
         refreshButton: "새로고침",
         materialEnglish: "영어",
@@ -2058,20 +2093,6 @@ This account will be used continuously, so please enter the information correctl
         sheetWebhookSaved: "구글시트 연결 URL을 저장했습니다.",
         sheetSyncReady: "구글시트 자동 기록 준비 완료",
         sheetSyncWaiting: "구글시트 연결 URL이 아직 없습니다. 기록은 이 브라우저에만 임시 저장됩니다. 자동 시트 저장을 하려면 Apps Script URL을 넣어주세요.",
-        adminPostTitle: "공지/이벤트 글쓰기",
-        adminPostLabel: "제목",
-        adminPostBodyLabel: "내용",
-        adminSavePost: "글 올리기",
-        adminPostHelp: "공지/이벤트 탭에 투표 버튼 없이 글 형태로 표시됩니다.",
-        postSaved: "공지/이벤트 글이 올라갔습니다.",
-        postUpdated: "공지/이벤트 글을 수정했습니다.",
-        postDeleted: "공지/이벤트 글을 삭제했습니다.",
-        postMissing: "제목과 내용을 입력해주세요.",
-        editPost: "수정",
-        deletePost: "삭제",
-        updatePost: "수정 저장",
-        cancelEdit: "수정 취소",
-        noPosts: "아직 등록된 공지/이벤트 글이 없습니다.",
         adminVoteAuditTitle: "실시간 투표자 확인",
         adminVoteAuditHelp: "일정별로 누가 어떤 레벨에 신청했는지 관리자만 확인할 수 있습니다.",
         adminHeartAuditTitle: "좋아요 발송 기록",
@@ -2100,7 +2121,6 @@ This account will be used continuously, so please enter the information correctl
         filterOnline: "Online English",
         filterLanguage: "Japanese/Chinese",
         filterClosed: "Closed Polls",
-        filterEvent: "Notice/Event",
         filterMaterials: "Materials",
         refreshButton: "Refresh",
         materialEnglish: "English",
@@ -2266,20 +2286,6 @@ This account will be used continuously, so please enter the information correctl
         sheetWebhookSaved: "Google Sheets sync URL saved.",
         sheetSyncReady: "Google Sheets auto logging is ready.",
         sheetSyncWaiting: "No Google Sheets sync URL yet. Records are only queued in this browser. Add an Apps Script URL to save automatically.",
-        adminPostTitle: "Write Notice/Event",
-        adminPostLabel: "Title",
-        adminPostBodyLabel: "Content",
-        adminSavePost: "Publish Post",
-        adminPostHelp: "Shown in the Notice/Event tab as a post without voting buttons.",
-        postSaved: "Notice/event post published.",
-        postUpdated: "Notice/event post updated.",
-        postDeleted: "Notice/event post deleted.",
-        postMissing: "Please enter a title and content.",
-        editPost: "Edit",
-        deletePost: "Delete",
-        updatePost: "Save Edit",
-        cancelEdit: "Cancel Edit",
-        noPosts: "No notice/event posts yet.",
         adminVoteAuditTitle: "Realtime Voter Check",
         adminVoteAuditHelp: "Admins can see who applied to each level by schedule.",
         adminHeartAuditTitle: "Sent Like Records",
@@ -2308,7 +2314,6 @@ This account will be used continuously, so please enter the information correctl
         filterOnline: "オンライン英語",
         filterLanguage: "日本語/中国語",
         filterClosed: "終了した投票",
-        filterEvent: "お知らせ/イベント",
         filterMaterials: "資料",
         refreshButton: "更新",
         materialEnglish: "英語",
@@ -2474,20 +2479,6 @@ This account will be used continuously, so please enter the information correctl
         sheetWebhookSaved: "Googleシート連携URLを保存しました。",
         sheetSyncReady: "Googleシート自動記録の準備完了",
         sheetSyncWaiting: "Googleシート連携URLがまだありません。記録はこのブラウザのみに一時保存されます。自動保存にはApps Script URLが必要です。",
-        adminPostTitle: "お知らせ/イベント投稿",
-        adminPostLabel: "タイトル",
-        adminPostBodyLabel: "内容",
-        adminSavePost: "投稿する",
-        adminPostHelp: "お知らせ/イベントタブに投票ボタンなしの投稿として表示されます。",
-        postSaved: "お知らせ/イベント投稿を公開しました。",
-        postUpdated: "お知らせ/イベント投稿を修正しました。",
-        postDeleted: "お知らせ/イベント投稿を削除しました。",
-        postMissing: "タイトルと内容を入力してください。",
-        editPost: "修正",
-        deletePost: "削除",
-        updatePost: "修正を保存",
-        cancelEdit: "修正をキャンセル",
-        noPosts: "登録されたお知らせ/イベント投稿はまだありません。",
         adminVoteAuditTitle: "リアルタイム投票者確認",
         adminVoteAuditHelp: "日程別に誰がどのレベルへ申請したか管理者だけ確認できます。",
         adminHeartAuditTitle: "いいね送信記録",
@@ -2516,7 +2507,6 @@ This account will be used continuously, so please enter the information correctl
         filterOnline: "线上英语",
         filterLanguage: "日语/中文",
         filterClosed: "已结束投票",
-        filterEvent: "公告/活动",
         filterMaterials: "资料",
         refreshButton: "刷新",
         materialEnglish: "英语",
@@ -2682,20 +2672,6 @@ This account will be used continuously, so please enter the information correctl
         sheetWebhookSaved: "Google表格连接URL已保存。",
         sheetSyncReady: "Google表格自动记录已准备好。",
         sheetSyncWaiting: "尚未设置Google表格连接URL。记录只会暂存在此浏览器。需要Apps Script URL才能自动保存。",
-        adminPostTitle: "发布公告/活动",
-        adminPostLabel: "标题",
-        adminPostBodyLabel: "内容",
-        adminSavePost: "发布",
-        adminPostHelp: "会在公告/活动标签中以文章形式显示，不带投票按钮。",
-        postSaved: "公告/活动已发布。",
-        postUpdated: "公告/活动已修改。",
-        postDeleted: "公告/活动已删除。",
-        postMissing: "请输入标题和内容。",
-        editPost: "修改",
-        deletePost: "删除",
-        updatePost: "保存修改",
-        cancelEdit: "取消修改",
-        noPosts: "暂无公告/活动文章。",
         adminVoteAuditTitle: "实时投票者确认",
         adminVoteAuditHelp: "管理员可按日程查看谁申请了哪个等级。",
         adminHeartAuditTitle: "喜欢发送记录",
@@ -3014,10 +2990,6 @@ This account will be used continuously, so please enter the information correctl
 
     function getNotice() {
       return localStorage.getItem(NOTICE_KEY) || "";
-    }
-
-    function getEventPosts() {
-      return readJson(EVENT_POSTS_KEY, defaultEventPosts);
     }
 
     function padNumber(value) {
@@ -3672,9 +3644,6 @@ This account will be used continuously, so please enter the information correctl
         activeFilter = "all";
         expandedPollId = "";
       }
-      if (view === "vote" && activeFilter === "event") {
-        activeFilter = "all";
-      }
       if (view === "profile") {
         adminPanelEl.classList.add("hidden");
       }
@@ -3693,6 +3662,32 @@ This account will be used continuously, so please enter the information correctl
       }
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function setVoteFilter(filter) {
+      activeView = "vote";
+      activeFilter = filter;
+      document.querySelectorAll(".tab").forEach((item) => {
+        const isMaterial = filter === "materials" && item === materialsToggleEl;
+        item.classList.toggle("active", item.dataset.filter === filter || isMaterial);
+      });
+      updateContentMode();
+      renderPolls();
+      renderMaterials();
+      updateCategoryArrows();
+    }
+
+    function updateCategoryArrows() {
+      if (!categoryTabsEl || !categoryPrevEl || !categoryNextEl) return;
+      const maxScroll = Math.max(0, categoryTabsEl.scrollWidth - categoryTabsEl.clientWidth);
+      categoryPrevEl.disabled = categoryTabsEl.scrollLeft <= 2;
+      categoryNextEl.disabled = categoryTabsEl.scrollLeft >= maxScroll - 2;
+    }
+
+    function scrollCategories(direction) {
+      if (!categoryTabsEl) return;
+      categoryTabsEl.scrollBy({ left: direction * 220, behavior: "smooth" });
+      window.setTimeout(updateCategoryArrows, 260);
     }
 
     function hasOpenSubView() {
@@ -4929,42 +4924,6 @@ This account will be used continuously, so please enter the information correctl
       });
     }
 
-    function renderEventPosts() {
-      const posts = getEventPosts();
-      eventPanelEl.innerHTML = "";
-      if (!posts.length) {
-        const empty = document.createElement("article");
-        empty.className = "event-post";
-        empty.innerHTML = `<p>${t("noPosts")}</p>`;
-        eventPanelEl.appendChild(empty);
-        return;
-      }
-      posts.forEach((post, index) => {
-        const article = document.createElement("article");
-        article.className = "event-post";
-        article.innerHTML = `<h3></h3><p></p>`;
-        article.querySelector("h3").textContent = post.title;
-        article.querySelector("p").textContent = post.body;
-        if (adminUnlocked) {
-          const actions = document.createElement("div");
-          actions.className = "post-actions";
-          const editButton = document.createElement("button");
-          editButton.type = "button";
-          editButton.className = "btn";
-          editButton.textContent = t("editPost");
-          editButton.addEventListener("click", () => editEventPost(index));
-          const deleteButton = document.createElement("button");
-          deleteButton.type = "button";
-          deleteButton.className = "btn danger";
-          deleteButton.textContent = t("deletePost");
-          deleteButton.addEventListener("click", () => deleteEventPost(index));
-          actions.append(editButton, deleteButton);
-          article.appendChild(actions);
-        }
-        eventPanelEl.appendChild(article);
-      });
-    }
-
     function renderLikeEvents() {
       const member = getMember();
       const eligibleEvents = getLikeEligibleEvents(member);
@@ -5100,7 +5059,6 @@ This account will be used continuously, so please enter the information correctl
       renderAdminScheduleOptions();
       renderAdminVoteAudit();
       renderAdminHeartAudit();
-      renderEventPosts();
       adminToolsEl.scrollIntoView({ behavior: "smooth", block: "start" });
       updateBackButton();
     }
@@ -5115,63 +5073,6 @@ This account will be used continuously, so please enter the information correctl
       }
       messageEl.textContent = t("noticeSaved");
       renderNotice();
-    }
-
-    function resetEventPostForm() {
-      editingPostIndex = null;
-      adminPostTitleInputEl.value = "";
-      adminPostBodyInputEl.value = "";
-      adminSavePostEl.textContent = t("adminSavePost");
-      adminCancelEditEl.classList.add("hidden");
-    }
-
-    function renderEventPostFormState() {
-      adminSavePostEl.textContent = editingPostIndex === null ? t("adminSavePost") : t("updatePost");
-      adminCancelEditEl.classList.toggle("hidden", editingPostIndex === null);
-    }
-
-    function saveEventPost() {
-      if (!adminUnlocked) return;
-      const title = adminPostTitleInputEl.value.trim();
-      const body = adminPostBodyInputEl.value.trim();
-      if (!title || !body) {
-        messageEl.textContent = t("postMissing");
-        return;
-      }
-      const posts = getEventPosts();
-      if (editingPostIndex !== null) {
-        posts[editingPostIndex] = { title, body };
-      } else {
-        posts.unshift({ title, body });
-      }
-      writeJson(EVENT_POSTS_KEY, posts);
-      messageEl.textContent = editingPostIndex !== null ? t("postUpdated") : t("postSaved");
-      resetEventPostForm();
-      if (activeFilter === "event") renderEventPosts();
-    }
-
-    function editEventPost(index) {
-      const posts = getEventPosts();
-      const post = posts[index];
-      if (!post) return;
-      editingPostIndex = index;
-      adminPostTitleInputEl.value = post.title;
-      adminPostBodyInputEl.value = post.body;
-      adminSavePostEl.textContent = t("updatePost");
-      adminCancelEditEl.classList.remove("hidden");
-      adminPostTitleInputEl.focus();
-      messageEl.textContent = t("updatePost");
-    }
-
-    function deleteEventPost(index) {
-      const posts = getEventPosts();
-      if (!posts[index]) return;
-      posts.splice(index, 1);
-      writeJson(EVENT_POSTS_KEY, posts);
-      if (editingPostIndex === index) resetEventPostForm();
-      if (editingPostIndex !== null && editingPostIndex > index) editingPostIndex -= 1;
-      messageEl.textContent = t("postDeleted");
-      renderEventPosts();
     }
 
     async function addAdminVote() {
@@ -5294,20 +5195,27 @@ This account will be used continuously, so please enter the information correctl
       loginPanelEl.classList.toggle("hidden", isLoggedIn);
       const showProfile = isLoggedIn && activeView === "profile";
       const showAdmin = isLoggedIn && activeView === "admin" && adminUnlocked;
+      const showEventPage = isLoggedIn && activeView === "event";
       dashboardSectionEl.classList.toggle("hidden", !showProfile);
-      voteSectionEl.classList.toggle("hidden", !isLoggedIn || showProfile || showAdmin);
+      voteSectionEl.classList.toggle("hidden", !isLoggedIn || showProfile || showAdmin || showEventPage);
+      eventPageEl.classList.toggle("hidden", !showEventPage);
       logoutPanelEl.classList.toggle("hidden", !isLoggedIn);
       profileOpenEl.classList.toggle("hidden", !isLoggedIn);
       bottomNavEl.classList.toggle("hidden", !isLoggedIn);
       adminShortcutEl.classList.toggle("hidden", !adminUnlocked);
-      bottomAdminEl.classList.toggle("hidden", !adminUnlocked);
       bottomHomeEl.classList.toggle("active", activeView === "home");
       bottomVoteEl.classList.toggle("active", activeView === "vote");
       bottomProfileEl.classList.toggle("active", activeView === "profile");
-      bottomAdminEl.classList.toggle("active", activeView === "admin");
+      bottomEventEl.classList.toggle("active", activeView === "event");
       if (showProfile) {
         pollsEl.classList.add("hidden");
-        eventPanelEl.classList.add("hidden");
+        materialsPanelEl.classList.add("hidden");
+        eventPageEl.classList.add("hidden");
+        updateBackButton();
+        return;
+      }
+      if (showEventPage) {
+        pollsEl.classList.add("hidden");
         materialsPanelEl.classList.add("hidden");
         updateBackButton();
         return;
@@ -5320,7 +5228,7 @@ This account will be used continuously, so please enter the information correctl
         profileOpenEl.classList.add("hidden");
         adminShortcutEl.classList.add("hidden");
         pollsEl.classList.add("hidden");
-        eventPanelEl.classList.add("hidden");
+        eventPageEl.classList.add("hidden");
         materialsPanelEl.classList.add("hidden");
         adminPanelEl.classList.add("hidden");
         activeProfileDetail = "";
@@ -5328,11 +5236,12 @@ This account will be used continuously, so please enter the information correctl
         updateBackButton();
         return;
       }
-      const showingEvents = activeFilter === "event";
-      pollsEl.classList.toggle("hidden", showingEvents);
-      eventPanelEl.classList.toggle("hidden", !showingEvents);
-      materialsPanelEl.classList.add("hidden");
+      const showingMaterials = activeFilter === "materials";
+      pollsEl.classList.toggle("hidden", showingMaterials);
+      eventPageEl.classList.add("hidden");
+      materialsPanelEl.classList.toggle("hidden", !showingMaterials);
       updateBackButton();
+      updateCategoryArrows();
     }
 
     function toggleLikePanel() {
@@ -5354,7 +5263,6 @@ This account will be used continuously, so please enter the information correctl
       renderLevel();
       renderRanking();
       renderPolls();
-      renderEventPosts();
       renderLikeEvents();
       renderLikeTargets();
       renderMaterials();
@@ -5364,7 +5272,6 @@ This account will be used continuously, so please enter the information correctl
       renderAdminStatus();
       renderAdminVoteAudit();
       renderAdminHeartAudit();
-      renderEventPostFormState();
       setSheetStatus();
       updateContentMode();
     }
@@ -5372,24 +5279,16 @@ This account will be used continuously, so please enter the information correctl
     document.querySelectorAll(".tab").forEach((tab) => {
       if (tab.id === "materialsToggle") return;
       tab.addEventListener("click", () => {
-        activeView = "vote";
-        activeFilter = tab.dataset.filter;
-        updateContentMode();
-        document.querySelectorAll(".tab").forEach((item) => item.classList.toggle("active", item === tab));
-        renderPolls();
-        renderEventPosts();
+        setVoteFilter(tab.dataset.filter);
       });
     });
 
     materialsToggleEl.addEventListener("click", () => {
-      activeView = "vote";
-      pollsEl.classList.add("hidden");
-      eventPanelEl.classList.add("hidden");
-      materialsPanelEl.classList.remove("hidden");
-      document.querySelectorAll(".tab").forEach((item) => item.classList.toggle("active", item === materialsToggleEl));
-      renderMaterials();
-      updateBackButton();
+      setVoteFilter(activeFilter === "materials" ? "all" : "materials");
     });
+    categoryPrevEl.addEventListener("click", () => scrollCategories(-1));
+    categoryNextEl.addEventListener("click", () => scrollCategories(1));
+    categoryTabsEl.addEventListener("scroll", updateCategoryArrows);
 
     document.querySelectorAll(".material-tab").forEach((tab) => {
       tab.addEventListener("click", () => {
@@ -5406,7 +5305,7 @@ This account will be used continuously, so please enter the information correctl
     bottomHomeEl.addEventListener("click", () => setActiveView("home"));
     bottomVoteEl.addEventListener("click", () => setActiveView("vote"));
     bottomProfileEl.addEventListener("click", () => setActiveView("profile"));
-    bottomAdminEl.addEventListener("click", () => setActiveView("admin"));
+    bottomEventEl.addEventListener("click", () => setActiveView("event"));
     memberNameEl.addEventListener("keydown", (event) => {
       if (event.key === "Enter") saveMember();
     });
@@ -5445,8 +5344,6 @@ This account will be used continuously, so please enter the information correctl
       if (event.key === "Enter") unlockAdmin();
     });
     saveNoticeEl.addEventListener("click", saveNotice);
-    adminSavePostEl.addEventListener("click", saveEventPost);
-    adminCancelEditEl.addEventListener("click", resetEventPostForm);
     adminEventSelectEl.addEventListener("change", renderAdminOptionSelect);
     adminRealEventSelectEl.addEventListener("change", renderAdminRealOptionSelect);
     adminScheduleEventSelectEl.addEventListener("change", renderAdminScheduleFields);
