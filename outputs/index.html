@@ -182,6 +182,21 @@
       font-size: 18px;
     }
 
+    .notification-wrap {
+      position: relative;
+    }
+
+    .notification-dot {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 9px;
+      height: 9px;
+      border: 2px solid #101a26;
+      border-radius: 999px;
+      background: var(--heart);
+    }
+
     .hero-tools {
       display: flex;
       gap: 6px;
@@ -681,28 +696,159 @@
     }
 
     .profile-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
     }
 
-    .profile-actions .btn {
-      min-height: 36px;
-      padding: 0 11px;
+    .profile-menu-card {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      min-height: 64px;
+      border: 1px solid var(--paper-line);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--ink);
+      text-align: left;
+    }
+
+    .profile-menu-card:hover {
+      border-color: rgba(34, 197, 94, 0.55);
+      background: rgba(34, 197, 94, 0.1);
+    }
+
+    .profile-menu-icon {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 18px;
+    }
+
+    .profile-menu-card strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 14px;
+      line-height: 1.25;
+    }
+
+    .profile-menu-card small {
+      display: block;
+      color: var(--muted);
       font-size: 12px;
+      line-height: 1.35;
     }
 
     .profile-detail {
       grid-column: 1 / -1;
       display: grid;
-      gap: 6px;
+      gap: 10px;
       border-top: 1px solid var(--line);
       padding-top: 12px;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.45;
-      white-space: pre-line;
+    }
+
+    .profile-detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 2px;
+    }
+
+    .profile-detail-header h2 {
+      margin: 0;
+      color: #fff;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .profile-detail-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .profile-log-card,
+    .application-card,
+    .study-alert-card {
+      border: 1px solid var(--paper-line);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--subtle);
+    }
+
+    .profile-log-card strong,
+    .application-card strong,
+    .study-alert-card strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #fff;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .profile-log-card small,
+    .application-card small,
+    .study-alert-card small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 24px;
+      margin-top: 8px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: rgba(34, 197, 94, 0.16);
+      color: #86efac;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .status-pill.closed {
+      background: rgba(250, 204, 21, 0.14);
+      color: #fde68a;
+    }
+
+    .status-pill.done {
+      background: rgba(148, 163, 184, 0.14);
+      color: var(--subtle);
+    }
+
+    .study-alerts {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .study-alert-card {
+      border-color: rgba(34, 197, 94, 0.45);
+      background: rgba(22, 163, 74, 0.14);
+    }
+
+    .study-alert-card p {
+      margin: 0 0 8px;
+      color: #fff;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .notification-panel {
+      margin-bottom: 12px;
     }
 
     .ranking {
@@ -1620,6 +1766,10 @@
             <img src="2026-06-25-kakao-talk-contact-icon.png" alt="">
           </a>
         </div>
+        <div class="notification-wrap">
+          <button type="button" class="icon-btn" id="notificationOpen" aria-label="알림" title="알림">🔔</button>
+          <span class="notification-dot hidden" id="notificationDot" aria-hidden="true"></span>
+        </div>
         <button type="button" class="icon-btn" id="profileOpen" aria-label="나의 프로필" title="나의 프로필">👤</button>
         <button type="button" class="icon-btn hidden" id="adminShortcut" aria-label="관리자" title="관리자">⚙</button>
         <div class="language-menu" aria-label="번역 언어 선택">
@@ -1642,6 +1792,11 @@
     <section class="panel notice hidden" id="noticePanel" aria-label="고정 공지">
       <h2 data-i18n="noticeTitle">고정 공지</h2>
       <p id="noticeText"></p>
+    </section>
+
+    <section class="panel notification-panel hidden" id="notificationPanel" aria-label="알림">
+      <h2>🔔 알림</h2>
+      <div class="study-alerts" id="notificationList"></div>
     </section>
 
     <section class="panel admin-panel hidden" id="adminPanel" aria-label="관리자 페이지">
@@ -1802,12 +1957,34 @@ This account will be used continuously, so please enter the information correctl
             <span class="pill" id="heartPill">받은 좋아요 0</span>
             <span class="pill clickable" id="sentHeartPill">보낸 좋아요 0</span>
           </div>
+          <div class="study-alerts" id="profileAlertList"></div>
           <div class="profile-actions">
-            <button type="button" class="btn" id="showAttendanceLog" data-i18n="attendanceLogButton">내 참석 보기</button>
-            <button type="button" class="btn" id="showPointLog" data-i18n="pointLogButton">포인트 내역</button>
-            <button type="button" class="btn" id="showSentHeartLog" data-i18n="sentHeartLogButton">보낸 좋아요 보기</button>
+            <button type="button" class="profile-menu-card" id="showApplicationLog">
+              <span class="profile-menu-icon">📅</span>
+              <span><strong>내 신청 내역</strong><small>내가 신청한 스터디 확인</small></span>
+            </button>
+            <button type="button" class="profile-menu-card" id="showAttendanceLog">
+              <span class="profile-menu-icon">✅</span>
+              <span><strong>내 참석 보기</strong><small>참석한 스터디 기록 확인</small></span>
+            </button>
+            <button type="button" class="profile-menu-card" id="showPointLog">
+              <span class="profile-menu-icon">💎</span>
+              <span><strong>포인트 내역</strong><small>포인트 적립 기록 확인</small></span>
+            </button>
+            <button type="button" class="profile-menu-card" id="showSentHeartLog">
+              <span class="profile-menu-icon">❤️</span>
+              <span><strong>보낸 좋아요 보기</strong><small>내가 보낸 익명 좋아요 확인</small></span>
+            </button>
+            <button type="button" class="profile-menu-card" id="showLevelGuide">
+              <span class="profile-menu-icon">🏆</span>
+              <span><strong>레벨 등급 보기</strong><small>레벨별 조건 확인</small></span>
+            </button>
+            <button type="button" class="profile-menu-card" id="showLikeAfterStudy">
+              <span class="profile-menu-icon">💌</span>
+              <span><strong>스터디 후 익명 좋아요</strong><small>참석 후 좋아요 보내기</small></span>
+            </button>
           </div>
-          <button type="button" class="btn level-guide-toggle" id="levelGuideToggle" data-i18n="levelGuideButton">레벨 등급 보기</button>
+          <button type="button" class="btn level-guide-toggle hidden" id="levelGuideToggle" data-i18n="levelGuideButton">레벨 등급 보기</button>
           <div class="level-guide hidden" id="levelGuide">
             <div data-i18n="levelGuideRookie">🌱 Rookie (Lv.1~20) : 첫걸음을 시작한 단계</div>
             <div data-i18n="levelGuideBronze">🥉 Bronze (Lv.21~40) : 꾸준히 참여하며 성장하는 단계</div>
@@ -1816,7 +1993,7 @@ This account will be used continuously, so please enter the information correctl
             <div data-i18n="levelGuideDiamond">💎 Diamond (Lv.81~100) : 최상위 레벨의 멤버</div>
             <p data-i18n="levelGuideNote">레벨은 스터디 참여, 회원들의 좋아요, 다양한 활동 등을 종합하여 산정됩니다. 높은 레벨은 활발한 참여와 좋은 평가를 받은 멤버를 의미합니다. 🌟</p>
           </div>
-          <button type="button" class="btn heart" id="toggleLikePanel" data-i18n="postStudyLikeButton">스터디 후 익명 좋아요</button>
+          <button type="button" class="btn heart hidden" id="toggleLikePanel" data-i18n="postStudyLikeButton">스터디 후 익명 좋아요</button>
         </div>
         <section class="profile-detail hidden" id="profileDetail" aria-live="polite"></section>
         <section class="like-panel hidden" id="likePanel">
@@ -1902,6 +2079,7 @@ This account will be used continuously, so please enter the information correctl
     const AUTO_DONE_KEY = "le101SimpleAutoDone";
     const AUTO_RUN_KEY = "le101SimpleAutoRun";
     const AUTO_ROSTER_KEY = "le101SimpleAutoRoster";
+    const NOTIFIED_STUDY_KEY = "le101StudyBrowserNotified";
     const ADMIN_PASSWORD = "101language";
     const SUPABASE_URL = "https://wcbfjyejnhbijqwkajnl.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_e5axVxRAtZA1cj9Y5ul1wA_WRYZeUG2";
@@ -1952,6 +2130,10 @@ This account will be used continuously, so please enter the information correctl
     const registerMemberEl = document.querySelector("#registerMember");
     const headerUserNameEl = document.querySelector("#headerUserName");
     const profileOpenEl = document.querySelector("#profileOpen");
+    const notificationOpenEl = document.querySelector("#notificationOpen");
+    const notificationDotEl = document.querySelector("#notificationDot");
+    const notificationPanelEl = document.querySelector("#notificationPanel");
+    const notificationListEl = document.querySelector("#notificationList");
     const adminShortcutEl = document.querySelector("#adminShortcut");
     const bottomNavEl = document.querySelector("#bottomNav");
     const bottomHomeEl = document.querySelector("#bottomHome");
@@ -1978,6 +2160,9 @@ This account will be used continuously, so please enter the information correctl
     const levelTitleEl = document.querySelector("#levelTitle");
     const levelTextEl = document.querySelector("#levelText");
     const levelGuideToggleEl = document.querySelector("#levelGuideToggle");
+    const showApplicationLogEl = document.querySelector("#showApplicationLog");
+    const showLevelGuideEl = document.querySelector("#showLevelGuide");
+    const showLikeAfterStudyEl = document.querySelector("#showLikeAfterStudy");
     const levelGuideEl = document.querySelector("#levelGuide");
     const showAttendanceLogEl = document.querySelector("#showAttendanceLog");
     const showPointLogEl = document.querySelector("#showPointLog");
@@ -1990,6 +2175,7 @@ This account will be used continuously, so please enter the information correctl
     const attendPillEl = document.querySelector("#attendPill");
     const heartPillEl = document.querySelector("#heartPill");
     const sentHeartPillEl = document.querySelector("#sentHeartPill");
+    const profileAlertListEl = document.querySelector("#profileAlertList");
     const rankingListEl = document.querySelector("#rankingList");
     const toggleLikePanelEl = document.querySelector("#toggleLikePanel");
     const likePanelEl = document.querySelector("#likePanel");
@@ -2042,6 +2228,7 @@ This account will be used continuously, so please enter the information correctl
     let selectedLikeTargets = [];
     let selectedLikeEventId = "";
     let activeProfileDetail = "";
+    let profileView = "main";
     let supabaseClient = null;
     let realtimeChannel = null;
     let remoteVotesCache = {};
@@ -2050,6 +2237,7 @@ This account will be used continuously, so please enter the information correctl
     let votesLoadSerial = 0;
     let latestAppliedVotesSerial = 0;
     let remoteVoteMetaCache = {};
+    let browserNotificationRequestStarted = false;
     const adminAuditOpenKeys = new Set();
     const pendingVoteActions = new Set();
 
@@ -3718,38 +3906,265 @@ This account will be used continuously, so please enter the information correctl
       return event ? `${formatDateLabel(event.start)} ${t(event.title)}` : eventId;
     }
 
+    function getApplicationRows(member) {
+      if (!member?.id) return [];
+      const votes = getVotes();
+      const voteMeta = getVoteMeta();
+      return Object.entries(votes)
+        .filter(([, eventVotes]) => memberVotedInEvent(eventVotes, member.id))
+        .map(([eventId, eventVotes]) => {
+          const base = resolveEventById(eventId);
+          if (!base) return null;
+          const event = getEvent(base);
+          const option = Object.entries(eventVotes).find(([, ids]) => ids.includes(member.id))?.[0] || "";
+          const meta = voteMeta[eventId]?.[member.id] || {};
+          const start = new Date(event.start);
+          const now = new Date();
+          const status = now >= start
+            ? { label: "수업 완료", cls: "done" }
+            : isPollClosed(event)
+              ? { label: "마감", cls: "closed" }
+              : { label: "신청 완료", cls: "" };
+          return {
+            eventId,
+            study_title: t(event.title),
+            option,
+            study_date: formatDateLabel(event.start),
+            start_time: formatTime(event.start),
+            end_time: formatTime(event.end),
+            location: event.place,
+            mode: event.category === "online" || /온라인|zoom/i.test(event.place || "") ? "online" : "offline",
+            appliedAt: meta.createdAt || "",
+            cancelable: !isPollClosed(event) && now < start,
+            status,
+            event
+          };
+        })
+        .filter(Boolean)
+        .sort((a, b) => new Date(a.event.start) - new Date(b.event.start));
+    }
+
+    function getUpcomingStudyAlerts(member) {
+      const now = new Date();
+      return getApplicationRows(member).filter((row) => {
+        const start = new Date(row.event.start);
+        const alertFrom = new Date(start.getTime() - 2 * 60 * 60 * 1000);
+        return now >= alertFrom && now < start;
+      });
+    }
+
+    function renderStudyAlert(row) {
+      const modeText = row.mode === "online" ? "온라인" : "오프라인";
+      return `
+        <article class="study-alert-card">
+          <p>🔔 오늘 신청한 스터디가 곧 시작됩니다.</p>
+          <strong>${escapeHtml(row.study_date)} ${escapeHtml(modeText)} ${escapeHtml(row.study_title)}</strong>
+          <small>시간: ${escapeHtml(row.start_time)} ~ ${escapeHtml(row.end_time)}</small>
+          <small>장소: ${escapeHtml(row.location)}</small>
+        </article>
+      `;
+    }
+
+    function markBrowserNotifications(rows) {
+      if (!("Notification" in window) || !rows.length) return;
+      const sent = readJson(NOTIFIED_STUDY_KEY, {});
+      const send = () => {
+        rows.forEach((row) => {
+          const key = `${row.eventId}|${getMember()?.id || ""}`;
+          if (sent[key]) return;
+          new Notification("오늘 신청한 스터디가 곧 시작됩니다.", {
+            body: `${row.study_date} ${row.study_title}\n시간: ${row.start_time} ~ ${row.end_time}\n장소: ${row.location}`,
+            tag: key
+          });
+          sent[key] = new Date().toISOString();
+        });
+        writeJson(NOTIFIED_STUDY_KEY, sent);
+      };
+      if (Notification.permission === "granted") {
+        send();
+      } else if (Notification.permission === "default" && !browserNotificationRequestStarted) {
+        browserNotificationRequestStarted = true;
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") send();
+        }).catch(() => {});
+      }
+    }
+
+    function renderStudyNotifications() {
+      const member = getMember();
+      const alerts = getUpcomingStudyAlerts(member);
+      const html = alerts.length
+        ? alerts.map(renderStudyAlert).join("")
+        : `<article class="profile-log-card"><strong>새 알림이 없습니다.</strong><small>수업 시작 2시간 전부터 신청한 스터디 알림이 표시됩니다.</small></article>`;
+      if (notificationListEl) notificationListEl.innerHTML = html;
+      if (profileAlertListEl) profileAlertListEl.innerHTML = alerts.map(renderStudyAlert).join("");
+      if (notificationDotEl) notificationDotEl.classList.toggle("hidden", !alerts.length);
+      markBrowserNotifications(alerts);
+    }
+
+    function applicationCard(row) {
+      const cancelText = row.cancelable ? "취소 가능" : "취소 불가";
+      const applied = row.appliedAt ? formatAppliedDate(row.appliedAt) : "-";
+      const option = row.option ? ` · ${t(row.option)}` : "";
+      return `
+        <article class="application-card">
+          <strong>${escapeHtml(row.study_date)} ${escapeHtml(row.study_title)}${escapeHtml(option)}</strong>
+          <small>시간: ${escapeHtml(row.start_time)} ~ ${escapeHtml(row.end_time)}</small>
+          <small>장소: ${escapeHtml(row.location)}</small>
+          <small>구분: ${row.mode === "online" ? "온라인" : "오프라인"}</small>
+          <small>신청일: ${escapeHtml(applied)}</small>
+          <small>취소 가능 여부: ${cancelText}</small>
+          <span class="status-pill ${row.status.cls}">${escapeHtml(row.status.label)}</span>
+        </article>
+      `;
+    }
+
+    function renderInlineLikeAfterStudy() {
+      const member = getMember();
+      const eligibleEvents = getLikeEligibleEvents(member);
+      if (!eligibleEvents.length) {
+        selectedLikeEventId = "";
+        selectedLikeTargets = [];
+        return `<article class="profile-log-card"><small>${t("noLikedEvents")}</small></article>`;
+      }
+      if (!eligibleEvents.some((event) => event.id === selectedLikeEventId)) {
+        selectedLikeEventId = eligibleEvents[0].id;
+        selectedLikeTargets = [];
+      }
+      const eventButtons = eligibleEvents.map((event) => `
+        <button type="button" class="${selectedLikeEventId === event.id ? "like-event selected" : "like-event"}" data-inline-like-event="${escapeHtml(event.id)}">
+          <span>${escapeHtml(formatDateLabel(event.start))} ${escapeHtml(t(event.title))}</span>
+          <small>${escapeHtml(formatTime(event.start))} · ${escapeHtml(event.place)}</small>
+        </button>
+      `).join("");
+      const votes = getVotes();
+      const eventVotes = votes[selectedLikeEventId] || {};
+      const participants = [...new Set(Object.values(eventVotes).flat())]
+        .filter((id) => id !== member?.id)
+        .filter((id) => isRealVisibleMember(id));
+      const targets = participants.length
+        ? participants.map((id) => {
+          const target = memberFromId(id);
+          return `<button type="button" class="${selectedLikeTargets.includes(id) ? "like-target selected" : "like-target"}" data-inline-like-target="${escapeHtml(id)}">${escapeHtml(target.name)}</button>`;
+        }).join("")
+        : `<p class="small-note">${t("noEventParticipants")}</p>`;
+      return `
+        <article class="profile-log-card">
+          <small>${t("heartHelp")}</small>
+          <div class="like-event-list">${eventButtons}</div>
+          <div class="like-target-list">${targets}</div>
+          <button type="button" class="btn heart" data-send-heart-inline>${t("sendHeart")}</button>
+          <small>${t("heartNote")}</small>
+        </article>
+      `;
+    }
+
+    function bindInlineLikeAfterStudy() {
+      profileDetailEl.querySelectorAll("[data-inline-like-event]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectedLikeEventId = button.dataset.inlineLikeEvent;
+          selectedLikeTargets = [];
+          showProfileDetail("likeAfterStudy");
+        });
+      });
+      profileDetailEl.querySelectorAll("[data-inline-like-target]").forEach((button) => {
+        button.addEventListener("click", () => {
+          toggleLikeTarget(button.dataset.inlineLikeTarget);
+          showProfileDetail("likeAfterStudy");
+        });
+      });
+      profileDetailEl.querySelector("[data-send-heart-inline]")?.addEventListener("click", sendHeart);
+    }
+
+    function profileDetailShell(title, body) {
+      return `
+        <div class="profile-detail-header">
+          <button type="button" class="btn back-button" data-profile-back>← Back</button>
+          <h2>${escapeHtml(title)}</h2>
+        </div>
+        <div class="profile-detail-list">${body}</div>
+      `;
+    }
+
+    function bindProfileBackButtons() {
+      profileDetailEl.querySelectorAll("[data-profile-back]").forEach((button) => {
+        button.addEventListener("click", () => showProfileMain());
+      });
+    }
+
+    function renderProfileScreen() {
+      const showingMain = profileView === "main";
+      const summaryCard = levelNumberEl.closest(".level-card > div");
+      const mainContent = levelTextEl.closest(".level-card > div");
+      if (summaryCard) summaryCard.classList.toggle("hidden", !showingMain);
+      if (mainContent) mainContent.classList.toggle("hidden", !showingMain);
+      rankingListEl.closest(".ranking").classList.toggle("hidden", !showingMain || activeView !== "profile");
+      if (showingMain) {
+        profileDetailEl.classList.add("hidden");
+        likePanelEl.classList.add("hidden");
+      }
+    }
+
+    function showProfileMain() {
+      profileView = "main";
+      activeProfileDetail = "";
+      profileDetailEl.classList.add("hidden");
+      profileDetailEl.innerHTML = "";
+      levelGuideEl.classList.add("hidden");
+      likePanelEl.classList.add("hidden");
+      renderProfileScreen();
+      updateBackButton();
+    }
+
     function showProfileDetail(kind) {
       const member = getMember();
       if (!member) return;
-      if (activeProfileDetail === kind && !profileDetailEl.classList.contains("hidden")) {
-        activeProfileDetail = "";
-        profileDetailEl.classList.add("hidden");
-        profileDetailEl.textContent = "";
-        updateBackButton();
-        return;
-      }
       const records = getMemberRecords(member);
-      let lines = [];
+      let title = "";
+      let body = "";
       if (kind === "attendance") {
-        const votes = getVotes();
-        lines = Object.entries(votes)
-          .filter(([, eventVotes]) => memberVotedInEvent(eventVotes, member.id))
-          .map(([eventId, eventVotes]) => {
-            const option = Object.entries(eventVotes).find(([, ids]) => ids.includes(member.id))?.[0];
-            return `${recordEventLabel(eventId)} · ${option ? t(option) : ""}`;
-          });
+        title = "내 참석 보기";
+        const rows = getApplicationRows(member);
+        body = rows.length
+          ? rows.map((row) => `<article class="profile-log-card"><strong>${escapeHtml(row.study_date)} ${escapeHtml(row.study_title)}</strong><small>${escapeHtml(row.option ? t(row.option) : "")}</small><small>${escapeHtml(row.start_time)} ~ ${escapeHtml(row.end_time)} · ${escapeHtml(row.location)}</small></article>`).join("")
+          : `<article class="profile-log-card"><strong>${t("profileLogEmpty")}</strong></article>`;
       } else if (kind === "points") {
-        lines = records
+        title = "포인트 내역";
+        const lines = records
           .filter((record) => ["vote", "bonus", "cancel_vote", "heart_received"].includes(record.action))
           .map((record) => `${formatRecordDate(record.timestamp)} · ${record.detail || record.action}`);
+        body = lines.length
+          ? lines.map((line) => `<article class="profile-log-card"><small>${escapeHtml(line)}</small></article>`).join("")
+          : `<article class="profile-log-card"><strong>${t("profileLogEmpty")}</strong></article>`;
       } else if (kind === "sentHearts") {
-        lines = records
+        title = "보낸 좋아요 보기";
+        const lines = records
           .filter((record) => record.action === "heart_sent")
           .map((record) => `${formatRecordDate(record.timestamp)} · ${record.detail || ""}`);
+        body = lines.length
+          ? lines.map((line) => `<article class="profile-log-card"><small>${escapeHtml(line)}</small></article>`).join("")
+          : `<article class="profile-log-card"><strong>${t("profileLogEmpty")}</strong></article>`;
+      } else if (kind === "applications") {
+        title = "내 신청 내역";
+        const rows = getApplicationRows(member);
+        body = rows.length
+          ? rows.map(applicationCard).join("")
+          : `<article class="profile-log-card"><strong>${t("profileLogEmpty")}</strong><small>신청 완료한 스터디가 여기에 표시됩니다.</small></article>`;
+      } else if (kind === "levels") {
+        title = "레벨 등급 보기";
+        body = `<article class="profile-log-card">${levelGuideEl.innerHTML}</article>`;
+      } else if (kind === "likeAfterStudy") {
+        title = "스터디 후 익명 좋아요";
+        body = renderInlineLikeAfterStudy();
       }
+      profileView = kind;
       activeProfileDetail = kind;
-      profileDetailEl.textContent = lines.length ? lines.join("\n") : t("profileLogEmpty");
+      profileDetailEl.innerHTML = profileDetailShell(title, body);
       profileDetailEl.classList.remove("hidden");
+      likePanelEl.classList.add("hidden");
+      bindProfileBackButtons();
+      if (kind === "likeAfterStudy") bindInlineLikeAfterStudy();
+      renderProfileScreen();
       updateBackButton();
     }
 
@@ -3759,10 +4174,12 @@ This account will be used continuously, so please enter the information correctl
       adminPanelEl.classList.add("hidden");
       adminLockEl.classList.remove("hidden");
       adminToolsEl.classList.add("hidden");
+      profileView = "main";
       activeProfileDetail = "";
       profileDetailEl.classList.add("hidden");
-      profileDetailEl.textContent = "";
+      profileDetailEl.innerHTML = "";
       likePanelEl.classList.add("hidden");
+      notificationPanelEl.classList.add("hidden");
       selectedLikeTargets = [];
       selectedLikeEventId = "";
       expandedPollId = "";
@@ -3786,6 +4203,13 @@ This account will be used continuously, so please enter the information correctl
 
     function setActiveView(view) {
       activeView = view;
+      if (view !== "profile") {
+        profileView = "main";
+        activeProfileDetail = "";
+        profileDetailEl.classList.add("hidden");
+        profileDetailEl.innerHTML = "";
+        renderProfileScreen();
+      }
       if (view === "home") {
         activeFilter = "all";
         expandedPollId = "";
@@ -3837,21 +4261,26 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function hasOpenSubView() {
-      return !profileDetailEl.classList.contains("hidden") ||
+      return profileView !== "main" ||
+        !profileDetailEl.classList.contains("hidden") ||
         !levelGuideEl.classList.contains("hidden") ||
         !likePanelEl.classList.contains("hidden") ||
+        !notificationPanelEl.classList.contains("hidden") ||
         !materialsPanelEl.classList.contains("hidden") ||
         !adminPanelEl.classList.contains("hidden");
     }
 
     function closeSubViews() {
+      profileView = "main";
       activeProfileDetail = "";
       profileDetailEl.classList.add("hidden");
-      profileDetailEl.textContent = "";
+      profileDetailEl.innerHTML = "";
       levelGuideEl.classList.add("hidden");
       likePanelEl.classList.add("hidden");
+      notificationPanelEl.classList.add("hidden");
       materialsPanelEl.classList.add("hidden");
       if (!adminUnlocked) adminPanelEl.classList.add("hidden");
+      renderProfileScreen();
       updateContentMode();
     }
 
@@ -3861,6 +4290,10 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function handleBack() {
+      if (activeView === "profile" && profileView !== "main") {
+        showProfileMain();
+        return;
+      }
       if (hasOpenSubView()) {
         closeSubViews();
         voteSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -5357,6 +5790,7 @@ This account will be used continuously, so please enter the information correctl
       eventPageEl.classList.toggle("hidden", !showEventPage);
       logoutPanelEl.classList.toggle("hidden", !isLoggedIn);
       profileOpenEl.classList.toggle("hidden", !isLoggedIn);
+      notificationOpenEl.classList.toggle("hidden", !isLoggedIn);
       bottomNavEl.classList.toggle("hidden", !isLoggedIn);
       adminShortcutEl.classList.toggle("hidden", !adminUnlocked);
       bottomHomeEl.classList.toggle("active", activeView === "home");
@@ -5367,6 +5801,8 @@ This account will be used continuously, so please enter the information correctl
         pollsEl.classList.add("hidden");
         materialsPanelEl.classList.add("hidden");
         eventPageEl.classList.add("hidden");
+        notificationPanelEl.classList.add("hidden");
+        renderProfileScreen();
         updateBackButton();
         return;
       }
@@ -5382,11 +5818,14 @@ This account will be used continuously, so please enter the information correctl
       if (!isLoggedIn) {
         bottomNavEl.classList.add("hidden");
         profileOpenEl.classList.add("hidden");
+        notificationOpenEl.classList.add("hidden");
         adminShortcutEl.classList.add("hidden");
         pollsEl.classList.add("hidden");
         eventPageEl.classList.add("hidden");
         materialsPanelEl.classList.add("hidden");
         adminPanelEl.classList.add("hidden");
+        notificationPanelEl.classList.add("hidden");
+        profileView = "main";
         activeProfileDetail = "";
         profileDetailEl.classList.add("hidden");
         updateBackButton();
@@ -5410,6 +5849,16 @@ This account will be used continuously, so please enter the information correctl
       updateBackButton();
     }
 
+    function toggleNotificationPanel() {
+      if (!getMember()) return;
+      notificationPanelEl.classList.toggle("hidden");
+      if (!notificationPanelEl.classList.contains("hidden")) {
+        renderStudyNotifications();
+        notificationPanelEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      updateBackButton();
+    }
+
     function render() {
       templates = buildWeeklyTemplates();
       closedTemplates = buildClosedTemplates();
@@ -5428,6 +5877,8 @@ This account will be used continuously, so please enter the information correctl
       renderAdminStatus();
       renderAdminVoteAudit();
       renderAdminHeartAudit();
+      renderStudyNotifications();
+      renderProfileScreen();
       setSheetStatus();
       updateContentMode();
     }
@@ -5457,6 +5908,7 @@ This account will be used continuously, so please enter the information correctl
     saveMemberEl.addEventListener("click", saveMember);
     registerMemberEl.addEventListener("click", registerMember);
     profileOpenEl.addEventListener("click", () => setActiveView("profile"));
+    notificationOpenEl.addEventListener("click", toggleNotificationPanel);
     adminShortcutEl.addEventListener("click", () => setActiveView("admin"));
     bottomHomeEl.addEventListener("click", () => setActiveView("home"));
     bottomVoteEl.addEventListener("click", () => setActiveView("vote"));
@@ -5481,9 +5933,12 @@ This account will be used continuously, so please enter the information correctl
     memberBirthEl.addEventListener("input", clearLoginError);
     sendHeartEl.addEventListener("click", sendHeart);
     toggleLikePanelEl.addEventListener("click", toggleLikePanel);
+    showApplicationLogEl.addEventListener("click", () => showProfileDetail("applications"));
     showAttendanceLogEl.addEventListener("click", () => showProfileDetail("attendance"));
     showPointLogEl.addEventListener("click", () => showProfileDetail("points"));
     showSentHeartLogEl.addEventListener("click", () => showProfileDetail("sentHearts"));
+    showLevelGuideEl.addEventListener("click", () => showProfileDetail("levels"));
+    showLikeAfterStudyEl.addEventListener("click", () => showProfileDetail("likeAfterStudy"));
     attendPillEl.addEventListener("click", () => showProfileDetail("attendance"));
     pointPillEl.addEventListener("click", () => showProfileDetail("points"));
     sentHeartPillEl.addEventListener("click", () => showProfileDetail("sentHearts"));
