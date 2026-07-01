@@ -81,6 +81,7 @@
       object-fit: contain;
       border-radius: 6px;
       background: transparent;
+      cursor: pointer;
     }
 
     .brand-row {
@@ -626,6 +627,10 @@
       padding: 16px;
     }
 
+    .level-card.detail-mode {
+      grid-template-columns: 1fr;
+    }
+
     .level-identity {
       display: grid;
       gap: 8px;
@@ -810,25 +815,26 @@
       grid-column: 1 / -1;
       display: grid;
       gap: 10px;
-      border-top: 1px solid var(--line);
-      padding-top: 12px;
+      border-top: 0;
+      padding-top: 0;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.45;
     }
 
     .profile-detail-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: grid;
+      align-items: start;
+      justify-content: start;
       gap: 10px;
-      margin-bottom: 2px;
+      margin-bottom: 6px;
     }
 
     .profile-detail-header h2 {
       margin: 0;
       color: #fff;
-      font-size: 18px;
+      font-size: 22px;
+      font-weight: 900;
       line-height: 1.2;
     }
 
@@ -864,6 +870,43 @@
       color: var(--muted);
       font-size: 12px;
       line-height: 1.45;
+    }
+
+    .profile-total-card {
+      display: grid;
+      gap: 4px;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      border-radius: 16px;
+      padding: 16px;
+      background: rgba(34, 197, 94, 0.1);
+    }
+
+    .profile-total-card strong {
+      color: #ffffff;
+      font-size: 26px;
+      font-weight: 900;
+    }
+
+    .point-plus {
+      color: #22c55e;
+      font-weight: 900;
+    }
+
+    .point-minus {
+      color: #ef4444;
+      font-weight: 900;
+    }
+
+    .sent-badge {
+      display: inline-flex;
+      width: fit-content;
+      margin-top: 6px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: rgba(34, 197, 94, 0.16);
+      color: #86efac;
+      font-size: 11px;
+      font-weight: 900;
     }
 
     .status-pill {
@@ -1554,6 +1597,25 @@
       gap: 5px;
     }
 
+    .audit-view-toggle {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 4px 0 10px;
+    }
+
+    .audit-view-toggle .btn {
+      min-height: 34px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    .audit-view-toggle .btn.active {
+      border-color: var(--accent);
+      background: rgba(34, 197, 94, 0.18);
+      color: #ffffff;
+    }
+
     .closed-vote-card {
       overflow: hidden;
       border: 1px solid var(--paper-line);
@@ -1680,6 +1742,101 @@
       display: block;
       margin-bottom: 6px;
       color: #93c5fd;
+    }
+
+    .audit-summary-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0 12px;
+    }
+
+    .audit-summary-pill {
+      border: 1px solid var(--paper-line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--subtle);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .closed-list-panel {
+      display: grid;
+      gap: 14px;
+      border: 1px solid var(--paper-line);
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .closed-list-group {
+      overflow: hidden;
+      border: 1px solid var(--paper-line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .closed-list-group.level-green { border-color: rgba(34, 197, 94, 0.35); }
+    .closed-list-group.level-yellow { border-color: rgba(59, 130, 246, 0.38); }
+    .closed-list-group.level-blue { border-color: rgba(168, 85, 247, 0.38); }
+
+    .closed-list-group h4 {
+      margin: 0;
+      padding: 12px 14px;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .closed-list-group.level-green h4 { color: #86efac; }
+    .closed-list-group.level-yellow h4 { color: #60a5fa; }
+    .closed-list-group.level-blue h4 { color: #d8b4fe; }
+
+    .closed-list-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .closed-list-table th,
+    .closed-list-table td {
+      border-top: 1px solid var(--paper-line);
+      padding: 9px 10px;
+      color: var(--subtle);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .closed-list-table th {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .closed-list-name {
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    .closed-list-mobile {
+      display: none;
+      gap: 8px;
+      padding: 10px;
+    }
+
+    .closed-list-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: start;
+      border-top: 1px solid var(--paper-line);
+      padding: 10px 0;
+      color: var(--subtle);
+    }
+
+    .closed-list-card:first-child {
+      border-top: 0;
     }
 
     .attendance-admin {
@@ -1961,6 +2118,18 @@
       }
       .attendance-toolbar {
         overflow-x: auto;
+      }
+      .closed-list-table {
+        display: none;
+      }
+      .closed-list-mobile {
+        display: grid;
+      }
+      .closed-list-card {
+        grid-template-columns: auto minmax(0, 1fr);
+      }
+      .closed-list-card .attendance-status {
+        grid-column: 2;
       }
       .section {
         border: 0;
@@ -2415,6 +2584,8 @@ This account will be used continuously, so please enter the information correctl
     const registerMemberEl = document.querySelector("#registerMember");
     const headerUserNameEl = document.querySelector("#headerUserName");
     const headerLevelEl = document.querySelector("#headerLevel");
+    const brandLogoEl = document.querySelector(".brand-logo");
+    const heroToolsEl = document.querySelector(".hero-tools");
     const profileOpenEl = document.querySelector("#profileOpen");
     const notificationOpenEl = document.querySelector("#notificationOpen");
     const notificationDotEl = document.querySelector("#notificationDot");
@@ -2529,7 +2700,8 @@ This account will be used continuously, so please enter the information correctl
       sort: "recent",
       level: "all",
       language: "all",
-      search: ""
+      search: "",
+      view: "group"
     };
     const pendingVoteActions = new Set();
 
@@ -4290,6 +4462,7 @@ This account will be used continuously, so please enter the information correctl
         : `<article class="profile-log-card"><strong>새 알림이 없습니다.</strong><small>수업 시작 2시간 전부터 신청한 스터디 알림이 표시됩니다.</small></article>`;
       if (notificationListEl) notificationListEl.innerHTML = html;
       if (profileAlertListEl) profileAlertListEl.innerHTML = alerts.map(renderStudyAlert).join("");
+      if (profileAlertListEl) profileAlertListEl.classList.add("hidden");
       if (notificationDotEl) notificationDotEl.classList.toggle("hidden", !alerts.length);
       markBrowserNotifications(alerts);
     }
@@ -4331,24 +4504,59 @@ This account will be used continuously, so please enter the information correctl
       `).join("");
       const votes = getVotes();
       const eventVotes = votes[selectedLikeEventId] || {};
+      const sent = readJson(HEARTS_KEY, {});
       const participants = [...new Set(Object.values(eventVotes).flat())]
         .filter((id) => id !== member?.id)
         .filter((id) => isRealVisibleMember(id));
       const targets = participants.length
         ? participants.map((id) => {
           const target = memberFromId(id);
-          return `<button type="button" class="${selectedLikeTargets.includes(id) ? "like-target selected" : "like-target"}" data-inline-like-target="${escapeHtml(id)}">${escapeHtml(target.name)}</button>`;
+          const alreadySent = Boolean(sent[`${member.id}|${selectedLikeEventId}|${id}`]);
+          return `<button type="button" class="${selectedLikeTargets.includes(id) ? "like-target selected" : "like-target"}" data-inline-like-target="${escapeHtml(id)}"${alreadySent ? " disabled" : ""}><span>${escapeHtml(target.name)}</span>${alreadySent ? `<span class="sent-badge">보냄</span>` : ""}</button>`;
         }).join("")
         : `<p class="small-note">${t("noEventParticipants")}</p>`;
       return `
         <article class="profile-log-card">
-          <small>${t("heartHelp")}</small>
           <div class="like-event-list">${eventButtons}</div>
           <div class="like-target-list">${targets}</div>
           <button type="button" class="btn heart" data-send-heart-inline>${t("sendHeart")}</button>
-          <small>${t("heartNote")}</small>
         </article>
       `;
+    }
+
+    function getAttendanceRows(member) {
+      const voteMeta = getVoteMeta();
+      const attendedEvents = new Set(getMemberRecords(member)
+        .filter((record) => record.action === "attendance_checked")
+        .map((record) => record.event)
+        .filter(Boolean));
+      return getApplicationRows(member)
+        .filter((row) => {
+          const meta = voteMeta[row.eventId]?.[member.id] || {};
+          return meta.attended || meta.syncedToSheet || attendedEvents.has(row.eventId);
+        })
+        .sort((a, b) => new Date(b.event.start) - new Date(a.event.start));
+    }
+
+    function pointDeltaForRecord(record) {
+      if (record.action === "vote") return pointRules.vote;
+      if (record.action === "bonus") return pointRules.earlyBonus;
+      if (record.action === "cancel_vote") return -(pointRules.vote + pointRules.earlyBonus);
+      if (record.action === "heart_received") return pointRules.heart;
+      if (record.action === "attendance_checked") return pointRules.attendanceCheck;
+      return 0;
+    }
+
+    function renderPointRecord(record) {
+      const delta = pointDeltaForRecord(record);
+      const deltaClass = delta < 0 ? "point-minus" : "point-plus";
+      const deltaText = delta ? `${delta > 0 ? "+" : ""}${delta}P` : "";
+      return `<article class="profile-log-card"><strong>${escapeHtml(formatRecordDate(record.timestamp))} <span class="${deltaClass}">${escapeHtml(deltaText)}</span></strong><small>${escapeHtml(record.detail || record.action)}</small></article>`;
+    }
+
+    function renderSentHeartRecord(record) {
+      const event = record.event ? recordEventLabel(record.event) : "";
+      return `<article class="profile-log-card"><strong>${escapeHtml(formatRecordDate(record.timestamp))}</strong><small>대상자: ${escapeHtml(record.detail || "-")}</small>${event ? `<small>스터디: ${escapeHtml(event)}</small>` : ""}</article>`;
     }
 
     function bindInlineLikeAfterStudy() {
@@ -4371,7 +4579,7 @@ This account will be used continuously, so please enter the information correctl
     function profileDetailShell(title, body) {
       return `
         <div class="profile-detail-header">
-          <button type="button" class="btn back-button" data-profile-back>← Back</button>
+          <button type="button" class="btn back-button" data-profile-back>← 뒤로가기</button>
           <h2>${escapeHtml(title)}</h2>
         </div>
         <div class="profile-detail-list">${body}</div>
@@ -4388,12 +4596,15 @@ This account will be used continuously, so please enter the information correctl
       const showingMain = profileView === "main";
       const summaryCard = levelNumberEl.closest(".level-card > div");
       const mainContent = levelTextEl.closest(".level-card > div");
+      const levelCard = levelNumberEl.closest(".level-card");
+      levelCard?.classList.toggle("detail-mode", !showingMain);
       if (summaryCard) summaryCard.classList.toggle("hidden", !showingMain);
       if (mainContent) mainContent.classList.toggle("hidden", !showingMain);
       rankingListEl.closest(".ranking").classList.toggle("hidden", !showingMain || activeView !== "profile");
       if (showingMain) {
         profileDetailEl.classList.add("hidden");
         likePanelEl.classList.add("hidden");
+        if (profileAlertListEl) profileAlertListEl.classList.add("hidden");
       }
     }
 
@@ -4416,26 +4627,23 @@ This account will be used continuously, so please enter the information correctl
       let body = "";
       if (kind === "attendance") {
         title = "내 참석 보기";
-        const rows = getApplicationRows(member);
+        const rows = getAttendanceRows(member);
         body = rows.length
-          ? rows.map((row) => `<article class="profile-log-card"><strong>${escapeHtml(row.study_date)} ${escapeHtml(row.study_title)}</strong><small>${escapeHtml(row.option ? t(row.option) : "")}</small><small>${escapeHtml(row.start_time)} ~ ${escapeHtml(row.end_time)} · ${escapeHtml(row.location)}</small></article>`).join("")
+          ? rows.map((row) => `<article class="profile-log-card"><strong>${escapeHtml(row.study_date)} ${escapeHtml(row.study_title)}</strong><small>${escapeHtml(row.start_time)} ~ ${escapeHtml(row.end_time)}</small><small>참석 포인트 +${pointRules.attendanceCheck}P</small><span class="status-pill">참석 완료</span></article>`).join("")
           : `<article class="profile-log-card"><strong>${t("profileLogEmpty")}</strong></article>`;
       } else if (kind === "points") {
         title = "포인트 내역";
-        const lines = records
-          .filter((record) => ["vote", "bonus", "cancel_vote", "heart_received"].includes(record.action))
-          .map((record) => `${formatRecordDate(record.timestamp)} · ${record.detail || record.action}`);
-        body = lines.length
-          ? lines.map((line) => `<article class="profile-log-card"><small>${escapeHtml(line)}</small></article>`).join("")
-          : `<article class="profile-log-card"><strong>${t("profileLogEmpty")}</strong></article>`;
+        const stats = getMemberStats(member);
+        const pointRecords = records.filter((record) => ["vote", "bonus", "cancel_vote", "heart_received", "attendance_checked"].includes(record.action));
+        body = `<article class="profile-total-card"><small>보유 포인트</small><strong>${stats.points.toLocaleString()} pt</strong></article>` + (pointRecords.length
+          ? pointRecords.map(renderPointRecord).join("")
+          : `<article class="profile-log-card"><strong>${t("profileLogEmpty")}</strong></article>`);
       } else if (kind === "sentHearts") {
         title = "보낸 좋아요 보기";
-        const lines = records
-          .filter((record) => record.action === "heart_sent")
-          .map((record) => `${formatRecordDate(record.timestamp)} · ${record.detail || ""}`);
+        const lines = records.filter((record) => record.action === "heart_sent");
         body = lines.length
-          ? lines.map((line) => `<article class="profile-log-card"><small>${escapeHtml(line)}</small></article>`).join("")
-          : `<article class="profile-log-card"><strong>${t("profileLogEmpty")}</strong></article>`;
+          ? lines.map(renderSentHeartRecord).join("")
+          : `<article class="profile-log-card"><strong>보낸 좋아요가 없습니다.</strong></article>`;
       } else if (kind === "applications") {
         title = "내 신청 내역";
         const rows = getApplicationRows(member);
@@ -4577,7 +4785,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function updateBackButton() {
-      const shouldShow = Boolean(getMember());
+      const shouldShow = Boolean(getMember()) && activeView !== "profile";
       backBarEl.classList.toggle("hidden", !shouldShow);
     }
 
@@ -5252,6 +5460,10 @@ This account will be used continuously, so please enter the information correctl
 
     function renderClosedAuditControls() {
       return `
+        <div class="audit-view-toggle" role="group" aria-label="종료된 투표 보기 모드">
+          <button type="button" class="btn ${adminClosedAuditFilter.view === "group" ? "active" : ""}" data-closed-view="group">▦ 그룹별 보기</button>
+          <button type="button" class="btn ${adminClosedAuditFilter.view === "list" ? "active" : ""}" data-closed-view="list">☷ 리스트만 보기</button>
+        </div>
         <div class="admin-audit-controls">
           <div class="field">
             <label for="adminClosedSort">정렬 기준</label>
@@ -5285,6 +5497,126 @@ This account will be used continuously, so please enter the information correctl
             <input id="adminClosedSearch" data-closed-filter="search" placeholder="이름 또는 닉네임 검색..." value="${escapeHtml(adminClosedAuditFilter.search)}">
           </div>
         </div>
+      `;
+    }
+
+    function closedAuditRowsFromItems(items) {
+      const search = normalizeName(adminClosedAuditFilter.search || "");
+      const levelFilter = adminClosedAuditFilter.level;
+      const statusFilters = ["attended", "unattended", "unmatched"];
+      const selectedLevelFilter = statusFilters.includes(levelFilter) ? "all" : levelFilter;
+      const selectedStatusFilter = statusFilters.includes(levelFilter) ? levelFilter : "all";
+      return items.flatMap((item) => {
+        const { eventId, eventVotes, voteMeta, base, schedule } = item;
+        return adminOptionOrder(base.options).flatMap((option) => {
+          return (eventVotes[option] || []).filter((id) => isRealVisibleMember(id)).map((id) => {
+            const member = memberFromId(id);
+            const meta = voteMeta[id] || {};
+            const status = statusForAttendance(eventId, id, meta);
+            return {
+              eventId,
+              id,
+              member,
+              option,
+              status,
+              checked: isAttendanceChecked(eventId, id),
+              base,
+              schedule,
+              level: adminLevelFilterValue(option),
+              levelLabel: optionDisplayLabel(option),
+              colorClass: optionColorClass(option),
+              sortTime: adminEventSortTime(item)
+            };
+          });
+        });
+      }).filter((row) => {
+        if (selectedLevelFilter !== "all" && row.level !== selectedLevelFilter) return false;
+        if (selectedStatusFilter !== "all" && adminStatusFilterValue(row.status) !== selectedStatusFilter) return false;
+        if (search && !normalizeName(row.member.name).includes(search)) return false;
+        return true;
+      }).sort((a, b) => {
+        const levelOrder = { beginner: 1, intermediate: 2, upperIntermediate: 3 };
+        const statusOrder = { synced: 1, duplicated: 2, attended: 3, unmatched: 4, "": 5 };
+        return (levelOrder[a.level] || 99) - (levelOrder[b.level] || 99) ||
+          (statusOrder[a.status.cls] || 5) - (statusOrder[b.status.cls] || 5) ||
+          a.member.name.localeCompare(b.member.name, "ko") ||
+          b.sortTime - a.sortTime;
+      });
+    }
+
+    function renderAuditSummary(rows) {
+      const counts = rows.reduce((acc, row) => {
+        acc.total += 1;
+        acc[row.level] = (acc[row.level] || 0) + 1;
+        const statusKey = adminStatusFilterValue(row.status);
+        acc[statusKey] = (acc[statusKey] || 0) + 1;
+        return acc;
+      }, { total: 0, beginner: 0, intermediate: 0, upperIntermediate: 0, attended: 0, unattended: 0, unmatched: 0 });
+      return `
+        <div class="audit-summary-grid">
+          <span class="audit-summary-pill">총 ${counts.total}명</span>
+          <span class="audit-summary-pill">Beginner ${counts.beginner}명</span>
+          <span class="audit-summary-pill">Intermediate ${counts.intermediate}명</span>
+          <span class="audit-summary-pill">Upper Intermediate ${counts.upperIntermediate}명</span>
+          <span class="audit-summary-pill">참석 체크됨 ${counts.attended}명</span>
+          <span class="audit-summary-pill">미확인 ${counts.unattended}명</span>
+          <span class="audit-summary-pill">미분류 ${counts.unmatched}명</span>
+        </div>
+      `;
+    }
+
+    function renderClosedListMode(items) {
+      const rows = closedAuditRowsFromItems(items);
+      const visibleEventIds = [...new Set(rows.map((row) => row.eventId))];
+      const selectedCount = rows.filter((row) => row.checked).length;
+      const grouped = [
+        ["beginner", "Beginner", "level-green"],
+        ["intermediate", "Intermediate", "level-yellow"],
+        ["upperIntermediate", "Upper Intermediate", "level-blue"]
+      ].map(([level, label, colorClass]) => {
+        const levelRows = rows.filter((row) => row.level === level);
+        if (!levelRows.length) return "";
+        const tableRows = levelRows.map((row) => `
+          <tr>
+            <td><input type="checkbox" data-attendance-event="${escapeHtml(row.eventId)}" data-attendance-member="${escapeHtml(row.id)}"${row.checked ? " checked" : ""}></td>
+            <td class="closed-list-name">${escapeHtml(row.member.name)}</td>
+            <td>${escapeHtml(row.levelLabel)}</td>
+            <td>${escapeHtml(t(row.base.title))}</td>
+            <td>${escapeHtml(formatDateLabel(row.schedule.start))}</td>
+            <td><span class="attendance-status ${row.status.cls}">${escapeHtml(row.status.label)}</span></td>
+            <td>${row.status.cls === "synced" || row.status.cls === "duplicated" ? "반영 완료" : row.status.cls === "unmatched" ? "미분류" : "대기"}</td>
+          </tr>
+        `).join("");
+        const mobileRows = levelRows.map((row) => `
+          <label class="closed-list-card">
+            <input type="checkbox" data-attendance-event="${escapeHtml(row.eventId)}" data-attendance-member="${escapeHtml(row.id)}"${row.checked ? " checked" : ""}>
+            <span><strong class="closed-list-name">${escapeHtml(row.member.name)}</strong><br><small>${escapeHtml(row.levelLabel)} · ${escapeHtml(formatDateLabel(row.schedule.start))} ${escapeHtml(t(row.base.title))}</small><br><small>Google Sheets: ${row.status.cls === "synced" || row.status.cls === "duplicated" ? "반영 완료" : row.status.cls === "unmatched" ? "미분류" : "대기"}</small></span>
+            <span class="attendance-status ${row.status.cls}">${escapeHtml(row.status.label)}</span>
+          </label>
+        `).join("");
+        return `
+          <section class="closed-list-group ${colorClass}">
+            <h4>${label} · ${levelRows.length}명</h4>
+            <table class="closed-list-table">
+              <thead><tr><th></th><th>이름</th><th>English Level</th><th>신청한 스터디명</th><th>날짜</th><th>참석 상태</th><th>Google Sheets</th></tr></thead>
+              <tbody>${tableRows}</tbody>
+            </table>
+            <div class="closed-list-mobile">${mobileRows}</div>
+          </section>
+        `;
+      }).filter(Boolean).join("");
+      return `
+        ${renderAuditSummary(rows)}
+        <div class="attendance-toolbar">
+          <span class="attendance-count">선택됨 ${selectedCount} / ${rows.length}명</span>
+          <button type="button" class="btn" data-list-attendance-action="select-unsynced" data-list-events="${escapeHtml(visibleEventIds.join(","))}">✓ 전체 선택 (미반영만)</button>
+          <button type="button" class="btn" data-list-attendance-action="select-all" data-list-events="${escapeHtml(visibleEventIds.join(","))}">✓ 전체 선택 (모두)</button>
+          <button type="button" class="btn" data-list-attendance-action="clear" data-list-events="${escapeHtml(visibleEventIds.join(","))}">☐ 전체 해제</button>
+          <button type="button" class="btn" data-list-attendance-action="attended" data-list-events="${escapeHtml(visibleEventIds.join(","))}">참석자만</button>
+          <button type="button" class="btn" data-list-attendance-action="unattended" data-list-events="${escapeHtml(visibleEventIds.join(","))}">미참석자만</button>
+          <button type="button" class="btn primary" data-list-sheet-sync data-list-events="${escapeHtml(visibleEventIds.join(","))}">Google Sheets 반영 (${selectedCount}명)</button>
+        </div>
+        <div class="closed-list-panel">${grouped || `<div class="small-note">검색/필터 조건에 맞는 참석자가 없습니다.</div>`}</div>
       `;
     }
 
@@ -5364,7 +5696,9 @@ This account will be used continuously, so please enter the information correctl
       if (!adminAuditOpenKeys.size && filtered[0]) adminAuditOpenKeys.add(filtered[0].eventId);
       return `
         ${renderClosedAuditControls()}
-        <div class="closed-vote-list">${filtered.map((item, index) => renderClosedVoteCard(item, index)).join("") || `<div>${escapeHtml(t("adminNoVotes"))}</div>`}</div>
+        ${adminClosedAuditFilter.view === "list"
+          ? renderClosedListMode(filtered)
+          : `<div class="closed-vote-list">${filtered.map((item, index) => renderClosedVoteCard(item, index)).join("") || `<div>${escapeHtml(t("adminNoVotes"))}</div>`}</div>`}
         <div class="audit-help-box">
           <strong>안내</strong>
           <div>- 종료된 투표는 투표 마감 시간이 지난 스터디입니다.</div>
@@ -5425,9 +5759,45 @@ This account will be used continuously, so please enter the information correctl
           });
         }
       });
+      adminVoteAuditEl.querySelectorAll("[data-closed-view]").forEach((button) => {
+        button.addEventListener("click", () => {
+          adminClosedAuditFilter.view = button.dataset.closedView || "group";
+          renderAdminVoteAudit();
+        });
+      });
       adminVoteAuditEl.querySelectorAll("input[data-attendance-event][data-attendance-member]").forEach((input) => {
         input.addEventListener("change", () => {
           setAttendanceChecked(input.dataset.attendanceEvent, input.dataset.attendanceMember, input.checked);
+          renderAdminVoteAudit();
+        });
+      });
+      adminVoteAuditEl.querySelectorAll("button[data-list-attendance-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const action = button.dataset.listAttendanceAction;
+          const eventIds = (button.dataset.listEvents || "").split(",").filter(Boolean);
+          const rows = closedAuditRowsFromItems(eventIds.map((eventId) => {
+            const base = resolveEventById(eventId);
+            return base ? { eventId, eventVotes: getVotes()[eventId] || {}, voteMeta: getVoteMeta()[eventId] || {}, base, schedule: getEvent(base), participantIds: realParticipantIds(getVotes()[eventId] || {}), total: realParticipantIds(getVotes()[eventId] || {}).length } : null;
+          }).filter(Boolean));
+          const checks = getAttendanceChecks();
+          if (action === "select-all" && !window.confirm("이미 반영된 사람까지 모두 선택됩니다. 계속할까요?")) return;
+          rows.forEach((row) => {
+            const key = attendanceKey(row.eventId, row.id);
+            if (action === "clear") {
+              delete checks[key];
+            } else if (action === "select-unsynced") {
+              if (!row.status.cls || row.status.cls === "attended" || row.status.cls === "unmatched") checks[key] = true;
+            } else if (action === "select-all") {
+              checks[key] = true;
+            } else if (action === "attended") {
+              if (adminStatusFilterValue(row.status) === "attended") checks[key] = true;
+              else delete checks[key];
+            } else if (action === "unattended") {
+              if (adminStatusFilterValue(row.status) === "unattended") checks[key] = true;
+              else delete checks[key];
+            }
+          });
+          writeJson(ATTENDANCE_CHECK_KEY, checks);
           renderAdminVoteAudit();
         });
       });
@@ -5469,6 +5839,19 @@ This account will be used continuously, so please enter the information correctl
           button.disabled = true;
           button.textContent = "Google Sheets 반영 중...";
           await syncAttendanceToSheets(button.dataset.sheetEvent);
+        });
+      });
+      adminVoteAuditEl.querySelectorAll("button[data-list-sheet-sync]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const eventIds = (button.dataset.listEvents || "").split(",").filter(Boolean);
+          button.disabled = true;
+          button.textContent = "Google Sheets 반영 중...";
+          for (const eventId of eventIds) {
+            if (realParticipantIds(getVotes()[eventId] || {}).some((id) => isAttendanceChecked(eventId, id))) {
+              await syncAttendanceToSheets(eventId);
+            }
+          }
+          renderAdminVoteAudit();
         });
       });
     }
@@ -6269,6 +6652,7 @@ This account will be used continuously, so please enter the information correctl
       const showProfile = isLoggedIn && activeView === "profile";
       const showAdmin = isLoggedIn && activeView === "admin" && adminUnlocked;
       const showEventPage = isLoggedIn && activeView === "event";
+      heroToolsEl?.classList.toggle("hidden", Boolean(showProfile || showAdmin || showEventPage));
       dashboardSectionEl.classList.toggle("hidden", !showProfile);
       voteSectionEl.classList.toggle("hidden", !isLoggedIn || showProfile || showAdmin || showEventPage);
       eventPageEl.classList.toggle("hidden", !showEventPage);
@@ -6391,6 +6775,7 @@ This account will be used continuously, so please enter the information correctl
 
     saveMemberEl.addEventListener("click", saveMember);
     registerMemberEl.addEventListener("click", registerMember);
+    brandLogoEl?.addEventListener("click", () => setActiveView("home"));
     profileOpenEl?.addEventListener("click", () => setActiveView("profile"));
     notificationOpenEl.addEventListener("click", toggleNotificationPanel);
     adminShortcutEl?.addEventListener("click", () => setActiveView("admin"));
