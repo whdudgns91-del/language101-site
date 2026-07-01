@@ -172,6 +172,10 @@
       color: #fecdd3;
     }
 
+    .brand-row.hidden {
+      display: none;
+    }
+
     .hero p, .helper {
       margin-bottom: 0;
       color: var(--muted);
@@ -706,6 +710,18 @@
       line-height: 1.2;
     }
 
+    .profile-avatar {
+      display: grid;
+      width: 78px;
+      height: 78px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 28%, rgba(255,255,255,0.24), rgba(255,255,255,0.04) 58%), #111827;
+      font-size: 36px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+    }
+
     .level-guide-toggle {
       min-height: 36px;
       margin: 10px 0 0;
@@ -791,6 +807,66 @@
 
     .pill.clickable {
       cursor: pointer;
+    }
+
+    .profile-top-stat {
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    .profile-top-stat small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .profile-top-stat .stat-icon {
+      font-size: 24px;
+    }
+
+    .icon-guide {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+      padding: 14px;
+      border: 1px solid var(--paper-line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .icon-guide.hidden {
+      display: none;
+    }
+
+    .icon-guide-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 9px;
+      align-items: start;
+      color: var(--subtle);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .icon-guide-item b {
+      display: block;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .icon-guide-mark {
+      font-size: 24px;
+      line-height: 1;
     }
 
     .profile-actions {
@@ -1141,6 +1217,96 @@
       color: #fecdd3;
       font-size: 11px;
       line-height: 1.45;
+    }
+
+    .like-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, 0.68);
+      backdrop-filter: blur(10px);
+    }
+
+    .like-modal-backdrop.hidden {
+      display: none;
+    }
+
+    .like-modal {
+      width: min(420px, 100%);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 22px;
+      padding: 18px;
+      background: #0a1018;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.48);
+    }
+
+    .like-modal h2 {
+      margin-bottom: 6px;
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .like-modal p {
+      margin-bottom: 12px;
+      color: var(--subtle);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .like-modal-list {
+      display: grid;
+      gap: 8px;
+      max-height: 280px;
+      overflow: auto;
+      margin: 12px 0;
+      padding-right: 2px;
+    }
+
+    .like-modal-target {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      border: 1px solid var(--paper-line);
+      border-radius: 14px;
+      padding: 11px 12px;
+      background: rgba(255, 255, 255, 0.055);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 900;
+      text-align: left;
+    }
+
+    .like-modal-target.selected {
+      border-color: rgba(232, 75, 106, 0.75);
+      background: rgba(232, 75, 106, 0.18);
+    }
+
+    .like-modal-check {
+      display: grid;
+      width: 22px;
+      height: 22px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 7px;
+      color: #ffffff;
+      font-size: 13px;
+    }
+
+    .like-modal-target.selected .like-modal-check {
+      border-color: var(--heart);
+      background: var(--heart);
+    }
+
+    .like-modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 9px;
+      margin-top: 12px;
     }
 
     .materials.hidden, .polls.hidden {
@@ -2243,6 +2409,9 @@
       .admin-search-row {
         grid-template-columns: 1fr;
       }
+      .icon-guide {
+        grid-template-columns: 1fr;
+      }
       .closed-vote-card summary {
         grid-template-columns: minmax(0, 1fr) auto;
       }
@@ -2546,6 +2715,7 @@ This account will be used continuously, so please enter the information correctl
     <section class="dashboard hidden" id="dashboardSection">
       <div class="panel level-card">
         <div class="level-identity">
+          <div class="profile-avatar" aria-hidden="true">👤</div>
           <div class="level-number" id="levelNumber">Lv.1</div>
           <div class="rank-emblem" id="rankEmblem">🌱<br>Rookie</div>
         </div>
@@ -2554,10 +2724,10 @@ This account will be used continuously, so please enter the information correctl
           <p class="helper" id="levelText">투표와 참석 예약, 익명 좋아요가 포인트로 쌓입니다.</p>
           <div class="xp-bar" aria-hidden="true"><span id="xpFill" style="width:0%"></span></div>
           <div class="stats">
-            <span class="pill clickable" id="pointPill">0 pt</span>
-            <span class="pill clickable" id="attendPill">참석 0</span>
-            <span class="pill" id="heartPill">받은 좋아요 0</span>
-            <span class="pill clickable" id="sentHeartPill">보낸 좋아요 0</span>
+            <span class="profile-top-stat clickable" id="attendPill"><span class="stat-icon">✅</span><span>출석 0<small>출석 체크</small></span></span>
+            <span class="profile-top-stat" id="heartPill"><span class="stat-icon">❤️</span><span>받은 좋아요 0<small>익명 좋아요</small></span></span>
+            <span class="pill clickable hidden" id="pointPill">0 pt</span>
+            <span class="pill clickable hidden" id="sentHeartPill">보낸 좋아요 0</span>
           </div>
           <div class="study-alerts" id="profileAlertList"></div>
           <div class="profile-actions">
@@ -2570,7 +2740,7 @@ This account will be used continuously, so please enter the information correctl
               <span><strong>내 참석 보기</strong><small>참석한 스터디 기록 확인</small></span>
             </button>
             <button type="button" class="profile-menu-card" id="showPointLog">
-              <span class="profile-menu-icon">💎</span>
+              <span class="profile-menu-icon">P</span>
               <span><strong>포인트 내역</strong><small>포인트 적립 기록 확인</small></span>
             </button>
             <button type="button" class="profile-menu-card" id="showSentHeartLog">
@@ -2592,7 +2762,7 @@ This account will be used continuously, so please enter the information correctl
             <div data-i18n="levelGuideBronze">🥉 Bronze (Lv.21~40) : 꾸준히 참여하며 성장하는 단계</div>
             <div data-i18n="levelGuideSilver">🥈 Silver (Lv.41~60) : 자신 있게 대화할 수 있는 단계</div>
             <div data-i18n="levelGuideGold">🥇 Gold (Lv.61~80) : 높은 참여도와 실력을 갖춘 단계</div>
-            <div data-i18n="levelGuideDiamond">💎 Diamond (Lv.81~100) : 최상위 레벨의 멤버</div>
+            <div data-i18n="levelGuideDiamond">Diamond (Lv.81~100) : 최상위 레벨의 멤버</div>
             <p data-i18n="levelGuideNote">레벨은 스터디 참여, 회원들의 좋아요, 다양한 활동 등을 종합하여 산정됩니다. 높은 레벨은 활발한 참여와 좋은 평가를 받은 멤버를 의미합니다. 🌟</p>
           </div>
           <button type="button" class="btn heart hidden" id="toggleLikePanel" data-i18n="postStudyLikeButton">스터디 후 익명 좋아요</button>
@@ -2643,6 +2813,21 @@ This account will be used continuously, so please enter the information correctl
       </section>
     </section>
 
+    <section class="icon-guide hidden" id="iconGuide" aria-label="아이콘 의미 안내">
+      <div class="icon-guide-item">
+        <span class="icon-guide-mark">🌱</span>
+        <span><b>레벨바</b>스터디 참여, 출석, 활동으로 경험치를 쌓아 레벨이 올라갑니다.</span>
+      </div>
+      <div class="icon-guide-item">
+        <span class="icon-guide-mark">✅</span>
+        <span><b>출석 체크</b>스터디에 참석하면 출석이 체크되고 보상 포인트가 지급됩니다.</span>
+      </div>
+      <div class="icon-guide-item">
+        <span class="icon-guide-mark">❤️</span>
+        <span><b>좋아요</b>스터디 후 좋았던 사람에게 익명 좋아요를 보낼 수 있습니다.</span>
+      </div>
+    </section>
+
     <section class="panel section event-page hidden" id="eventPage" aria-label="이벤트">
       <h2>🎉 이벤트</h2>
       <p class="helper">준비중입니다.</p>
@@ -2657,6 +2842,17 @@ This account will be used continuously, so please enter the information correctl
     </section>
 
     <div class="heart-burst hidden" id="heartBurst" aria-hidden="true"></div>
+    <div class="like-modal-backdrop hidden" id="likePromptModal" role="dialog" aria-modal="true" aria-labelledby="likePromptTitle">
+      <section class="like-modal">
+        <h2 id="likePromptTitle">💌 스터디 후 익명 좋아요</h2>
+        <p id="likePromptText">오늘 함께해서 좋았던 사람을 선택해주세요. 1명~2명까지 선택 가능합니다.</p>
+        <div class="like-modal-list" id="likePromptTargets"></div>
+        <div class="like-modal-actions">
+          <button type="button" class="btn" id="likePromptLater">나중에 하기</button>
+          <button type="button" class="btn heart" id="likePromptSend">좋아요 보내기</button>
+        </div>
+      </section>
+    </div>
 
     <nav class="bottom-nav hidden" id="bottomNav" aria-label="모바일 하단 메뉴">
       <button type="button" id="bottomHome" class="active" aria-label="홈"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg><span>홈</span></button>
@@ -2685,6 +2881,8 @@ This account will be used continuously, so please enter the information correctl
     const AUTO_ROSTER_KEY = "le101SimpleAutoRoster";
     const NOTIFIED_STUDY_KEY = "le101StudyBrowserNotified";
     const NOTIFIED_LIKE_KEY = "le101LikeBrowserNotified";
+    const LIKE_PROMPT_DISMISSED_KEY = "le101LikePromptDismissed";
+    const REMOTE_LIKE_RECEIVED_KEY = "le101RemoteLikeReceived";
     const ADMIN_PASSWORD = "101language";
     const SUPABASE_URL = "https://wcbfjyejnhbijqwkajnl.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_e5axVxRAtZA1cj9Y5ul1wA_WRYZeUG2";
@@ -2736,8 +2934,10 @@ This account will be used continuously, so please enter the information correctl
     const headerUserNameEl = document.querySelector("#headerUserName");
     const headerLevelEl = document.querySelector("#headerLevel");
     const headerStatsEl = document.querySelector("#headerStats");
+    const brandRowEl = document.querySelector(".brand-row");
     const brandLogoEl = document.querySelector(".brand-logo");
     const heroToolsEl = document.querySelector(".hero-tools");
+    const socialLinksEl = document.querySelector(".hero > .social-links");
     const profileOpenEl = document.querySelector("#profileOpen");
     const notificationOpenEl = document.querySelector("#notificationOpen");
     const notificationDotEl = document.querySelector("#notificationDot");
@@ -2756,6 +2956,7 @@ This account will be used continuously, so please enter the information correctl
     const dashboardSectionEl = document.querySelector("#dashboardSection");
     const voteSectionEl = document.querySelector("#voteSection");
     const messageEl = document.querySelector("#message");
+    const iconGuideEl = document.querySelector("#iconGuide");
     const pollsEl = document.querySelector("#polls");
     const eventPageEl = document.querySelector("#eventPage");
     const materialsPanelEl = document.querySelector("#materialsPanel");
@@ -2796,6 +2997,11 @@ This account will be used continuously, so please enter the information correctl
     const languagePopoverEl = document.querySelector("#languagePopover");
     const refreshButtonEl = document.querySelector("#refreshButton");
     const heartBurstEl = document.querySelector("#heartBurst");
+    const likePromptModalEl = document.querySelector("#likePromptModal");
+    const likePromptTextEl = document.querySelector("#likePromptText");
+    const likePromptTargetsEl = document.querySelector("#likePromptTargets");
+    const likePromptLaterEl = document.querySelector("#likePromptLater");
+    const likePromptSendEl = document.querySelector("#likePromptSend");
     const noticePanelEl = document.querySelector("#noticePanel");
     const noticeTextEl = document.querySelector("#noticeText");
     const adminToggleEl = document.querySelector("#adminToggle");
@@ -2840,6 +3046,7 @@ This account will be used continuously, so please enter the information correctl
     let profileView = "main";
     let supabaseClient = null;
     let realtimeChannel = null;
+    let likesRealtimeChannel = null;
     let remoteVotesCache = {};
     let votesLoadInFlight = false;
     let votesPollTimer = null;
@@ -2897,7 +3104,7 @@ This account will be used continuously, so please enter the information correctl
         levelGuideBronze: "🥉 Bronze (Lv.21~40) : 꾸준히 참여하며 성장하는 단계",
         levelGuideSilver: "🥈 Silver (Lv.41~60) : 자신 있게 대화할 수 있는 단계",
         levelGuideGold: "🥇 Gold (Lv.61~80) : 높은 참여도와 실력을 갖춘 단계",
-        levelGuideDiamond: "💎 Diamond (Lv.81~100) : 최상위 레벨의 멤버",
+        levelGuideDiamond: "Diamond (Lv.81~100) : 최상위 레벨의 멤버",
         levelGuideNote: "레벨은 스터디 참여, 회원들의 좋아요, 다양한 활동 등을 종합하여 산정됩니다. 높은 레벨은 활발한 참여와 좋은 평가를 받은 멤버를 의미합니다. 🌟",
         attendanceLogButton: "내 참석 보기",
         pointLogButton: "포인트 내역",
@@ -3090,7 +3297,7 @@ This account will be used continuously, so please enter the information correctl
         levelGuideBronze: "🥉 Bronze (Lv.21~40): Growing through steady participation",
         levelGuideSilver: "🥈 Silver (Lv.41~60): Able to converse with confidence",
         levelGuideGold: "🥇 Gold (Lv.61~80): Strong participation and skill",
-        levelGuideDiamond: "💎 Diamond (Lv.81~100): Top-level member",
+        levelGuideDiamond: "Diamond (Lv.81~100): Top-level member",
         levelGuideNote: "Levels are calculated from study attendance, likes from members, and other activities. A higher level means active participation and positive feedback. 🌟",
         attendanceLogButton: "My Attendance",
         pointLogButton: "Point History",
@@ -3283,7 +3490,7 @@ This account will be used continuously, so please enter the information correctl
         levelGuideBronze: "🥉 Bronze (Lv.21~40): 継続的に参加しながら成長する段階",
         levelGuideSilver: "🥈 Silver (Lv.41~60): 自信を持って会話できる段階",
         levelGuideGold: "🥇 Gold (Lv.61~80): 高い参加度と実力を持つ段階",
-        levelGuideDiamond: "💎 Diamond (Lv.81~100): 最上位レベルのメンバー",
+        levelGuideDiamond: "Diamond (Lv.81~100): 最上位レベルのメンバー",
         levelGuideNote: "レベルはスタディ参加、メンバーからのいいね、さまざまな活動を総合して算定されます。高いレベルは活発な参加と良い評価を受けたメンバーを意味します。🌟",
         attendanceLogButton: "参加履歴",
         pointLogButton: "ポイント履歴",
@@ -3476,7 +3683,7 @@ This account will be used continuously, so please enter the information correctl
         levelGuideBronze: "🥉 Bronze (Lv.21~40)：持续参与并成长的阶段",
         levelGuideSilver: "🥈 Silver (Lv.41~60)：能够自信交流的阶段",
         levelGuideGold: "🥇 Gold (Lv.61~80)：参与度和实力都很高的阶段",
-        levelGuideDiamond: "💎 Diamond (Lv.81~100)：最高等级成员",
+        levelGuideDiamond: "Diamond (Lv.81~100)：最高等级成员",
         levelGuideNote: "等级会综合学习参加、会员点赞和各种活动来计算。高等级代表积极参与并获得良好评价的成员。🌟",
         attendanceLogButton: "我的参加",
         pointLogButton: "积分记录",
@@ -3935,7 +4142,7 @@ This account will be used continuously, so please enter the information correctl
       if (level <= 40) return { emoji: "🥉", label: "Bronze" };
       if (level <= 60) return { emoji: "🥈", label: "Silver" };
       if (level <= 80) return { emoji: "🥇", label: "Gold" };
-      return { emoji: "💎", label: "Diamond" };
+      return { emoji: "◆", label: "Diamond" };
     }
 
     function getNotice() {
@@ -4463,6 +4670,39 @@ This account will be used continuously, so please enter the information correctl
         });
     }
 
+    function processIncomingLikeRow(row) {
+      const member = getMember();
+      if (!member?.id || !row?.receiver_ids?.includes(member.id)) return;
+      const processed = readJson(REMOTE_LIKE_RECEIVED_KEY, {});
+      const key = row.id || `${row.study_id}|${row.sender_id}|${member.id}`;
+      if (processed[key]) return;
+      const stats = getStats();
+      const entry = ensureStatsEntry(stats, member);
+      entry.hearts += 1;
+      entry.points += pointRules.heart;
+      writeJson(STATS_KEY, stats);
+      processed[key] = new Date().toISOString();
+      writeJson(REMOTE_LIKE_RECEIVED_KEY, processed);
+      logMemberAction("heart_received", member, {
+        event: row.study_id || "",
+        option: "study",
+        detail: `오늘 모임에서 익명 좋아요를 받았습니다. +${pointRules.heart}P`
+      });
+      messageEl.textContent = "오늘 모임에서 좋아요를 받았어요 😊";
+      render();
+    }
+
+    function subscribePostStudyLikesRealtime() {
+      if (!supabaseClient) return;
+      if (likesRealtimeChannel) supabaseClient.removeChannel(likesRealtimeChannel);
+      likesRealtimeChannel = supabaseClient
+        .channel(`post-study-likes-${Date.now()}`)
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "post_study_likes" }, (payload) => {
+          processIncomingLikeRow(payload.new);
+        })
+        .subscribe();
+    }
+
     function startVotesPolling() {
       if (votesPollTimer) window.clearInterval(votesPollTimer);
       votesPollTimer = window.setInterval(() => {
@@ -4479,6 +4719,7 @@ This account will be used continuously, so please enter the information correctl
       if (window.supabase?.createClient) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
         subscribeVotesRealtime();
+        subscribePostStudyLikesRealtime();
       }
       await loadVotesFromSupabase();
       startVotesPolling();
@@ -4662,7 +4903,8 @@ This account will be used continuously, so please enter the information correctl
     function renderStudyNotifications() {
       const member = getMember();
       const alerts = getUpcomingStudyAlerts(member);
-      const likeEvents = getLikeEligibleEvents(member);
+      const likeEvents = getLikeEligibleEvents(member)
+        .filter((event) => getActualLikeTargetsForEvent(event.id, member).length > 0);
       const receivedHearts = getMemberRecords(member)
         .filter((record) => record.action === "heart_received")
         .filter((record) => {
@@ -4726,7 +4968,7 @@ This account will be used continuously, so please enter the information correctl
       const sent = readJson(HEARTS_KEY, {});
       const participants = [...new Set(Object.values(eventVotes).flat())]
         .filter((id) => id !== member?.id)
-        .filter((id) => isRealVisibleMember(id));
+        .filter((id) => isActualLikeTarget(id, member));
       const targets = participants.length
         ? participants.map((id) => {
           const target = memberFromId(id);
@@ -6340,6 +6582,36 @@ This account will be used continuously, so please enter the information correctl
       return now >= end && now <= close;
     }
 
+    function hasActualMemberId(id) {
+      return typeof id === "string" && id.includes("|") && !isSyntheticMember(id);
+    }
+
+    function isActualLikeTarget(id, currentMember) {
+      if (!hasActualMemberId(id)) return false;
+      if (currentMember?.id && id === currentMember.id) return false;
+      return isRealVisibleMember(id);
+    }
+
+    function hasSentHeartForEvent(member, eventId) {
+      if (!member?.id || !eventId) return false;
+      const sent = readJson(HEARTS_KEY, {});
+      return Object.keys(sent).some((key) => key.startsWith(`${member.id}|${eventId}|`));
+    }
+
+    function likePromptDismissKey(member, eventId) {
+      return `${member?.id || ""}|${eventId}`;
+    }
+
+    function isLikePromptDismissed(member, eventId) {
+      return Boolean(readJson(LIKE_PROMPT_DISMISSED_KEY, {})[likePromptDismissKey(member, eventId)]);
+    }
+
+    function setLikePromptDismissed(member, eventId) {
+      const dismissed = readJson(LIKE_PROMPT_DISMISSED_KEY, {});
+      dismissed[likePromptDismissKey(member, eventId)] = new Date().toISOString();
+      writeJson(LIKE_PROMPT_DISMISSED_KEY, dismissed);
+    }
+
     function getLikeEligibleEvents(member) {
       if (!member) return [];
       const votes = getVotes();
@@ -6351,27 +6623,114 @@ This account will be used continuously, so please enter the information correctl
         })
         .filter(Boolean)
         .filter((event) => isLikeWindowOpen(event))
+        .filter((event) => !hasSentHeartForEvent(member, event.id))
         .sort((a, b) => new Date(b.start) - new Date(a.start));
+    }
+
+    async function savePostStudyLikesToSupabase(eventId, sender, targetMembers) {
+      if (!supabaseClient || !eventId || !sender?.id || !targetMembers?.length) return;
+      try {
+        const { error } = await supabaseClient.from("post_study_likes").insert({
+          study_id: eventPublicIdFromInternalId(eventId),
+          sender_id: sender.id,
+          sender_name: sender.name,
+          receiver_ids: targetMembers.map((member) => member.id),
+          receiver_names: targetMembers.map((member) => member.name)
+        });
+        if (error) console.warn("post_study_likes insert failed", error.message);
+      } catch (error) {
+        console.warn("post_study_likes insert failed", error?.message || error);
+      }
+    }
+
+    function getActualLikeTargetsForEvent(eventId, member) {
+      const votes = getVotes();
+      const eventVotes = votes[eventId] || {};
+      return [...new Set(Object.values(eventVotes).flat())]
+        .filter((id) => isActualLikeTarget(id, member));
+    }
+
+    function renderLikePromptTargets() {
+      if (!likePromptTargetsEl || !selectedLikeEventId) return;
+      const member = getMember();
+      const targets = getActualLikeTargetsForEvent(selectedLikeEventId, member);
+      likePromptTargetsEl.innerHTML = targets.length
+        ? targets.map((id) => {
+          const target = memberFromId(id);
+          const selected = selectedLikeTargets.includes(id);
+          return `
+            <button type="button" class="like-modal-target ${selected ? "selected" : ""}" data-like-prompt-target="${escapeHtml(id)}">
+              <span class="like-modal-check">${selected ? "✓" : ""}</span>
+              <span>${escapeHtml(target.name)}</span>
+            </button>
+          `;
+        }).join("")
+        : `<article class="profile-log-card"><strong>좋아요를 보낼 수 있는 실제 참석자가 없습니다.</strong></article>`;
+      likePromptTargetsEl.querySelectorAll("[data-like-prompt-target]").forEach((button) => {
+        button.addEventListener("click", () => {
+          toggleLikeTarget(button.dataset.likePromptTarget);
+          renderLikePromptTargets();
+        });
+      });
+    }
+
+    function openLikePromptModal(event) {
+      const member = getMember();
+      if (!event || !member || hasSentHeartForEvent(member, event.id)) return;
+      const targets = getActualLikeTargetsForEvent(event.id, member);
+      if (!targets.length) return;
+      selectedLikeEventId = event.id;
+      selectedLikeTargets = [];
+      setLikePromptMessage("스터디가 종료되었습니다 💌 오늘 함께해서 좋았던 사람에게 익명 좋아요를 보내주세요. 1명~2명까지 선택할 수 있습니다.");
+      likePromptModalEl?.classList.remove("hidden");
+      renderLikePromptTargets();
+    }
+
+    function closeLikePromptModal() {
+      likePromptModalEl?.classList.add("hidden");
+    }
+
+    function setLikePromptMessage(text) {
+      if (likePromptTextEl) likePromptTextEl.textContent = text;
+    }
+
+    function maybeShowLikePrompt() {
+      const member = getMember();
+      if (!member || !likePromptModalEl?.classList.contains("hidden")) return;
+      if (activeView === "admin" || activeView === "event") return;
+      const event = getLikeEligibleEvents(member)
+        .filter((item) => !isLikePromptDismissed(member, item.id))
+        .find((item) => getActualLikeTargetsForEvent(item.id, member).length > 0);
+      if (event) openLikePromptModal(event);
     }
 
     function sendHeart() {
       const member = getMember() || saveMember();
-      const targets = selectedLikeTargets.slice(0, 2);
+      const rawTargets = selectedLikeTargets.filter((id) => isActualLikeTarget(id, member));
+      const targets = rawTargets.slice(0, 2);
       const votes = getVotes();
       const selectedEvent = selectedLikeEventId ? resolveEventById(selectedLikeEventId) : null;
       const selectedSchedule = selectedEvent ? getEvent(selectedEvent) : null;
       if (!selectedLikeEventId || !memberVotedInEvent(votes[selectedLikeEventId], member?.id)) {
         messageEl.textContent = t("chooseLikeEvent");
+        setLikePromptMessage(t("chooseLikeEvent"));
         return;
       }
       if (!isLikeWindowOpen(selectedSchedule)) {
         messageEl.textContent = t("likeWindowClosed");
+        setLikePromptMessage(t("likeWindowClosed"));
         renderLikeEvents();
         renderLikeTargets();
         return;
       }
       if (!member || !targets.length) {
-        messageEl.textContent = t("chooseHeartTarget");
+        messageEl.textContent = "최소 1명을 선택해주세요.";
+        setLikePromptMessage("최소 1명을 선택해주세요.");
+        return;
+      }
+      if (rawTargets.length > 2) {
+        messageEl.textContent = "최대 2명까지만 선택할 수 있습니다.";
+        setLikePromptMessage("최대 2명까지만 선택할 수 있습니다.");
         return;
       }
       if (targets.includes(member.id)) {
@@ -6380,6 +6739,14 @@ This account will be used continuously, so please enter the information correctl
       }
 
       const sent = readJson(HEARTS_KEY, {});
+      if (hasSentHeartForEvent(member, selectedLikeEventId)) {
+        messageEl.textContent = "이미 이 스터디에 익명 좋아요를 보냈습니다.";
+        setLikePromptMessage("이미 이 스터디에 익명 좋아요를 보냈습니다.");
+        closeLikePromptModal();
+        renderLikeEvents();
+        renderLikeTargets();
+        return;
+      }
       const newTargets = targets.filter((target) => !sent[`${member.id}|${selectedLikeEventId}|${target}`]);
       if (!newTargets.length) {
         messageEl.textContent = t("duplicateHeart");
@@ -6408,8 +6775,10 @@ This account will be used continuously, so please enter the information correctl
         });
       });
       logMemberAction("heart_sent", member, { event: selectedLikeEventId, option: "study", detail: newTargets.map((target) => memberFromId(target).name).join(", ") });
-      messageEl.textContent = t("heartSent", { target: newTargets.map((target) => memberFromId(target).name).join(", ") });
+      savePostStudyLikesToSupabase(selectedLikeEventId, member, targetMembers);
+      messageEl.textContent = "✅ 익명 좋아요를 보냈습니다. 상대방 프로필의 받은 좋아요 수가 증가합니다.";
       selectedLikeTargets = [];
+      closeLikePromptModal();
       showHeartBurst();
       render();
     }
@@ -6439,8 +6808,8 @@ This account will be used continuously, so please enter the information correctl
       });
       xpFillEl.style.width = `${(stats.points % 1000) / 10}%`;
       pointPillEl.textContent = t("points", { points: stats.points });
-      attendPillEl.textContent = t("attendance", { count: stats.attendance });
-      heartPillEl.textContent = t("hearts", { count: stats.hearts });
+      attendPillEl.innerHTML = `<span class="stat-icon">✅</span><span>출석 ${stats.attendance}<small>출석 체크</small></span>`;
+      heartPillEl.innerHTML = `<span class="stat-icon">❤️</span><span>받은 좋아요 ${stats.hearts}<small>익명 좋아요</small></span>`;
       sentHeartPillEl.textContent = t("sentHearts", { count: stats.sentHearts });
     }
 
@@ -6705,7 +7074,7 @@ This account will be used continuously, so please enter the information correctl
       const eventVotes = votes[selectedLikeEventId] || {};
       const participants = [...new Set(Object.values(eventVotes).flat())]
         .filter((id) => id !== member?.id)
-        .filter((id) => isRankingVisibleMember(id));
+        .filter((id) => isActualLikeTarget(id, member));
       likeTargetListEl.innerHTML = "";
       if (!participants.length) {
         const empty = document.createElement("p");
@@ -6731,9 +7100,11 @@ This account will be used continuously, so please enter the information correctl
         selectedLikeTargets = selectedLikeTargets.filter((target) => target !== id);
       } else if (selectedLikeTargets.length >= 2) {
         messageEl.textContent = t("maxHeartTargets");
+        setLikePromptMessage("최대 2명까지만 선택할 수 있습니다.");
         return;
       } else {
         selectedLikeTargets.push(id);
+        setLikePromptMessage("오늘 함께해서 좋았던 사람을 선택해주세요. 1명~2명까지 선택 가능합니다.");
       }
       renderLikeTargets();
     }
@@ -6925,23 +7296,15 @@ This account will be used continuously, so please enter the information correctl
       const member = getMember();
       const isLoggedIn = Boolean(member);
       if (headerUserNameEl) headerUserNameEl.textContent = isLoggedIn ? member.name : t("appTitle");
+      brandRowEl?.classList.toggle("hidden", isLoggedIn);
       if (headerLevelEl) {
         if (isLoggedIn) {
           const stats = ensureStats(member)[member.id] || { points: 0 };
           const level = getLevel(stats.points);
           const rank = getRankTier(level);
           headerLevelEl.textContent = `Lv.${level} ${rank.label}`;
-          headerLevelEl.classList.remove("hidden");
-          if (headerStatsEl) {
-            const likeRate = Math.min(100, Math.round(((stats.hearts || 0) / Math.max(1, stats.attendance || 0)) * 100));
-            headerStatsEl.innerHTML = `
-              <span class="header-stat">⭐ ${likeRate}%</span>
-              <span class="header-stat">💎 ${Number(stats.points || 0).toLocaleString()}</span>
-              <span class="header-stat">✅ ${stats.attendance || 0}</span>
-              <span class="header-stat heart">❤️ ${stats.hearts || 0}</span>
-            `;
-            headerStatsEl.classList.remove("hidden");
-          }
+          headerLevelEl.classList.add("hidden");
+          headerStatsEl?.classList.add("hidden");
         } else {
           headerLevelEl.classList.add("hidden");
           headerStatsEl?.classList.add("hidden");
@@ -6951,9 +7314,11 @@ This account will be used continuously, so please enter the information correctl
       const showProfile = isLoggedIn && activeView === "profile";
       const showAdmin = isLoggedIn && activeView === "admin" && adminUnlocked;
       const showEventPage = isLoggedIn && activeView === "event";
-      heroToolsEl?.classList.toggle("hidden", Boolean(showProfile || showAdmin || showEventPage));
+      heroToolsEl?.classList.toggle("hidden", !isLoggedIn || Boolean(showAdmin || showEventPage));
+      socialLinksEl?.classList.toggle("hidden", !isLoggedIn || Boolean(showProfile || showAdmin || showEventPage));
       dashboardSectionEl.classList.toggle("hidden", !showProfile);
       voteSectionEl.classList.toggle("hidden", !isLoggedIn || showProfile || showAdmin || showEventPage);
+      iconGuideEl?.classList.toggle("hidden", !isLoggedIn || showAdmin || showEventPage);
       eventPageEl.classList.toggle("hidden", !showEventPage);
       logoutPanelEl.classList.toggle("hidden", !isLoggedIn);
       profileOpenEl?.classList.toggle("hidden", !isLoggedIn);
@@ -7048,6 +7413,7 @@ This account will be used continuously, so please enter the information correctl
       renderProfileScreen();
       setSheetStatus();
       updateContentMode();
+      maybeShowLikePrompt();
     }
 
     document.querySelectorAll(".tab").forEach((tab) => {
@@ -7101,6 +7467,13 @@ This account will be used continuously, so please enter the information correctl
     memberBirthEl.addEventListener("input", clearLoginError);
     sendHeartEl.addEventListener("click", sendHeart);
     toggleLikePanelEl.addEventListener("click", toggleLikePanel);
+    likePromptLaterEl.addEventListener("click", () => {
+      const member = getMember();
+      if (member && selectedLikeEventId) setLikePromptDismissed(member, selectedLikeEventId);
+      closeLikePromptModal();
+      selectedLikeTargets = [];
+    });
+    likePromptSendEl.addEventListener("click", sendHeart);
     showApplicationLogEl.addEventListener("click", () => showProfileDetail("applications"));
     showAttendanceLogEl.addEventListener("click", () => showProfileDetail("attendance"));
     showPointLogEl.addEventListener("click", () => showProfileDetail("points"));
