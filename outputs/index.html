@@ -65,14 +65,14 @@
     .hero {
       position: relative;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: start;
-      gap: 10px;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 9px;
       margin-bottom: 16px;
       border-radius: 20px 20px 0 0;
-      padding: 18px 18px 26px;
-      background: var(--purple-gradient);
-      box-shadow: 0 16px 42px rgba(91, 33, 182, 0.22);
+      padding: 13px 14px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: var(--shadow);
     }
 
     .brand {
@@ -86,8 +86,8 @@
     }
 
     .brand-logo {
-      width: 150px;
-      height: 56px;
+      width: 96px;
+      height: 38px;
       flex: 0 0 auto;
       object-fit: contain;
       border-radius: 6px;
@@ -103,22 +103,22 @@
     }
 
     .social-links {
-      display: none;
-      gap: 7px;
+      display: flex;
+      gap: 5px;
       align-items: center;
       flex: 0 0 auto;
-      grid-column: 1;
-      justify-self: start;
-      margin-top: 18px;
+      grid-column: 2;
+      justify-self: end;
+      margin-top: 0;
     }
 
     .social-link {
       display: grid;
-      width: 31px;
-      height: 31px;
+      width: 24px;
+      height: 24px;
       place-items: center;
       border: 0;
-      border-radius: 6px;
+      border-radius: 7px;
       background: transparent;
       overflow: hidden;
     }
@@ -142,13 +142,13 @@
       font-size: clamp(18px, 3vw, 24px);
       font-weight: 900;
       line-height: 1.18;
-      color: #ffffff;
+      color: var(--ink);
       overflow-wrap: anywhere;
     }
 
     .header-level {
       margin: 0;
-      color: #ede9fe;
+      color: var(--purple);
       font-size: 14px;
       font-weight: 900;
       line-height: 1.25;
@@ -216,11 +216,11 @@
       gap: 6px;
       align-items: center;
       justify-content: center;
-      border: 1px solid rgba(255, 255, 255, 0.28);
+      border: 1px solid var(--paper-line);
       border-radius: 999px;
       padding: 5px 12px;
-      background: rgba(255, 255, 255, 0.18);
-      color: #ffffff;
+      background: #ffffff;
+      color: var(--purple-deep);
       font-size: 12px;
       font-weight: 900;
     }
@@ -258,8 +258,8 @@
       min-height: 36px;
       border: 1px solid rgba(124, 58, 237, 0.16);
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.18);
-      color: #ffffff;
+      background: #ffffff;
+      color: var(--purple-deep);
       font-size: 16px;
       font-weight: 900;
     }
@@ -295,9 +295,9 @@
       align-items: center;
       justify-content: flex-end;
       flex-wrap: wrap;
-      grid-column: 2;
+      grid-column: 3;
       justify-self: end;
-      margin-top: 4px;
+      margin-top: 0;
     }
 
     .panel, .card {
@@ -671,14 +671,23 @@
       margin-bottom: 14px;
     }
 
+    .profile-screen-title {
+      margin: 2px 0 0;
+      color: var(--purple-deep);
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
     .level-card {
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-columns: 1fr;
       gap: 12px;
-      align-items: start;
+      align-items: center;
       padding: 18px;
       background: #ffffff;
       border-radius: 22px;
+      text-align: center;
     }
 
     .level-card.detail-mode {
@@ -696,12 +705,17 @@
     }
 
     .level-main h2 {
+      margin-bottom: 4px;
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.25;
       overflow-wrap: anywhere;
       word-break: keep-all;
     }
 
     .level-number {
-      display: grid;
+      display: none;
       width: 70px;
       height: 70px;
       place-items: center;
@@ -714,18 +728,19 @@
 
     .rank-emblem {
       display: inline-grid;
-      width: 72px;
-      min-height: 42px;
+      width: auto;
+      min-height: 0;
       place-items: center;
-      margin-top: 8px;
+      margin-top: 0;
       border: 1px solid var(--paper-line);
-      border-radius: 16px;
+      border-radius: 999px;
+      padding: 5px 11px;
       background: var(--purple-soft);
       color: var(--purple-deep);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 900;
       text-align: center;
-      line-height: 1.2;
+      line-height: 1;
     }
 
     .profile-avatar {
@@ -807,9 +822,9 @@
     }
 
     .stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
       margin-top: 10px;
     }
 
@@ -828,9 +843,11 @@
     }
 
     .profile-top-stat {
-      display: inline-flex;
-      gap: 7px;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 9px;
       align-items: center;
+      min-height: 72px;
       border-radius: 18px;
       padding: 12px 14px;
       background: #ffffff;
@@ -838,6 +855,7 @@
       font-weight: 900;
       border: 1px solid var(--paper-line);
       box-shadow: 0 10px 24px rgba(91, 33, 182, 0.08);
+      text-align: left;
     }
 
     .profile-top-stat small {
@@ -891,24 +909,32 @@
 
     .profile-actions {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: 1fr;
       gap: 8px;
       margin-top: 12px;
     }
 
     .profile-menu-card {
       display: grid;
-      grid-template-columns: 32px minmax(0, 1fr);
-      gap: 8px;
+      grid-template-columns: 34px minmax(0, 1fr) auto;
+      gap: 10px;
       align-items: center;
       width: 100%;
-      min-height: 70px;
+      min-height: 58px;
       border: 1px solid var(--paper-line);
       border-radius: 16px;
-      padding: 10px;
+      padding: 10px 12px;
       background: #ffffff;
       color: var(--ink);
       text-align: left;
+    }
+
+    .profile-menu-card::after {
+      content: "›";
+      color: var(--muted);
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1;
     }
 
     .profile-menu-card:hover {
@@ -918,8 +944,8 @@
 
     .profile-menu-icon {
       display: grid;
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       place-items: center;
       border-radius: 12px;
       background: var(--purple-soft);
@@ -928,9 +954,12 @@
 
     .profile-menu-card strong {
       display: block;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
       font-size: 13px;
       line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .profile-menu-card small {
@@ -938,6 +967,9 @@
       color: var(--muted);
       font-size: 10.5px;
       line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .profile-detail {
@@ -1634,20 +1666,29 @@
     .bonus-banner {
       display: grid;
       gap: 3px;
-      border: 1px solid rgba(7, 146, 126, 0.28);
+      border: 1px solid #86efac;
       border-radius: 8px;
       padding: 10px 12px;
-      background: rgba(34, 197, 94, 0.12);
-      color: #bbf7d0;
+      background: #ecfdf5;
+      color: #064e3b;
       font-size: 13px;
       font-weight: 900;
       line-height: 1.35;
     }
 
+    .bonus-banner span {
+      color: #064e3b;
+      font-weight: 900;
+    }
+
+    .bonus-banner span:first-child {
+      color: #065f46;
+    }
+
     .bonus-banner.closed {
       border-color: rgba(239, 68, 68, 0.35);
       background: rgba(239, 68, 68, 0.12);
-      color: #fecaca;
+      color: #991b1b;
     }
 
     .logout-panel {
@@ -2344,22 +2385,23 @@
       }
       .login, .like-grid, .admin-lock { grid-template-columns: 1fr; }
       .hero {
-        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-columns: auto minmax(0, 1fr) auto;
         min-height: 0;
-        align-items: start;
-        padding: 16px;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
       }
       .brand {
         align-items: center;
       }
       .brand-logo {
-        width: 118px;
-        height: 48px;
+        width: 92px;
+        height: 36px;
       }
       .brand-row { flex-wrap: wrap; }
       .social-link {
-        width: 32px;
-        height: 32px;
+        width: 24px;
+        height: 24px;
       }
       .hero p {
         font-size: 11px;
@@ -2367,8 +2409,8 @@
       .btn, .language-buttons { width: 100%; }
       .back-button { width: auto; }
       .hero-tools {
-        margin-top: 17px;
-        max-width: 110px;
+        margin-top: 0;
+        max-width: none;
         justify-content: flex-end;
       }
       .icon-btn {
@@ -2392,8 +2434,8 @@
         text-align: center;
       }
       .social-links {
-        gap: 6px;
-        margin-top: 18px;
+        gap: 5px;
+        margin-top: 0;
       }
       .header-stats {
         max-width: calc(100vw - 38px);
@@ -2416,16 +2458,16 @@
         font-size: 12px;
       }
       .level-card {
-        grid-template-columns: 92px minmax(0, 1fr);
-        gap: 16px;
-        align-items: start;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        align-items: center;
       }
       .level-number {
         width: 76px;
         height: 76px;
       }
       .rank-emblem {
-        width: 76px;
+        width: auto;
       }
       .admin-audit-controls {
         grid-template-columns: 1fr;
@@ -2634,7 +2676,7 @@
         </a>
       </div>
       <div class="brand">
-        <img class="brand-logo" src="2026-06-30-language101-header-logo.png" alt="언어교환101">
+        <img class="brand-logo" src="2026-07-02-language101-header-logo.png" alt="언어교환101">
         <div class="brand-row">
           <h1 class="header-user" id="headerUserName" data-i18n="appTitle">언어교환101</h1>
           <p class="header-level hidden" id="headerLevel">Lv.1 Rookie</p>
@@ -2818,6 +2860,7 @@ This account will be used continuously, so please enter the information correctl
     <p class="message" id="message" role="status" aria-live="polite"></p>
 
     <section class="dashboard hidden" id="dashboardSection">
+      <h2 class="profile-screen-title">나의 프로필</h2>
       <div class="panel level-card">
         <div class="level-identity">
           <div class="profile-avatar" aria-hidden="true">👤</div>
@@ -2846,7 +2889,7 @@ This account will be used continuously, so please enter the information correctl
             </button>
             <button type="button" class="profile-menu-card" id="showPointLog">
               <span class="profile-menu-icon">P</span>
-              <span><strong>포인트 내역</strong><small>포인트 적립 기록 확인</small></span>
+              <span><strong>포인트 내역</strong><small>포인트 적립 및 사용 내역 확인</small></span>
             </button>
             <button type="button" class="profile-menu-card" id="showSentHeartLog">
               <span class="profile-menu-icon">❤️</span>
@@ -2854,11 +2897,11 @@ This account will be used continuously, so please enter the information correctl
             </button>
             <button type="button" class="profile-menu-card" id="showLevelGuide">
               <span class="profile-menu-icon">🏆</span>
-              <span><strong>레벨 등급 보기</strong><small>레벨별 조건 확인</small></span>
+              <span><strong>레벨 등급 보기</strong><small>레벨별 조건 및 혜택 확인</small></span>
             </button>
             <button type="button" class="profile-menu-card" id="showLikeAfterStudy">
               <span class="profile-menu-icon">💌</span>
-              <span><strong>스터디 후 익명 좋아요</strong><small>참석 후 좋아요 보내기</small></span>
+              <span><strong>스터디 후 익명 좋아요</strong><small>함께했던 멤버에게 익명 좋아요 보내기</small></span>
             </button>
           </div>
           <button type="button" class="btn level-guide-toggle hidden" id="levelGuideToggle" data-i18n="levelGuideButton">레벨 등급 보기</button>
@@ -6906,9 +6949,10 @@ This account will be used continuously, so please enter the information correctl
       const level = getLevel(stats.points);
       const rank = getRankTier(level);
       levelNumberEl.textContent = `Lv.${level}`;
-      rankEmblemEl.innerHTML = `${rank.emoji}<br>${rank.label}`;
-      levelTitleEl.textContent = member ? t("levelOf", { name: member.name }) : t("myLevel");
-      levelTextEl.textContent = t("nextLevel", { rank: `${rank.emoji} ${rank.label}`, points: level >= 100 ? 0 : 1000 - (stats.points % 1000 || 1000) });
+      const nextExp = level >= 100 ? 0 : 1000 - (stats.points % 1000 || 1000);
+      rankEmblemEl.textContent = `Lv.${level} ${rank.label}`;
+      levelTitleEl.textContent = member ? member.name : t("myLevel");
+      levelTextEl.textContent = `다음 레벨까지 ${nextExp} EXP`;
       Array.from(levelGuideEl.querySelectorAll("div")).forEach((row) => {
         row.classList.toggle("current-tier", row.textContent.includes(rank.label));
         const parts = row.textContent.split(" : ");
@@ -7429,10 +7473,10 @@ This account will be used continuously, so please enter the information correctl
       const showEventPage = isLoggedIn && activeView === "event";
       heroEl?.classList.toggle("hidden", Boolean(showProfile || showAdmin || showEventPage));
       heroToolsEl?.classList.toggle("hidden", !isLoggedIn || Boolean(showProfile || showAdmin || showEventPage));
-      socialLinksEl?.classList.add("hidden");
+      socialLinksEl?.classList.toggle("hidden", !isLoggedIn || Boolean(showProfile || showAdmin || showEventPage));
       dashboardSectionEl.classList.toggle("hidden", !showProfile);
       voteSectionEl.classList.toggle("hidden", !isLoggedIn || showProfile || showAdmin || showEventPage);
-      iconGuideEl?.classList.toggle("hidden", !isLoggedIn || showAdmin || showEventPage);
+      iconGuideEl?.classList.toggle("hidden", !showProfile || profileView !== "main");
       eventPageEl.classList.toggle("hidden", !showEventPage);
       logoutPanelEl.classList.toggle("hidden", !isLoggedIn);
       profileOpenEl?.classList.toggle("hidden", !isLoggedIn);
