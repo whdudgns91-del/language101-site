@@ -25,8 +25,8 @@
       --muted: #94a3b8;
       --subtle: #cbd5e1;
       --line: rgba(148, 163, 184, 0.18);
-      --bg: #080f18;
-      --paper: #111b27;
+      --bg: #05070a;
+      --paper: #0c121a;
       --paper-soft: rgba(255, 255, 255, 0.06);
       --paper-line: rgba(255, 255, 255, 0.12);
       --field-bg: #0b1220;
@@ -44,7 +44,7 @@
       min-height: 100vh;
       font-family: "Pretendard", "Noto Sans KR", "Inter", sans-serif;
       color: var(--ink);
-      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 32%), var(--bg);
+      background: linear-gradient(180deg, #05070a 0%, #080d13 46%, #05070a 100%);
     }
 
     button, input, select { font: inherit; }
@@ -59,10 +59,11 @@
     .hero {
       position: relative;
       display: grid;
-      justify-items: center;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: start;
       gap: 10px;
       margin-bottom: 12px;
-      padding-top: 4px;
+      padding-top: 8px;
     }
 
     .brand {
@@ -72,6 +73,7 @@
       width: 100%;
       min-width: 0;
       text-align: center;
+      grid-column: 2;
     }
 
     .brand-logo {
@@ -96,6 +98,9 @@
       gap: 7px;
       align-items: center;
       flex: 0 0 auto;
+      grid-column: 1;
+      justify-self: start;
+      margin-top: 18px;
     }
 
     .social-link {
@@ -138,6 +143,33 @@
       font-size: 14px;
       font-weight: 900;
       line-height: 1.25;
+    }
+
+    .header-stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 4px;
+    }
+
+    .header-stat {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: rgba(255, 255, 255, 0.045);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .header-stat.heart {
+      border-color: rgba(232, 75, 106, 0.34);
+      color: #fecdd3;
     }
 
     .hero p, .helper {
@@ -239,14 +271,14 @@
     }
 
     .hero-tools {
-      position: absolute;
-      top: 6px;
-      right: 0;
       display: flex;
       gap: 6px;
       align-items: center;
       justify-content: flex-end;
       flex-wrap: wrap;
+      grid-column: 3;
+      justify-self: end;
+      margin-top: 18px;
     }
 
     .panel, .card {
@@ -1065,6 +1097,52 @@
       background: var(--teal);
     }
 
+    .resource-shortcut {
+      display: flex;
+      justify-content: flex-end;
+      margin: -2px 0 12px;
+    }
+
+    .resource-button {
+      width: auto;
+      min-height: 34px;
+      border-radius: 999px;
+      padding: 0 13px;
+      background: rgba(255, 255, 255, 0.055);
+      color: var(--subtle);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .resource-button.active {
+      border-color: rgba(34, 197, 94, 0.55);
+      background: rgba(34, 197, 94, 0.14);
+      color: #bbf7d0;
+    }
+
+    .like-alert-card {
+      border: 1px solid rgba(232, 75, 106, 0.24);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(232, 75, 106, 0.08);
+    }
+
+    .like-alert-card strong {
+      display: block;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.45;
+    }
+
+    .like-alert-card small {
+      display: block;
+      margin-top: 5px;
+      color: #fecdd3;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
     .materials.hidden, .polls.hidden {
       display: none;
     }
@@ -1597,6 +1675,19 @@
       gap: 5px;
     }
 
+    .admin-search-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .admin-search-row .btn {
+      min-height: 42px;
+      padding: 0 12px;
+      font-size: 12px;
+    }
+
     .audit-view-toggle {
       display: flex;
       flex-wrap: wrap;
@@ -1742,6 +1833,52 @@
       display: block;
       margin-bottom: 6px;
       color: #93c5fd;
+    }
+
+    .person-search-result {
+      display: grid;
+      gap: 10px;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(34, 197, 94, 0.09);
+    }
+
+    .person-search-result h4 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .person-search-result h4 span {
+      color: var(--accent);
+    }
+
+    .person-search-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .person-search-list li {
+      border: 1px solid var(--paper-line);
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.045);
+      color: var(--subtle);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .person-search-list strong {
+      display: block;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 900;
     }
 
     .audit-summary-grid {
@@ -2017,7 +2154,8 @@
       }
       .login, .like-grid, .admin-lock { grid-template-columns: 1fr; }
       .hero {
-        min-height: 176px;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        min-height: 168px;
         align-items: start;
         padding-top: 0;
       }
@@ -2025,8 +2163,8 @@
         align-items: center;
       }
       .brand-logo {
-        width: 142px;
-        height: 56px;
+        width: 118px;
+        height: 48px;
       }
       .brand-row { flex-wrap: wrap; }
       .social-link {
@@ -2034,14 +2172,13 @@
         height: 32px;
       }
       .hero p {
-        font-size: 12px;
+        font-size: 11px;
       }
       .btn, .language-buttons { width: 100%; }
       .back-button { width: auto; }
       .hero-tools {
-        top: 88px;
-        right: 0;
-        max-width: 162px;
+        margin-top: 17px;
+        max-width: 110px;
         justify-content: flex-end;
       }
       .icon-btn {
@@ -2052,17 +2189,24 @@
         font-size: 15px;
       }
       .header-user {
-        max-width: calc(100vw - 190px);
-        font-size: 22px;
+        max-width: calc(100vw - 116px);
+        font-size: 20px;
       }
       .header-level {
         font-size: 14px;
       }
       .brand-row {
-        justify-items: start;
-        justify-self: stretch;
-        padding-right: 170px;
-        text-align: left;
+        justify-items: center;
+        justify-self: center;
+        padding-right: 0;
+        text-align: center;
+      }
+      .social-links {
+        gap: 6px;
+        margin-top: 18px;
+      }
+      .header-stats {
+        max-width: calc(100vw - 38px);
       }
       .language-menu { flex: 0 0 auto; }
       .language-popover {
@@ -2094,6 +2238,9 @@
         width: 76px;
       }
       .admin-audit-controls {
+        grid-template-columns: 1fr;
+      }
+      .admin-search-row {
         grid-template-columns: 1fr;
       }
       .closed-vote-card summary {
@@ -2201,36 +2348,31 @@
 <body>
   <main class="app">
     <header class="hero">
+      <div class="social-links" aria-label="언어교환101 소셜 링크">
+        <a class="social-link" href="https://www.instagram.com/language___class/" target="_blank" rel="noreferrer" aria-label="Instagram">
+          <img src="2026-06-25-instagram-icon.png" alt="">
+        </a>
+        <a class="social-link" href="https://www.youtube.com/@LanguageExchange-mq3sh" target="_blank" rel="noreferrer" aria-label="YouTube">
+          <img src="2026-06-25-youtube-icon.png" alt="">
+        </a>
+        <a class="social-link" href="https://pf.kakao.com/_xbMxiVxb" target="_blank" rel="noreferrer" aria-label="KakaoTalk">
+          <img src="2026-06-25-kakao-talk-contact-icon.png" alt="">
+        </a>
+      </div>
       <div class="brand">
         <img class="brand-logo" src="2026-06-30-language101-header-logo.png" alt="언어교환101">
         <div class="brand-row">
           <h1 class="header-user" id="headerUserName" data-i18n="appTitle">언어교환101</h1>
           <p class="header-level hidden" id="headerLevel">Lv.1 Rookie</p>
+          <div class="header-stats hidden" id="headerStats"></div>
           <p data-i18n="tagline">투표하고, 참석하고, 좋아요를 받으면 레벨이 올라갑니다.</p>
         </div>
       </div>
       <div class="hero-tools">
-        <div class="social-links" aria-label="언어교환101 소셜 링크">
-          <a class="social-link" href="https://www.instagram.com/language___class/" target="_blank" rel="noreferrer" aria-label="Instagram">
-            <img src="2026-06-25-instagram-icon.png" alt="">
-          </a>
-          <a class="social-link" href="https://www.youtube.com/@LanguageExchange-mq3sh" target="_blank" rel="noreferrer" aria-label="YouTube">
-            <img src="2026-06-25-youtube-icon.png" alt="">
-          </a>
-          <a class="social-link" href="https://pf.kakao.com/_xbMxiVxb" target="_blank" rel="noreferrer" aria-label="KakaoTalk">
-            <img src="2026-06-25-kakao-talk-contact-icon.png" alt="">
-          </a>
-        </div>
         <div class="notification-wrap">
           <button type="button" class="icon-btn" id="notificationOpen" aria-label="알림" title="알림">🔔</button>
           <span class="notification-dot hidden" id="notificationDot" aria-hidden="true"></span>
         </div>
-      </div>
-    </header>
-
-    <div class="back-bar hidden" id="backBar">
-      <div class="back-language">
-        <button type="button" class="btn back-button" id="backButton" data-i18n="backButton">← Back</button>
         <div class="language-menu" aria-label="번역 언어 선택">
           <button type="button" class="translate-button" id="languageToggle" aria-label="번역 언어 선택" title="번역 언어 선택">🌐 <span>번역</span></button>
           <div class="language-popover hidden" id="languagePopover">
@@ -2240,6 +2382,12 @@
             <button type="button" class="flag-btn" data-lang="zh" aria-label="中文">🇨🇳</button>
           </div>
         </div>
+      </div>
+    </header>
+
+    <div class="back-bar hidden" id="backBar">
+      <div class="back-language">
+        <button type="button" class="btn back-button" id="backButton" data-i18n="backButton">← Back</button>
       </div>
     </div>
 
@@ -2477,10 +2625,12 @@ This account will be used continuously, so please enter the information correctl
           <button type="button" class="tab" data-filter="offline" data-i18n="filterOffline">오프라인 영어</button>
           <button type="button" class="tab" data-filter="online" data-i18n="filterOnline">온라인 영어</button>
           <button type="button" class="tab" data-filter="language" data-i18n="filterLanguage">일본어/중국어</button>
-          <button type="button" class="tab" id="materialsToggle" data-i18n="filterMaterials">자료 메뉴</button>
           <button type="button" class="tab" data-filter="closed" data-i18n="filterClosed">종료된 투표</button>
         </nav>
         <button type="button" class="category-arrow" id="categoryNext" aria-label="다음 카테고리">▶</button>
+      </div>
+      <div class="resource-shortcut">
+        <button type="button" class="btn resource-button" id="materialsToggle" data-i18n="filterMaterials">📚 자료 메뉴 보기</button>
       </div>
       <div class="polls" id="polls"></div>
       <section class="materials hidden" id="materialsPanel" aria-label="스터디 자료 메뉴">
@@ -2534,6 +2684,7 @@ This account will be used continuously, so please enter the information correctl
     const AUTO_RUN_KEY = "le101SimpleAutoRun";
     const AUTO_ROSTER_KEY = "le101SimpleAutoRoster";
     const NOTIFIED_STUDY_KEY = "le101StudyBrowserNotified";
+    const NOTIFIED_LIKE_KEY = "le101LikeBrowserNotified";
     const ADMIN_PASSWORD = "101language";
     const SUPABASE_URL = "https://wcbfjyejnhbijqwkajnl.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_e5axVxRAtZA1cj9Y5ul1wA_WRYZeUG2";
@@ -2584,6 +2735,7 @@ This account will be used continuously, so please enter the information correctl
     const registerMemberEl = document.querySelector("#registerMember");
     const headerUserNameEl = document.querySelector("#headerUserName");
     const headerLevelEl = document.querySelector("#headerLevel");
+    const headerStatsEl = document.querySelector("#headerStats");
     const brandLogoEl = document.querySelector(".brand-logo");
     const heroToolsEl = document.querySelector(".hero-tools");
     const profileOpenEl = document.querySelector("#profileOpen");
@@ -2708,7 +2860,7 @@ This account will be used continuously, so please enter the information correctl
     const i18n = {
       ko: {
         appTitle: "언어교환101",
-        tagline: "Vote, check attendance, receive likes, and level up.",
+        tagline: "스터디 투표와 레벨을 한눈에 확인하세요.",
         nameLabel: "Name",
         nameHelp: "Korean or English name is okay.",
         birthLabel: "Birthdate",
@@ -2726,7 +2878,7 @@ This account will be used continuously, so please enter the information correctl
         filterOnline: "온라인 영어",
         filterLanguage: "일본어/중국어",
         filterClosed: "종료된 투표",
-        filterMaterials: "자료 메뉴",
+        filterMaterials: "📚 자료 메뉴 보기",
         refreshButton: "새로고침",
         materialEnglish: "영어",
         materialJapanese: "일본어",
@@ -2901,7 +3053,7 @@ This account will be used continuously, so please enter the information correctl
       },
       en: {
         appTitle: "Language Exchange 101",
-        tagline: "Vote, check attendance, receive likes, and level up.",
+        tagline: "Choose your study and check your level.",
         nameLabel: "Name",
         nameHelp: "Korean or English name is okay.",
         birthLabel: "Birthdate",
@@ -2919,7 +3071,7 @@ This account will be used continuously, so please enter the information correctl
         filterOnline: "Online English",
         filterLanguage: "Japanese/Chinese",
         filterClosed: "Closed Polls",
-        filterMaterials: "Materials",
+        filterMaterials: "📚 Materials",
         refreshButton: "Refresh",
         materialEnglish: "English",
         materialJapanese: "Japanese",
@@ -3112,7 +3264,7 @@ This account will be used continuously, so please enter the information correctl
         filterOnline: "オンライン英語",
         filterLanguage: "日本語/中国語",
         filterClosed: "終了した投票",
-        filterMaterials: "資料",
+        filterMaterials: "📚 資料を見る",
         refreshButton: "更新",
         materialEnglish: "英語",
         materialJapanese: "日本語",
@@ -3305,7 +3457,7 @@ This account will be used continuously, so please enter the information correctl
         filterOnline: "线上英语",
         filterLanguage: "日语/中文",
         filterClosed: "已结束投票",
-        filterMaterials: "资料",
+        filterMaterials: "📚 查看资料",
         refreshButton: "刷新",
         materialEnglish: "英语",
         materialJapanese: "日语",
@@ -4429,6 +4581,24 @@ This account will be used continuously, so please enter the information correctl
       `;
     }
 
+    function renderLikeReminderAlert(event) {
+      return `
+        <article class="like-alert-card">
+          <strong>💌 오늘 가장 좋았던 사람 1명 또는 2명에게 좋아요를 보내주세요!</strong>
+          <small>${escapeHtml(formatDateLabel(event.start))} ${escapeHtml(t(event.title))} · 익명으로 전송됩니다.</small>
+        </article>
+      `;
+    }
+
+    function renderReceivedHeartAlert(record) {
+      return `
+        <article class="like-alert-card">
+          <strong>❤️ 오늘 모임에서 좋아요를 받았어요 😊</strong>
+          <small>${escapeHtml(formatRecordDate(record.timestamp))} · 보낸 사람은 공개되지 않습니다.</small>
+        </article>
+      `;
+    }
+
     function markBrowserNotifications(rows) {
       if (!("Notification" in window) || !rows.length) return;
       const sent = readJson(NOTIFIED_STUDY_KEY, {});
@@ -4454,17 +4624,66 @@ This account will be used continuously, so please enter the information correctl
       }
     }
 
+    function markLikeBrowserNotifications(likeEvents, receivedRows) {
+      if (!("Notification" in window) || (!likeEvents.length && !receivedRows.length)) return;
+      const member = getMember();
+      const sent = readJson(NOTIFIED_LIKE_KEY, {});
+      const send = () => {
+        likeEvents.forEach((event) => {
+          const key = `like-reminder|${event.id}|${member?.id || ""}`;
+          if (sent[key]) return;
+          new Notification("오늘 가장 좋았던 사람에게 좋아요를 보내주세요!", {
+            body: "1명 또는 2명을 선택할 수 있고, 좋아요는 익명으로 전달됩니다.",
+            tag: key
+          });
+          sent[key] = new Date().toISOString();
+        });
+        receivedRows.forEach((record) => {
+          const key = `heart-received|${record.timestamp}|${member?.id || ""}`;
+          if (sent[key]) return;
+          new Notification("오늘 모임에서 좋아요를 받았어요 😊", {
+            body: "누가 보냈는지는 공개되지 않습니다.",
+            tag: key
+          });
+          sent[key] = new Date().toISOString();
+        });
+        writeJson(NOTIFIED_LIKE_KEY, sent);
+      };
+      if (Notification.permission === "granted") {
+        send();
+      } else if (Notification.permission === "default" && !browserNotificationRequestStarted) {
+        browserNotificationRequestStarted = true;
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") send();
+        }).catch(() => {});
+      }
+    }
+
     function renderStudyNotifications() {
       const member = getMember();
       const alerts = getUpcomingStudyAlerts(member);
-      const html = alerts.length
-        ? alerts.map(renderStudyAlert).join("")
-        : `<article class="profile-log-card"><strong>새 알림이 없습니다.</strong><small>수업 시작 2시간 전부터 신청한 스터디 알림이 표시됩니다.</small></article>`;
+      const likeEvents = getLikeEligibleEvents(member);
+      const receivedHearts = getMemberRecords(member)
+        .filter((record) => record.action === "heart_received")
+        .filter((record) => {
+          const at = new Date(record.timestamp);
+          return !Number.isNaN(at.getTime()) && Date.now() - at.getTime() < 1000 * 60 * 60 * 24 * 2;
+        })
+        .slice(0, 5);
+      const items = [
+        ...alerts.map(renderStudyAlert),
+        ...likeEvents.map(renderLikeReminderAlert),
+        ...receivedHearts.map(renderReceivedHeartAlert)
+      ];
+      const html = items.length
+        ? items.join("")
+        : `<article class="profile-log-card"><strong>새 알림이 없습니다.</strong><small>신청한 스터디와 수업 후 좋아요 알림이 여기에 표시됩니다.</small></article>`;
       if (notificationListEl) notificationListEl.innerHTML = html;
       if (profileAlertListEl) profileAlertListEl.innerHTML = alerts.map(renderStudyAlert).join("");
       if (profileAlertListEl) profileAlertListEl.classList.add("hidden");
-      if (notificationDotEl) notificationDotEl.classList.toggle("hidden", !alerts.length);
+      if (notificationDotEl) notificationDotEl.classList.toggle("hidden", !items.length);
       markBrowserNotifications(alerts);
+      markLikeBrowserNotifications(likeEvents, receivedHearts);
     }
 
     function applicationCard(row) {
@@ -4738,9 +4957,9 @@ This account will be used continuously, so please enter the information correctl
       activeView = "vote";
       activeFilter = filter;
       document.querySelectorAll(".tab").forEach((item) => {
-        const isMaterial = filter === "materials" && item === materialsToggleEl;
-        item.classList.toggle("active", item.dataset.filter === filter || isMaterial);
+        item.classList.toggle("active", item.dataset.filter === filter);
       });
+      materialsToggleEl?.classList.toggle("active", filter === "materials");
       updateContentMode();
       renderPolls();
       renderMaterials();
@@ -5494,10 +5713,71 @@ This account will be used continuously, so please enter the information correctl
           </div>
           <div class="field">
             <label for="adminClosedSearch">검색</label>
-            <input id="adminClosedSearch" data-closed-filter="search" placeholder="이름 또는 닉네임 검색..." value="${escapeHtml(adminClosedAuditFilter.search)}">
+            <div class="admin-search-row">
+              <input id="adminClosedSearch" data-closed-filter="search" placeholder="이름 또는 닉네임 검색..." value="${escapeHtml(adminClosedAuditFilter.search)}">
+              <button type="button" class="btn primary" data-closed-search-submit>검색하기</button>
+            </div>
           </div>
         </div>
       `;
+    }
+
+    function closedAuditRowsForPersonSearch(items) {
+      const search = normalizeName(adminClosedAuditFilter.search || "");
+      if (!search) return [];
+      return items.flatMap((item) => {
+        const { eventId, eventVotes, voteMeta, base, schedule } = item;
+        return adminOptionOrder(base.options).flatMap((option) => {
+          return (eventVotes[option] || []).filter((id) => isRealVisibleMember(id)).map((id) => {
+            const member = memberFromId(id);
+            const meta = voteMeta[id] || {};
+            const status = statusForAttendance(eventId, id, meta);
+            return {
+              eventId,
+              id,
+              member,
+              option,
+              status,
+              base,
+              schedule,
+              levelLabel: optionDisplayLabel(option),
+              sortTime: adminEventSortTime(item)
+            };
+          });
+        });
+      }).filter((row) => normalizeName(row.member.name).includes(search))
+        .sort((a, b) => b.sortTime - a.sortTime || a.member.name.localeCompare(b.member.name, "ko"));
+    }
+
+    function renderPersonSearchResult(items) {
+      const search = (adminClosedAuditFilter.search || "").trim();
+      if (!search) return "";
+      const rows = closedAuditRowsForPersonSearch(items);
+      if (!rows.length) {
+        return `<section class="person-search-result"><h4><span>${escapeHtml(search)}</span> 검색 결과</h4><div class="small-note">종료된 투표에서 해당 이름/닉네임을 찾지 못했습니다.</div></section>`;
+      }
+      const byName = rows.reduce((acc, row) => {
+        const key = row.member.name;
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(row);
+        return acc;
+      }, {});
+      return Object.entries(byName).map(([name, nameRows]) => `
+        <section class="person-search-result">
+          <h4><span>${escapeHtml(name)}</span> 종료된 투표 기록 · 총 ${nameRows.length}회</h4>
+          <ul class="person-search-list">
+            ${nameRows.map((row, index) => `
+              <li>
+                <strong>${index + 1}. ${escapeHtml(formatDateLabel(row.schedule.start))} ${escapeHtml(t(row.base.title))}</strong>
+                <div>레벨: ${escapeHtml(row.levelLabel)}</div>
+                <div>시간: ${escapeHtml(formatTime(row.schedule.start))} ~ ${escapeHtml(formatTime(row.schedule.end))}</div>
+                <div>장소: ${escapeHtml(row.schedule.place || "장소 미등록")}</div>
+                <div>상태: <span class="attendance-status ${row.status.cls}">${escapeHtml(row.status.label)}</span></div>
+              </li>
+            `).join("")}
+          </ul>
+        </section>
+      `).join("");
     }
 
     function closedAuditRowsFromItems(items) {
@@ -5696,6 +5976,7 @@ This account will be used continuously, so please enter the information correctl
       if (!adminAuditOpenKeys.size && filtered[0]) adminAuditOpenKeys.add(filtered[0].eventId);
       return `
         ${renderClosedAuditControls()}
+        ${renderPersonSearchResult(filtered)}
         ${adminClosedAuditFilter.view === "list"
           ? renderClosedListMode(filtered)
           : `<div class="closed-vote-list">${filtered.map((item, index) => renderClosedVoteCard(item, index)).join("") || `<div>${escapeHtml(t("adminNoVotes"))}</div>`}</div>`}
@@ -5758,6 +6039,13 @@ This account will be used continuously, so please enter the information correctl
             if (event.key === "Enter") updateFilter();
           });
         }
+      });
+      adminVoteAuditEl.querySelectorAll("[data-closed-search-submit]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const input = adminVoteAuditEl.querySelector("[data-closed-filter='search']");
+          adminClosedAuditFilter.search = input?.value || "";
+          renderAdminVoteAudit();
+        });
       });
       adminVoteAuditEl.querySelectorAll("[data-closed-view]").forEach((button) => {
         button.addEventListener("click", () => {
@@ -6644,8 +6932,19 @@ This account will be used continuously, so please enter the information correctl
           const rank = getRankTier(level);
           headerLevelEl.textContent = `Lv.${level} ${rank.label}`;
           headerLevelEl.classList.remove("hidden");
+          if (headerStatsEl) {
+            const likeRate = Math.min(100, Math.round(((stats.hearts || 0) / Math.max(1, stats.attendance || 0)) * 100));
+            headerStatsEl.innerHTML = `
+              <span class="header-stat">⭐ ${likeRate}%</span>
+              <span class="header-stat">💎 ${Number(stats.points || 0).toLocaleString()}</span>
+              <span class="header-stat">✅ ${stats.attendance || 0}</span>
+              <span class="header-stat heart">❤️ ${stats.hearts || 0}</span>
+            `;
+            headerStatsEl.classList.remove("hidden");
+          }
         } else {
           headerLevelEl.classList.add("hidden");
+          headerStatsEl?.classList.add("hidden");
         }
       }
       loginPanelEl.classList.toggle("hidden", isLoggedIn);
