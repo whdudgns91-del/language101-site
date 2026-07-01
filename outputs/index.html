@@ -1703,6 +1703,236 @@
       color: #991b1b;
     }
 
+    .event-page {
+      display: grid;
+      gap: 14px;
+      padding-bottom: 84px;
+    }
+
+    .event-page.hidden {
+      display: none;
+    }
+
+    .event-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .event-header h2 {
+      margin: 0;
+      color: var(--purple-deep);
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .event-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .event-card {
+      overflow: hidden;
+      border: 1px solid var(--paper-line);
+      border-radius: 22px;
+      background: #ffffff;
+      box-shadow: 0 16px 36px rgba(91, 33, 182, 0.1);
+    }
+
+    .event-image {
+      position: relative;
+      display: grid;
+      min-height: 180px;
+      overflow: hidden;
+      place-items: center;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.38), transparent 28%),
+        linear-gradient(135deg, #8b5cf6 0%, #6d28d9 48%, #4c1d95 100%);
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .event-image img {
+      width: 100%;
+      height: 100%;
+      min-height: 180px;
+      object-fit: cover;
+    }
+
+    .event-image-placeholder {
+      display: grid;
+      gap: 8px;
+      padding: 26px;
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.3;
+    }
+
+    .event-image-placeholder small {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .event-card-body {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+    }
+
+    .event-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .event-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 5px 10px;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .event-status.open {
+      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    }
+
+    .event-status.soon {
+      background: linear-gradient(135deg, #f97316, #ef4444);
+    }
+
+    .event-status.closed {
+      background: #94a3b8;
+    }
+
+    .event-date-chip {
+      color: var(--purple-deep);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .event-card h3,
+    .event-detail-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.25;
+      word-break: keep-all;
+    }
+
+    .event-info-grid {
+      display: grid;
+      gap: 7px;
+      color: var(--subtle);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .event-info-grid span {
+      overflow-wrap: anywhere;
+    }
+
+    .event-description,
+    .event-detail-content {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.6;
+      white-space: pre-line;
+      word-break: keep-all;
+    }
+
+    .event-detail-topbar {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .event-detail-topbar h2 {
+      margin: 0;
+      text-align: center;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .event-detail-card {
+      overflow: hidden;
+      border: 1px solid var(--paper-line);
+      border-radius: 24px;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+    }
+
+    .event-detail-body {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+    }
+
+    .event-detail-list {
+      display: grid;
+      gap: 8px;
+      border: 1px solid var(--paper-line);
+      border-radius: 18px;
+      padding: 12px;
+      background: #fbf8ff;
+      color: var(--subtle);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .event-sticky-cta {
+      position: sticky;
+      bottom: 86px;
+      display: grid;
+      gap: 8px;
+      border: 1px solid var(--paper-line);
+      border-radius: 18px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 14px 32px rgba(91, 33, 182, 0.18);
+      backdrop-filter: blur(12px);
+    }
+
+    .event-admin-list {
+      display: grid;
+      gap: 7px;
+      margin-top: 4px;
+    }
+
+    .event-admin-list button {
+      justify-content: start;
+      min-height: 36px;
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+
+    .grid.two {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .check-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--subtle);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
     .logout-panel {
       display: grid;
       margin-top: 14px;
@@ -2396,6 +2626,7 @@
         padding-top: 0;
       }
       .login, .like-grid, .admin-lock { grid-template-columns: 1fr; }
+      .grid.two { grid-template-columns: 1fr; }
       .hero {
         min-height: 0;
         align-items: center;
@@ -2785,6 +3016,75 @@
         </section>
 
         <section class="admin-card">
+          <h3>이벤트 등록/수정</h3>
+          <p class="helper">하단 이벤트 메뉴에 노출할 이벤트를 관리합니다.</p>
+          <div class="field">
+            <label for="adminEventManagerSelect">수정할 이벤트</label>
+            <select id="adminEventManagerSelect"></select>
+          </div>
+          <div class="field">
+            <label for="adminEventTitleInput">이벤트 제목</label>
+            <input id="adminEventTitleInput" placeholder="예: 7월 언어교환101 술파티">
+          </div>
+          <div class="field">
+            <label for="adminEventDateInput">이벤트 날짜</label>
+            <input id="adminEventDateInput" type="date">
+          </div>
+          <div class="grid two">
+            <div class="field">
+              <label for="adminEventStartInput">시작 시간</label>
+              <input id="adminEventStartInput" type="time">
+            </div>
+            <div class="field">
+              <label for="adminEventEndInput">종료 시간</label>
+              <input id="adminEventEndInput" type="time">
+            </div>
+          </div>
+          <div class="field">
+            <label for="adminEventLocationInput">장소</label>
+            <input id="adminEventLocationInput" placeholder="예: 종각 / 추후 공지">
+          </div>
+          <div class="field">
+            <label for="adminEventImageInput">대표 이미지 URL</label>
+            <input id="adminEventImageInput" placeholder="https://...">
+          </div>
+          <div class="field">
+            <label for="adminEventImageFile">대표 이미지 업로드</label>
+            <input id="adminEventImageFile" type="file" accept="image/*">
+          </div>
+          <div class="field">
+            <label for="adminEventShortInput">간단 소개글</label>
+            <textarea id="adminEventShortInput"></textarea>
+          </div>
+          <div class="field">
+            <label for="adminEventDetailInput">상세 내용</label>
+            <textarea id="adminEventDetailInput"></textarea>
+          </div>
+          <div class="grid two">
+            <div class="field">
+              <label for="adminEventPriceInput">가격 또는 참가비</label>
+              <input id="adminEventPriceInput" placeholder="예: 추후 공지">
+            </div>
+            <div class="field">
+              <label for="adminEventStatusSelect">상태</label>
+              <select id="adminEventStatusSelect">
+                <option value="모집중">모집중</option>
+                <option value="마감임박">마감임박</option>
+                <option value="마감">마감</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="adminEventApplyInput">신청 링크 또는 카카오톡 문의 링크</label>
+            <input id="adminEventApplyInput" placeholder="https://pf.kakao.com/_xbMxiVxb">
+          </div>
+          <label class="check-row"><input id="adminEventVisibleInput" type="checkbox" checked> 회원 화면에 노출</label>
+          <button type="button" class="btn primary" id="saveAdminEvent">이벤트 저장</button>
+          <button type="button" class="btn" id="newAdminEvent">새 이벤트 작성</button>
+          <div class="event-admin-list" id="adminEventList"></div>
+        </section>
+
+        <section class="admin-card">
           <h3 data-i18n="adminManualTitle">투표 인원 추가</h3>
           <div class="field">
             <label for="adminEventSelect" data-i18n="adminEvent">일정</label>
@@ -3022,8 +3322,10 @@ This account will be used continuously, so please enter the information correctl
     </section>
 
     <section class="panel section event-page hidden" id="eventPage" aria-label="이벤트">
-      <h2>🎉 이벤트</h2>
-      <p class="helper">준비중입니다.</p>
+      <div class="event-header">
+        <h2>🎉 이벤트</h2>
+      </div>
+      <div id="eventContent"></div>
     </section>
 
     <section class="logout-panel hidden" id="logoutPanel">
@@ -3076,6 +3378,7 @@ This account will be used continuously, so please enter the information correctl
     const NOTIFIED_LIKE_KEY = "le101LikeBrowserNotified";
     const LIKE_PROMPT_DISMISSED_KEY = "le101LikePromptDismissed";
     const REMOTE_LIKE_RECEIVED_KEY = "le101RemoteLikeReceived";
+    const EVENTS_KEY = "le101Events";
     const ADMIN_PASSWORD = "101language";
     const SUPABASE_URL = "https://wcbfjyejnhbijqwkajnl.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_e5axVxRAtZA1cj9Y5ul1wA_WRYZeUG2";
@@ -3200,6 +3503,7 @@ This account will be used continuously, so please enter the information correctl
     const likePromptSendEl = document.querySelector("#likePromptSend");
     const noticePanelEl = document.querySelector("#noticePanel");
     const noticeTextEl = document.querySelector("#noticeText");
+    const eventContentEl = document.querySelector("#eventContent");
     const adminToggleEl = document.querySelector("#adminToggle");
     const adminPanelEl = document.querySelector("#adminPanel");
     const adminLockEl = document.querySelector("#adminLock");
@@ -3209,6 +3513,23 @@ This account will be used continuously, so please enter the information correctl
     const adminGoLoginEl = document.querySelector("#adminGoLogin");
     const adminNoticeInputEl = document.querySelector("#adminNoticeInput");
     const saveNoticeEl = document.querySelector("#saveNotice");
+    const adminEventManagerSelectEl = document.querySelector("#adminEventManagerSelect");
+    const adminEventTitleInputEl = document.querySelector("#adminEventTitleInput");
+    const adminEventDateInputEl = document.querySelector("#adminEventDateInput");
+    const adminEventStartInputEl = document.querySelector("#adminEventStartInput");
+    const adminEventEndInputEl = document.querySelector("#adminEventEndInput");
+    const adminEventLocationInputEl = document.querySelector("#adminEventLocationInput");
+    const adminEventImageInputEl = document.querySelector("#adminEventImageInput");
+    const adminEventImageFileEl = document.querySelector("#adminEventImageFile");
+    const adminEventShortInputEl = document.querySelector("#adminEventShortInput");
+    const adminEventDetailInputEl = document.querySelector("#adminEventDetailInput");
+    const adminEventPriceInputEl = document.querySelector("#adminEventPriceInput");
+    const adminEventStatusSelectEl = document.querySelector("#adminEventStatusSelect");
+    const adminEventApplyInputEl = document.querySelector("#adminEventApplyInput");
+    const adminEventVisibleInputEl = document.querySelector("#adminEventVisibleInput");
+    const saveAdminEventEl = document.querySelector("#saveAdminEvent");
+    const newAdminEventEl = document.querySelector("#newAdminEvent");
+    const adminEventListEl = document.querySelector("#adminEventList");
     const adminEventSelectEl = document.querySelector("#adminEventSelect");
     const adminOptionSelectEl = document.querySelector("#adminOptionSelect");
     const adminRealEventSelectEl = document.querySelector("#adminRealEventSelect");
@@ -3238,6 +3559,7 @@ This account will be used continuously, so please enter the information correctl
     let adminUnlocked = false;
     let selectedLikeTargets = [];
     let selectedLikeEventId = "";
+    let selectedEventDetailId = "";
     let activeProfileDetail = "";
     let profileView = "main";
     let supabaseClient = null;
@@ -3249,6 +3571,7 @@ This account will be used continuously, so please enter the information correctl
     let votesLoadSerial = 0;
     let latestAppliedVotesSerial = 0;
     let remoteVoteMetaCache = {};
+    let remoteEventsCache = [];
     let browserNotificationRequestStarted = false;
     const adminAuditOpenKeys = new Set();
     const adminClosedAuditFilter = {
@@ -4918,6 +5241,7 @@ This account will be used continuously, so please enter the information correctl
         subscribePostStudyLikesRealtime();
       }
       await loadVotesFromSupabase();
+      await loadEventsFromSupabase();
       startVotesPolling();
     }
 
@@ -5360,6 +5684,7 @@ This account will be used continuously, so please enter the information correctl
 
     function setActiveView(view) {
       activeView = view;
+      if (view !== "event") selectedEventDetailId = "";
       if (view !== "profile") {
         profileView = "main";
         activeProfileDetail = "";
@@ -5381,6 +5706,7 @@ This account will be used continuously, so please enter the information correctl
       }
       if (view === "admin") {
         adminPanelEl.classList.remove("hidden");
+        renderAdminEventManager();
         renderAdminEventOptions();
         renderAdminRealEventOptions();
         renderAdminStatus();
@@ -6609,6 +6935,356 @@ This account will be used continuously, so please enter the information correctl
       adminNoticeInputEl.value = notice;
     }
 
+    function defaultEvents() {
+      return [{
+        id: "2026-07-language101-drinking-party",
+        title: "7월 언어교환101 술파티",
+        event_date: "2026-07-25",
+        start_time: "19:00",
+        end_time: "",
+        location: "종각 / 추후 공지",
+        image_url: "",
+        short_description: "외국인 친구들과 함께하는 언어교환101 월말 술파티입니다.",
+        detail_content: `7월에도 언어교환101 술파티가 열립니다.
+영어, 일본어, 중국어를 공부하는 멤버들과 외국인 친구들이 함께 모여
+편하게 대화하고 친해질 수 있는 네트워킹 파티입니다.
+
+평소 스터디에서는 짧게 대화했던 사람들과 더 자연스럽게 친해지고,
+새로운 외국인 친구도 만들 수 있는 자리입니다.
+
+이런 분들에게 추천합니다.
+- 외국인 친구를 만들고 싶은 분
+- 영어로 자연스럽게 대화하고 싶은 분
+- 언어교환101 멤버들과 더 친해지고 싶은 분
+- 혼자 오기 어색하지만 새로운 사람을 만나고 싶은 분
+
+참여 안내:
+- 사전 신청 필수
+- 선착순 마감
+- 자세한 장소와 안내는 신청자에게 별도 공지`,
+        price: "추후 공지",
+        status: "모집중",
+        apply_url: "https://pf.kakao.com/_xbMxiVxb",
+        is_visible: true,
+        created_at: "2026-07-02T00:00:00+09:00",
+        updated_at: "2026-07-02T00:00:00+09:00"
+      }];
+    }
+
+    function normalizeEventItem(event = {}) {
+      return {
+        id: event.id || `event-${Date.now().toString(36)}`,
+        title: event.title || "",
+        event_date: event.event_date || "",
+        start_time: event.start_time || "",
+        end_time: event.end_time || "",
+        location: event.location || "",
+        image_url: event.image_url || "",
+        short_description: event.short_description || "",
+        detail_content: event.detail_content || "",
+        price: event.price || "",
+        status: event.status || "모집중",
+        apply_url: event.apply_url || "https://pf.kakao.com/_xbMxiVxb",
+        is_visible: event.is_visible !== false,
+        created_at: event.created_at || new Date().toISOString(),
+        updated_at: event.updated_at || new Date().toISOString()
+      };
+    }
+
+    function getLocalEvents() {
+      const saved = readJson(EVENTS_KEY, []);
+      const source = saved.length ? saved : defaultEvents();
+      return source.map(normalizeEventItem);
+    }
+
+    function saveLocalEvents(events) {
+      writeJson(EVENTS_KEY, events.map(normalizeEventItem));
+    }
+
+    function getAllEvents() {
+      const byId = new Map();
+      [...defaultEvents(), ...getLocalEvents(), ...remoteEventsCache].forEach((event) => {
+        const normalized = normalizeEventItem(event);
+        byId.set(normalized.id, normalized);
+      });
+      return [...byId.values()].sort((a, b) => new Date(a.event_date || 0) - new Date(b.event_date || 0));
+    }
+
+    function getVisibleEvents() {
+      return getAllEvents().filter((event) => event.is_visible !== false);
+    }
+
+    function eventStatusClass(status) {
+      if (status === "마감") return "closed";
+      if (status === "마감임박") return "soon";
+      return "open";
+    }
+
+    function eventStatusText(status) {
+      return status || "모집중";
+    }
+
+    function formatEventDate(value) {
+      if (!value) return "날짜 미정";
+      const date = new Date(`${value}T00:00:00+09:00`);
+      if (Number.isNaN(date.getTime())) return value;
+      return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일(${["일", "월", "화", "수", "목", "금", "토"][date.getDay()]})`;
+    }
+
+    function formatEventTime(event) {
+      if (!event.start_time && !event.end_time) return "시간 추후 공지";
+      const start = event.start_time ? event.start_time.replace(":", "시 ") + "분" : "";
+      const end = event.end_time ? event.end_time.replace(":", "시 ") + "분" : "";
+      return end ? `${start} ~ ${end}` : `${start} 시작`;
+    }
+
+    function renderEventImage(event) {
+      if (event.image_url) {
+        return `<img src="${escapeHtml(event.image_url)}" alt="${escapeHtml(event.title)}">`;
+      }
+      return `<div class="event-image-placeholder"><span>🍻 ${escapeHtml(event.title || "언어교환101 이벤트")}</span><small>Language Exchange 101 Event</small></div>`;
+    }
+
+    function renderEventPage() {
+      if (!eventContentEl) return;
+      const events = getVisibleEvents();
+      const selected = selectedEventDetailId ? events.find((event) => event.id === selectedEventDetailId) : null;
+      if (selected) {
+        eventContentEl.innerHTML = `
+          <div class="event-detail-topbar">
+            <button type="button" class="btn back-button" data-event-back>← 뒤로가기</button>
+            <h2>상세보기</h2>
+            <button type="button" class="btn" data-event-share="${escapeHtml(selected.id)}">공유</button>
+          </div>
+          <article class="event-detail-card">
+            <div class="event-image">${renderEventImage(selected)}</div>
+            <div class="event-detail-body">
+              <div class="event-meta-row">
+                <span class="event-status ${eventStatusClass(selected.status)}">${escapeHtml(eventStatusText(selected.status))}</span>
+                <span class="event-date-chip">${escapeHtml(formatEventDate(selected.event_date))}</span>
+              </div>
+              <h3 class="event-detail-title">${escapeHtml(selected.title)}</h3>
+              <p class="event-description">${escapeHtml(selected.short_description)}</p>
+              <div class="event-detail-list">
+                <span>주최: 언어교환101</span>
+                <span>날짜: ${escapeHtml(formatEventDate(selected.event_date))}</span>
+                <span>시간: ${escapeHtml(formatEventTime(selected))}</span>
+                <span>장소: ${escapeHtml(selected.location || "추후 공지")}</span>
+                <span>참여 가능 레벨: All Level</span>
+                <span>참가비: ${escapeHtml(selected.price || "추후 공지")}</span>
+              </div>
+              <div class="event-detail-content">${escapeHtml(selected.detail_content)}</div>
+            </div>
+          </article>
+          <div class="event-sticky-cta">
+            <a class="btn primary" href="${escapeHtml(selected.apply_url || "https://pf.kakao.com/_xbMxiVxb")}" target="_blank" rel="noreferrer">신청/문의하기</a>
+          </div>
+        `;
+      } else {
+        eventContentEl.innerHTML = events.length ? `
+          <div class="event-list">
+            ${events.map((event) => `
+              <article class="event-card">
+                <div class="event-image">${renderEventImage(event)}</div>
+                <div class="event-card-body">
+                  <div class="event-meta-row">
+                    <span class="event-status ${eventStatusClass(event.status)}">${escapeHtml(eventStatusText(event.status))}</span>
+                    <span class="event-date-chip">${escapeHtml(formatEventDate(event.event_date))}</span>
+                  </div>
+                  <h3>${escapeHtml(event.title)}</h3>
+                  <div class="event-info-grid">
+                    <span>장소: ${escapeHtml(event.location || "추후 공지")}</span>
+                    <span>시간: ${escapeHtml(formatEventTime(event))}</span>
+                  </div>
+                  <p class="event-description">${escapeHtml(event.short_description)}</p>
+                  <button type="button" class="btn primary" data-event-detail="${escapeHtml(event.id)}">상세보기</button>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        ` : `<p class="helper">등록된 이벤트가 없습니다.</p>`;
+      }
+      bindEventPageActions();
+    }
+
+    function bindEventPageActions() {
+      eventContentEl?.querySelectorAll("[data-event-detail]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectedEventDetailId = button.dataset.eventDetail;
+          renderEventPage();
+          eventPageEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+      eventContentEl?.querySelector("[data-event-back]")?.addEventListener("click", () => {
+        selectedEventDetailId = "";
+        renderEventPage();
+      });
+      eventContentEl?.querySelector("[data-event-share]")?.addEventListener("click", async () => {
+        const event = getAllEvents().find((item) => item.id === selectedEventDetailId);
+        const shareData = {
+          title: event?.title || "언어교환101 이벤트",
+          text: event?.short_description || "언어교환101 이벤트를 확인해보세요.",
+          url: location.href
+        };
+        try {
+          if (navigator.share) await navigator.share(shareData);
+          else {
+            await navigator.clipboard.writeText(location.href);
+            messageEl.textContent = "이벤트 링크를 복사했습니다.";
+          }
+        } catch {}
+      });
+    }
+
+    function resetAdminEventForm() {
+      const sample = normalizeEventItem({
+        id: "",
+        title: "",
+        event_date: "",
+        start_time: "",
+        end_time: "",
+        location: "",
+        image_url: "",
+        short_description: "",
+        detail_content: "",
+        price: "",
+        status: "모집중",
+        apply_url: "https://pf.kakao.com/_xbMxiVxb",
+        is_visible: true
+      });
+      fillAdminEventForm(sample);
+      if (adminEventManagerSelectEl) adminEventManagerSelectEl.value = "__new__";
+    }
+
+    function fillAdminEventForm(event) {
+      const item = normalizeEventItem(event);
+      if (adminEventTitleInputEl) adminEventTitleInputEl.value = item.title;
+      if (adminEventDateInputEl) adminEventDateInputEl.value = item.event_date;
+      if (adminEventStartInputEl) adminEventStartInputEl.value = item.start_time;
+      if (adminEventEndInputEl) adminEventEndInputEl.value = item.end_time;
+      if (adminEventLocationInputEl) adminEventLocationInputEl.value = item.location;
+      if (adminEventImageInputEl) adminEventImageInputEl.value = item.image_url;
+      if (adminEventShortInputEl) adminEventShortInputEl.value = item.short_description;
+      if (adminEventDetailInputEl) adminEventDetailInputEl.value = item.detail_content;
+      if (adminEventPriceInputEl) adminEventPriceInputEl.value = item.price;
+      if (adminEventStatusSelectEl) adminEventStatusSelectEl.value = item.status;
+      if (adminEventApplyInputEl) adminEventApplyInputEl.value = item.apply_url;
+      if (adminEventVisibleInputEl) adminEventVisibleInputEl.checked = item.is_visible !== false;
+    }
+
+    function readAdminEventForm() {
+      const selectedId = adminEventManagerSelectEl?.value && adminEventManagerSelectEl.value !== "__new__"
+        ? adminEventManagerSelectEl.value
+        : `event-${Date.now().toString(36)}`;
+      return normalizeEventItem({
+        id: selectedId,
+        title: adminEventTitleInputEl?.value.trim(),
+        event_date: adminEventDateInputEl?.value,
+        start_time: adminEventStartInputEl?.value,
+        end_time: adminEventEndInputEl?.value,
+        location: adminEventLocationInputEl?.value.trim(),
+        image_url: adminEventImageInputEl?.value.trim(),
+        short_description: adminEventShortInputEl?.value.trim(),
+        detail_content: adminEventDetailInputEl?.value.trim(),
+        price: adminEventPriceInputEl?.value.trim(),
+        status: adminEventStatusSelectEl?.value || "모집중",
+        apply_url: adminEventApplyInputEl?.value.trim() || "https://pf.kakao.com/_xbMxiVxb",
+        is_visible: Boolean(adminEventVisibleInputEl?.checked),
+        updated_at: new Date().toISOString()
+      });
+    }
+
+    function renderAdminEventManager() {
+      if (!adminEventManagerSelectEl || !adminEventListEl) return;
+      const events = getAllEvents();
+      const currentValue = adminEventManagerSelectEl.value || "__new__";
+      adminEventManagerSelectEl.innerHTML = `<option value="__new__">새 이벤트 작성</option>${events.map((event) => `<option value="${escapeHtml(event.id)}">${escapeHtml(event.title)} · ${escapeHtml(formatEventDate(event.event_date))}</option>`).join("")}`;
+      adminEventManagerSelectEl.value = events.some((event) => event.id === currentValue) ? currentValue : "__new__";
+      adminEventListEl.innerHTML = events.map((event) => `
+        <button type="button" class="btn" data-admin-edit-event="${escapeHtml(event.id)}">
+          ${event.is_visible === false ? "숨김 · " : ""}${escapeHtml(event.title)} · ${escapeHtml(eventStatusText(event.status))}
+        </button>
+      `).join("");
+      adminEventListEl.querySelectorAll("[data-admin-edit-event]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const event = getAllEvents().find((item) => item.id === button.dataset.adminEditEvent);
+          if (!event) return;
+          adminEventManagerSelectEl.value = event.id;
+          fillAdminEventForm(event);
+        });
+      });
+    }
+
+    async function saveEventToSupabase(event) {
+      if (!isSupabaseConfigured()) return false;
+      const body = {
+        id: event.id,
+        title: event.title,
+        event_date: event.event_date || null,
+        start_time: event.start_time || null,
+        end_time: event.end_time || null,
+        location: event.location,
+        image_url: event.image_url,
+        short_description: event.short_description,
+        detail_content: event.detail_content,
+        price: event.price,
+        status: event.status,
+        apply_url: event.apply_url,
+        is_visible: event.is_visible,
+        updated_at: new Date().toISOString()
+      };
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?on_conflict=id`, {
+          method: "POST",
+          headers: supabaseRestHeaders({
+            "Content-Type": "application/json",
+            Prefer: "resolution=merge-duplicates,return=representation"
+          }),
+          body: JSON.stringify(body)
+        });
+        if (!response.ok) throw new Error(await response.text());
+        return true;
+      } catch (error) {
+        console.warn("events save failed", error);
+        return false;
+      }
+    }
+
+    async function loadEventsFromSupabase() {
+      if (!isSupabaseConfigured()) return false;
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=*&order=event_date.asc`, {
+          headers: supabaseRestHeaders()
+        });
+        if (!response.ok) throw new Error(await response.text());
+        const rows = await response.json();
+        remoteEventsCache = Array.isArray(rows) ? rows.map(normalizeEventItem) : [];
+        renderEventPage();
+        renderAdminEventManager();
+        return true;
+      } catch (error) {
+        console.warn("events load failed", error);
+        return false;
+      }
+    }
+
+    async function saveAdminEvent() {
+      if (!adminUnlocked) return;
+      const event = readAdminEventForm();
+      if (!event.title || !event.event_date) {
+        messageEl.textContent = "이벤트 제목과 날짜를 입력해주세요.";
+        return;
+      }
+      const events = getLocalEvents().filter((item) => item.id !== event.id);
+      events.push(event);
+      saveLocalEvents(events);
+      await saveEventToSupabase(event);
+      selectedEventDetailId = "";
+      messageEl.textContent = "이벤트 저장 완료";
+      renderEventPage();
+      renderAdminEventManager();
+    }
+
     function readMemberForm() {
       const name = memberNameEl.value.trim();
       const birth = memberBirthEl.value.trim();
@@ -7616,6 +8292,8 @@ This account will be used continuously, so please enter the information correctl
       renderAdminStatus();
       renderAdminVoteAudit();
       renderAdminHeartAudit();
+      renderAdminEventManager();
+      renderEventPage();
       renderStudyNotifications();
       renderProfileScreen();
       setSheetStatus();
@@ -7703,6 +8381,22 @@ This account will be used continuously, so please enter the information correctl
       if (event.key === "Enter") unlockAdmin();
     });
     saveNoticeEl.addEventListener("click", saveNotice);
+    adminEventManagerSelectEl?.addEventListener("change", () => {
+      const event = getAllEvents().find((item) => item.id === adminEventManagerSelectEl.value);
+      if (event) fillAdminEventForm(event);
+      else resetAdminEventForm();
+    });
+    newAdminEventEl?.addEventListener("click", resetAdminEventForm);
+    saveAdminEventEl?.addEventListener("click", saveAdminEvent);
+    adminEventImageFileEl?.addEventListener("change", () => {
+      const file = adminEventImageFileEl.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        adminEventImageInputEl.value = String(reader.result || "");
+      };
+      reader.readAsDataURL(file);
+    });
     adminEventSelectEl.addEventListener("change", renderAdminOptionSelect);
     adminRealEventSelectEl.addEventListener("change", renderAdminRealOptionSelect);
     adminScheduleEventSelectEl.addEventListener("change", renderAdminScheduleFields);
