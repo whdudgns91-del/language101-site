@@ -11,6 +11,7 @@ create table if not exists public.events (
   price text,
   status text default '모집중',
   apply_url text,
+  detail_url text,
   is_visible boolean default true,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
@@ -80,36 +81,23 @@ insert into public.events (
   price,
   status,
   apply_url,
+  detail_url,
   is_visible
 ) values (
   '00000000-0000-4000-8000-000020260725',
-  '7월 언어교환101 술파티',
+  '7월 언어교환101 술파티 🍻',
   '2026-07-25',
   '19:00',
-  null,
+  '22:00',
   '종각 / 추후 공지',
   '',
-  '외국인 친구들과 함께하는 언어교환101 월말 술파티입니다.',
+  '외국인 친구들과 함께하는 월말 술파티!',
   '7월에도 언어교환101 술파티가 열립니다.
-영어, 일본어, 중국어를 공부하는 멤버들과 외국인 친구들이 함께 모여
-편하게 대화하고 친해질 수 있는 네트워킹 파티입니다.
-
-평소 스터디에서는 짧게 대화했던 사람들과 더 자연스럽게 친해지고,
-새로운 외국인 친구도 만들 수 있는 자리입니다.
-
-이런 분들에게 추천합니다.
-- 외국인 친구를 만들고 싶은 분
-- 영어로 자연스럽게 대화하고 싶은 분
-- 언어교환101 멤버들과 더 친해지고 싶은 분
-- 혼자 오기 어색하지만 새로운 사람을 만나고 싶은 분
-
-참여 안내:
-- 사전 신청 필수
-- 선착순 마감
-- 자세한 장소와 안내는 신청자에게 별도 공지',
-  '추후 공지',
+영어, 일본어, 중국어를 공부하는 멤버들과 외국인 친구들이 함께 모여 편하게 대화하고 친해질 수 있는 네트워킹 파티입니다.',
+  '31,000원~',
   '모집중',
-  'https://pf.kakao.com/_xbMxiVxb',
+  'https://forms.gle/y239zmAiwcNMvTXg6',
+  'https://blog.naver.com/bonsin11/224334559759',
   true
 ) on conflict (id) do update set
   title = excluded.title,
@@ -122,5 +110,6 @@ insert into public.events (
   price = excluded.price,
   status = excluded.status,
   apply_url = excluded.apply_url,
+  detail_url = excluded.detail_url,
   is_visible = excluded.is_visible,
   updated_at = now();

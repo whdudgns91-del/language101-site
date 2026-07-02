@@ -11,6 +11,7 @@ create table if not exists public.events (
   price text,
   status text default '모집중',
   apply_url text,
+  detail_url text,
   is_visible boolean default true,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
@@ -41,6 +42,7 @@ add column if not exists detail_content text,
 add column if not exists price text,
 add column if not exists status text default '모집중',
 add column if not exists apply_url text,
+add column if not exists detail_url text,
 add column if not exists is_visible boolean default true,
 add column if not exists created_at timestamptz default now(),
 add column if not exists updated_at timestamptz default now();

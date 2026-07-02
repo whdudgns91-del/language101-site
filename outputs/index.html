@@ -1808,6 +1808,32 @@
       font-weight: 800;
     }
 
+    .event-image-placeholder.party-banner {
+      width: 100%;
+      height: 100%;
+      align-content: end;
+      justify-items: start;
+      text-align: left;
+      background:
+        radial-gradient(circle at 18% 22%, rgba(253, 186, 116, 0.85), transparent 18%),
+        radial-gradient(circle at 74% 18%, rgba(251, 191, 36, 0.55), transparent 20%),
+        linear-gradient(135deg, rgba(30, 41, 59, 0.18), rgba(76, 29, 149, 0.64)),
+        linear-gradient(135deg, #2f184f 0%, #7c2d12 52%, #111827 100%);
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    .event-level-chip {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 9px;
+      background: #f3e8ff;
+      color: #6d28d9;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
     .event-card-body {
       display: grid;
       gap: 10px;
@@ -2002,8 +2028,23 @@
     }
 
     .logout-panel {
-      display: grid;
-      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+      margin: 18px 0 96px;
+    }
+
+    .logout-panel.hidden {
+      display: none;
+    }
+
+    .logout-panel .btn {
+      width: auto;
+      min-height: 34px;
+      padding: 7px 18px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: none;
     }
 
     .option-btn {
@@ -2897,7 +2938,7 @@
         display: grid;
       }
       .logout-panel {
-        margin-bottom: 72px;
+        margin: 16px 0 92px;
       }
     }
 
@@ -3589,6 +3630,10 @@
             <label for="adminEventApplyInput">신청 링크 또는 카카오톡 문의 링크</label>
             <input id="adminEventApplyInput" placeholder="https://pf.kakao.com/_xbMxiVxb">
           </div>
+          <div class="field">
+            <label for="adminEventDetailUrlInput">상세보기 링크</label>
+            <input id="adminEventDetailUrlInput" placeholder="https://blog.naver.com/...">
+          </div>
           <label class="check-row"><input id="adminEventVisibleInput" type="checkbox" checked> 회원 화면에 노출</label>
           <button type="button" class="btn primary" id="saveAdminEvent">이벤트 저장</button>
           <p class="event-admin-status hidden" id="adminEventStatus" role="status"></p>
@@ -4043,6 +4088,7 @@ This account will be used continuously, so please enter the information correctl
     const adminEventPriceInputEl = document.querySelector("#adminEventPriceInput");
     const adminEventStatusSelectEl = document.querySelector("#adminEventStatusSelect");
     const adminEventApplyInputEl = document.querySelector("#adminEventApplyInput");
+    const adminEventDetailUrlInputEl = document.querySelector("#adminEventDetailUrlInput");
     const adminEventVisibleInputEl = document.querySelector("#adminEventVisibleInput");
     const saveAdminEventEl = document.querySelector("#saveAdminEvent");
     const adminEventStatusEl = document.querySelector("#adminEventStatus");
@@ -7546,33 +7592,19 @@ This account will be used continuously, so please enter the information correctl
     function defaultEvents() {
       return [{
         id: "2026-07-language101-drinking-party",
-        title: "7월 언어교환101 술파티",
+        title: "7월 언어교환101 술파티 🍻",
         event_date: "2026-07-25",
         start_time: "19:00",
-        end_time: "",
+        end_time: "22:00",
         location: "종각 / 추후 공지",
         image_url: "",
-        short_description: "외국인 친구들과 함께하는 언어교환101 월말 술파티입니다.",
+        short_description: "외국인 친구들과 함께하는 월말 술파티!",
         detail_content: `7월에도 언어교환101 술파티가 열립니다.
-영어, 일본어, 중국어를 공부하는 멤버들과 외국인 친구들이 함께 모여
-편하게 대화하고 친해질 수 있는 네트워킹 파티입니다.
-
-평소 스터디에서는 짧게 대화했던 사람들과 더 자연스럽게 친해지고,
-새로운 외국인 친구도 만들 수 있는 자리입니다.
-
-이런 분들에게 추천합니다.
-- 외국인 친구를 만들고 싶은 분
-- 영어로 자연스럽게 대화하고 싶은 분
-- 언어교환101 멤버들과 더 친해지고 싶은 분
-- 혼자 오기 어색하지만 새로운 사람을 만나고 싶은 분
-
-참여 안내:
-- 사전 신청 필수
-- 선착순 마감
-- 자세한 장소와 안내는 신청자에게 별도 공지`,
-        price: "추후 공지",
+영어, 일본어, 중국어를 공부하는 멤버들과 외국인 친구들이 함께 모여 편하게 대화하고 친해질 수 있는 네트워킹 파티입니다.`,
+        price: "31,000원~",
         status: "모집중",
-        apply_url: "https://pf.kakao.com/_xbMxiVxb",
+        apply_url: "https://forms.gle/y239zmAiwcNMvTXg6",
+        detail_url: "https://blog.naver.com/bonsin11/224334559759",
         is_visible: true,
         created_at: "2026-07-02T00:00:00+09:00",
         updated_at: "2026-07-02T00:00:00+09:00"
@@ -7583,19 +7615,24 @@ This account will be used continuously, so please enter the information correctl
       const cleanTime = (value) => String(value || "").slice(0, 5);
       const cleanDate = (value) => String(value || "").slice(0, 10);
       const cleanStatus = ["모집중", "마감임박", "마감"].includes(event.status) ? event.status : "모집중";
+      const normalizedDate = cleanDate(event.event_date);
+      const isJulyParty = normalizedDate === "2026-07-25" && String(event.title || "").includes("술파티");
       return {
         id: event.id || `event-${Date.now().toString(36)}`,
-        title: event.title || "",
-        event_date: cleanDate(event.event_date),
+        title: isJulyParty
+          ? (String(event.title || "7월 언어교환101 술파티").includes("🍻") ? String(event.title || "7월 언어교환101 술파티 🍻") : `${String(event.title || "7월 언어교환101 술파티")} 🍻`)
+          : event.title || "",
+        event_date: normalizedDate,
         start_time: cleanTime(event.start_time),
         end_time: cleanTime(event.end_time),
-        location: event.location || "",
+        location: event.location || (isJulyParty ? "종각 / 추후 공지" : ""),
         image_url: event.image_url || "",
-        short_description: event.short_description || "",
-        detail_content: event.detail_content || "",
-        price: event.price || "",
+        short_description: event.short_description || (isJulyParty ? "외국인 친구들과 함께하는 월말 술파티!" : ""),
+        detail_content: event.detail_content || (isJulyParty ? "7월에도 언어교환101 술파티가 열립니다.\n영어, 일본어, 중국어를 공부하는 멤버들과 외국인 친구들이 함께 모여 편하게 대화하고 친해질 수 있는 네트워킹 파티입니다." : ""),
+        price: event.price || (isJulyParty ? "31,000원~" : ""),
         status: cleanStatus,
-        apply_url: event.apply_url || "",
+        apply_url: event.apply_url || (isJulyParty ? "https://forms.gle/y239zmAiwcNMvTXg6" : ""),
+        detail_url: event.detail_url || (isJulyParty ? "https://blog.naver.com/bonsin11/224334559759" : ""),
         is_visible: event.is_visible !== false,
         created_at: event.created_at || new Date().toISOString(),
         updated_at: event.updated_at || new Date().toISOString()
@@ -7614,7 +7651,9 @@ This account will be used continuously, so please enter the information correctl
 
     function getAllEvents() {
       const byId = new Map();
-      const source = eventsLoadedFromSupabase ? remoteEventsCache : [...defaultEvents(), ...getLocalEvents(), ...remoteEventsCache];
+      const source = eventsLoadedFromSupabase
+        ? (remoteEventsCache.length ? remoteEventsCache : defaultEvents())
+        : [...defaultEvents(), ...getLocalEvents(), ...remoteEventsCache];
       source.forEach((event) => {
         const normalized = normalizeEventItem(event);
         byId.set(normalized.id, normalized);
@@ -7663,7 +7702,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function eventImagePlaceholder(event) {
-      return `<div class="event-image-placeholder"><span>🍻 ${escapeHtml(event.title || "언어교환101 이벤트")}</span><small>Language Exchange 101 Event</small></div>`;
+      return `<div class="event-image-placeholder party-banner"><span>🍻 ${escapeHtml(event.title || "언어교환101 이벤트")}</span><small>외국인 친구들과 함께하는 월말 네트워킹 파티</small></div>`;
     }
 
     function formatEventDate(value) {
@@ -7718,7 +7757,7 @@ This account will be used continuously, so please enter the information correctl
                 <span>날짜: ${escapeHtml(formatEventDate(selected.event_date))}</span>
                 <span>시간: ${escapeHtml(formatEventTime(selected))}</span>
                 <span>장소: ${escapeHtml(selected.location || "추후 공지")}</span>
-                <span>참여 가능 레벨: All Level</span>
+                <span>참여 가능 레벨: All levels</span>
                 <span>참가비: ${escapeHtml(selected.price || "추후 공지")}</span>
               </div>
               <div class="event-detail-content">${escapeHtml(selected.detail_content)}</div>
@@ -7741,14 +7780,16 @@ This account will be used continuously, so please enter the information correctl
                   </div>
                   <h3>${escapeHtml(event.title)}</h3>
                   <div class="event-info-grid">
-                    <span>장소: ${escapeHtml(event.location || "추후 공지")}</span>
+                    <span>날짜: ${escapeHtml(formatEventDate(event.event_date))}</span>
                     <span>시간: ${escapeHtml(formatEventTime(event))}</span>
+                    <span>장소: ${escapeHtml(event.location || "추후 공지")}</span>
                     <span>참가비: ${escapeHtml(event.price || "추후 공지")}</span>
+                    <span class="event-level-chip">All levels</span>
                   </div>
                   <p class="event-description">${escapeHtml(event.short_description)}</p>
                   <div class="event-actions">
-                    <button type="button" class="btn primary" data-event-detail="${escapeHtml(event.id)}">상세보기</button>
-                    <button type="button" class="btn" data-event-apply="${escapeHtml(event.id)}">신청하기</button>
+                    <button type="button" class="btn" data-event-detail-link="${escapeHtml(event.id)}">상세보기</button>
+                    <button type="button" class="btn primary" data-event-apply="${escapeHtml(event.id)}">신청하기</button>
                   </div>
                 </div>
               </article>
@@ -7760,21 +7801,23 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function bindEventPageActions() {
+      const openEventUrl = (url, missingText) => {
+        if (!url) {
+          messageEl.textContent = missingText;
+          return;
+        }
+        window.location.href = url;
+      };
       eventContentEl?.querySelectorAll("[data-event-apply]").forEach((button) => {
         button.addEventListener("click", () => {
           const event = getAllEvents().find((item) => item.id === button.dataset.eventApply);
-          if (!event?.apply_url) {
-            messageEl.textContent = "신청 링크가 등록되지 않았습니다.";
-            return;
-          }
-          window.open(event.apply_url, "_blank", "noopener,noreferrer");
+          openEventUrl(event?.apply_url, "신청 링크가 등록되지 않았습니다.");
         });
       });
-      eventContentEl?.querySelectorAll("[data-event-detail]").forEach((button) => {
+      eventContentEl?.querySelectorAll("[data-event-detail-link]").forEach((button) => {
         button.addEventListener("click", () => {
-          selectedEventDetailId = button.dataset.eventDetail;
-          renderEventPage();
-          eventPageEl.scrollIntoView({ behavior: "smooth", block: "start" });
+          const event = getAllEvents().find((item) => item.id === button.dataset.eventDetailLink);
+          openEventUrl(event?.detail_url, "상세보기 링크가 등록되지 않았습니다.");
         });
       });
       eventContentEl?.querySelector("[data-event-back]")?.addEventListener("click", () => {
@@ -7812,6 +7855,7 @@ This account will be used continuously, so please enter the information correctl
         price: "",
         status: "모집중",
         apply_url: "",
+        detail_url: "",
         is_visible: true
       });
       fillAdminEventForm(sample);
@@ -7833,6 +7877,7 @@ This account will be used continuously, so please enter the information correctl
       if (adminEventPriceInputEl) adminEventPriceInputEl.value = item.price;
       if (adminEventStatusSelectEl) adminEventStatusSelectEl.value = item.status;
       if (adminEventApplyInputEl) adminEventApplyInputEl.value = item.apply_url;
+      if (adminEventDetailUrlInputEl) adminEventDetailUrlInputEl.value = item.detail_url;
       if (adminEventVisibleInputEl) adminEventVisibleInputEl.checked = item.is_visible !== false;
     }
 
@@ -7882,6 +7927,7 @@ This account will be used continuously, so please enter the information correctl
         price: adminEventPriceInputEl?.value.trim(),
         status,
         apply_url: adminEventApplyInputEl?.value.trim() || "",
+        detail_url: adminEventDetailUrlInputEl?.value.trim() || "",
         is_visible: Boolean(adminEventVisibleInputEl?.checked),
         updated_at: new Date().toISOString()
       });
@@ -7939,6 +7985,7 @@ This account will be used continuously, so please enter the information correctl
         price: event.price,
         status: event.status,
         apply_url: event.apply_url,
+        detail_url: event.detail_url,
         is_visible: event.is_visible,
         updated_at: new Date().toISOString()
       };
@@ -9167,8 +9214,8 @@ This account will be used continuously, so please enter the information correctl
       await openEventPage();
       if (eventId) {
         selectedEventDetailId = "";
-        const cardButton = [...(eventContentEl?.querySelectorAll("[data-event-detail]") || [])]
-          .find((button) => button.dataset.eventDetail === eventId);
+        const cardButton = [...(eventContentEl?.querySelectorAll("[data-event-detail-link]") || [])]
+          .find((button) => button.dataset.eventDetailLink === eventId);
         cardButton?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     });
