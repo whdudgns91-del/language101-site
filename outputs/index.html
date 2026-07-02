@@ -3132,6 +3132,74 @@
       color: var(--purple-deep);
     }
 
+    .closed-vote-card .level-group {
+      display: block;
+      width: 100%;
+    }
+
+    .closed-vote-card .level-group + .level-group {
+      margin-top: 12px;
+    }
+
+    .closed-vote-card .level-group-badge {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 8px;
+      min-height: 42px;
+      text-align: left;
+    }
+
+    .closed-vote-card .level-group-badge small {
+      margin-top: 0;
+    }
+
+    .closed-vote-card .level-member-list {
+      display: grid;
+      grid-template-columns: 1fr !important;
+      width: 100%;
+      gap: 8px;
+      padding: 8px;
+    }
+
+    .closed-vote-card .attendance-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      width: 100%;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+    }
+
+    .closed-vote-card .attendance-row > span:not(.attendance-status) {
+      min-width: 0;
+      white-space: normal;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    .closed-vote-card .attendance-row strong {
+      display: block;
+      white-space: normal;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+      line-height: 1.32;
+    }
+
+    .closed-vote-card .attendance-row small {
+      display: block;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    .closed-vote-card .attendance-status {
+      justify-self: end;
+      flex-shrink: 0;
+      max-width: 112px;
+      text-align: center;
+    }
+
     @media (max-width: 768px) {
       .closed-vote-body,
       .level-group-list {
