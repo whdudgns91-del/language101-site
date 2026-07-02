@@ -7337,6 +7337,7 @@ This account will be used continuously, so please enter the information correctl
                   <div class="event-info-grid">
                     <span>장소: ${escapeHtml(event.location || "추후 공지")}</span>
                     <span>시간: ${escapeHtml(formatEventTime(event))}</span>
+                    <span>참가비: ${escapeHtml(event.price || "추후 공지")}</span>
                   </div>
                   <p class="event-description">${escapeHtml(event.short_description)}</p>
                   <div class="event-actions">
