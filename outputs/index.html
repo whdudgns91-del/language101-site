@@ -3572,6 +3572,7 @@ This account will be used continuously, so please enter the information correctl
     let latestAppliedVotesSerial = 0;
     let remoteVoteMetaCache = {};
     let remoteEventsCache = [];
+    let eventsLoadedFromSupabase = false;
     let browserNotificationRequestStarted = false;
     const adminAuditOpenKeys = new Set();
     const adminClosedAuditFilter = {
@@ -5735,6 +5736,14 @@ This account will be used continuously, so please enter the information correctl
       updateCategoryArrows();
     }
 
+    async function openEventPage() {
+      selectedEventDetailId = "";
+      setActiveView("event");
+      if (eventContentEl) eventContentEl.innerHTML = `<p class="helper">이벤트를 불러오는 중입니다...</p>`;
+      await loadEventsFromSupabase();
+      renderEventPage();
+    }
+
     function updateCategoryArrows() {
       if (!categoryTabsEl || !categoryPrevEl || !categoryNextEl) return;
       const maxScroll = Math.max(0, categoryTabsEl.scrollWidth - categoryTabsEl.clientWidth);
@@ -7003,7 +7012,8 @@ This account will be used continuously, so please enter the information correctl
 
     function getAllEvents() {
       const byId = new Map();
-      [...defaultEvents(), ...getLocalEvents(), ...remoteEventsCache].forEach((event) => {
+      const source = eventsLoadedFromSupabase ? remoteEventsCache : [...defaultEvents(), ...getLocalEvents(), ...remoteEventsCache];
+      source.forEach((event) => {
         const normalized = normalizeEventItem(event);
         byId.set(normalized.id, normalized);
       });
@@ -7033,8 +7043,14 @@ This account will be used continuously, so please enter the information correctl
 
     function formatEventTime(event) {
       if (!event.start_time && !event.end_time) return "시간 추후 공지";
-      const start = event.start_time ? event.start_time.replace(":", "시 ") + "분" : "";
-      const end = event.end_time ? event.end_time.replace(":", "시 ") + "분" : "";
+      const toKoreanTime = (value) => {
+        const time = String(value || "").slice(0, 5);
+        if (!time) return "";
+        const [hour, minute] = time.split(":");
+        return `${Number(hour)}시 ${minute}분`;
+      };
+      const start = toKoreanTime(event.start_time);
+      const end = toKoreanTime(event.end_time);
       return end ? `${start} ~ ${end}` : `${start} 시작`;
     }
 
@@ -7216,7 +7232,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function saveEventToSupabase(event) {
-      if (!isSupabaseConfigured()) return false;
+      if (!isSupabaseConfigured()) throw new Error("Supabase 설정이 필요합니다.");
       const body = {
         id: event.id,
         title: event.title,
@@ -7243,22 +7259,28 @@ This account will be used continuously, so please enter the information correctl
           body: JSON.stringify(body)
         });
         if (!response.ok) throw new Error(await response.text());
-        return true;
+        const rows = await response.json();
+        const savedEvent = normalizeEventItem(Array.isArray(rows) ? rows[0] : body);
+        console.log("event saved", savedEvent);
+        return savedEvent;
       } catch (error) {
         console.warn("events save failed", error);
-        return false;
+        throw error;
       }
     }
 
     async function loadEventsFromSupabase() {
       if (!isSupabaseConfigured()) return false;
       try {
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=*&order=event_date.asc`, {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=*&is_visible=eq.true&order=event_date.asc`, {
           headers: supabaseRestHeaders()
         });
         if (!response.ok) throw new Error(await response.text());
         const rows = await response.json();
-        remoteEventsCache = Array.isArray(rows) ? rows.map(normalizeEventItem) : [];
+        const events = Array.isArray(rows) ? rows.map(normalizeEventItem) : [];
+        remoteEventsCache = events;
+        eventsLoadedFromSupabase = true;
+        console.log("events loaded", events);
         renderEventPage();
         renderAdminEventManager();
         return true;
@@ -7275,14 +7297,18 @@ This account will be used continuously, so please enter the information correctl
         messageEl.textContent = "이벤트 제목과 날짜를 입력해주세요.";
         return;
       }
-      const events = getLocalEvents().filter((item) => item.id !== event.id);
-      events.push(event);
-      saveLocalEvents(events);
-      await saveEventToSupabase(event);
-      selectedEventDetailId = "";
-      messageEl.textContent = "이벤트 저장 완료";
-      renderEventPage();
-      renderAdminEventManager();
+      try {
+        const savedEvent = await saveEventToSupabase(event);
+        const events = getLocalEvents().filter((item) => item.id !== savedEvent.id);
+        events.push(savedEvent);
+        saveLocalEvents(events);
+        selectedEventDetailId = "";
+        await loadEventsFromSupabase();
+        messageEl.textContent = "이벤트가 저장되었습니다. 이벤트 페이지에서 확인할 수 있습니다.";
+        renderAdminEventManager();
+      } catch (error) {
+        messageEl.textContent = `이벤트 저장 실패: ${error.message}`;
+      }
     }
 
     function readMemberForm() {
@@ -8332,7 +8358,7 @@ This account will be used continuously, so please enter the information correctl
     bottomHomeEl.addEventListener("click", () => setVoteFilter("materials"));
     bottomVoteEl.addEventListener("click", () => setVoteFilter("all"));
     bottomProfileEl.addEventListener("click", () => setActiveView("profile"));
-    bottomEventEl.addEventListener("click", () => setActiveView("event"));
+    bottomEventEl.addEventListener("click", openEventPage);
     memberNameEl.addEventListener("keydown", (event) => {
       if (event.key === "Enter") saveMember();
     });
