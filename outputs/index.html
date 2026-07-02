@@ -1743,7 +1743,9 @@
     .event-image {
       position: relative;
       display: grid;
-      min-height: 180px;
+      height: clamp(132px, 32vw, 180px);
+      min-height: 132px;
+      max-height: 180px;
       overflow: hidden;
       place-items: center;
       background:
@@ -1756,7 +1758,6 @@
     .event-image img {
       width: 100%;
       height: 100%;
-      min-height: 180px;
       object-fit: cover;
     }
 
@@ -6378,7 +6379,10 @@ This account will be used continuously, so please enter the information correctl
       const member = makeAutoMember(event, option, slot, runId);
       if (await addVoteForMember(event.id, option, member)) {
         roster.push(`${formatDateLabel(event.start)} ${t(event.title)} / ${t(option)}: ${member.name}`);
+        return true;
       }
+      roster.push(`실패: ${formatDateLabel(event.start)} ${t(event.title)} / ${t(option)}: ${member.name}`);
+      return false;
     }
 
     function getAutoRoster() {
@@ -6393,16 +6397,23 @@ This account will be used continuously, so please enter the information correctl
       const done = readJson(AUTO_DONE_KEY, {});
       const roster = getAutoRoster();
       const runId = localStorage.getItem(AUTO_RUN_KEY) || Date.now().toString(36).slice(-5);
+      const result = { added: 0, failed: 0 };
       localStorage.setItem(AUTO_RUN_KEY, runId);
 
       if (!done.phase1) {
         for (const event of templates) {
           if (event.options.includes("beginner")) {
-            for (const slot of [1, 2, 3]) await addAutoVote(event, "beginner", slot, "phase1", roster, runId);
+            for (const slot of [1, 2, 3]) {
+              if (await addAutoVote(event, "beginner", slot, "phase1", roster, runId)) result.added += 1;
+              else result.failed += 1;
+            }
           }
           const beginnerOption = ["jpBeginner", "cnBeginner"].find((option) => event.options.includes(option));
           if (beginnerOption) {
-            for (const slot of [1, 2]) await addAutoVote(event, beginnerOption, slot, "phase1", roster, runId);
+            for (const slot of [1, 2]) {
+              if (await addAutoVote(event, beginnerOption, slot, "phase1", roster, runId)) result.added += 1;
+              else result.failed += 1;
+            }
           }
         }
         done.phase1 = true;
@@ -6410,24 +6421,32 @@ This account will be used continuously, so please enter the information correctl
       if (!done.phase2) {
         for (const event of templates) {
           if (event.options.includes("intermediate")) {
-            for (const slot of [1, 2]) await addAutoVote(event, "intermediate", slot, "phase2", roster, runId);
+            for (const slot of [1, 2]) {
+              if (await addAutoVote(event, "intermediate", slot, "phase2", roster, runId)) result.added += 1;
+              else result.failed += 1;
+            }
           }
           const intermediateOption = ["jpIntermediate", "cnIntermediate"].find((option) => event.options.includes(option));
-          if (intermediateOption) await addAutoVote(event, intermediateOption, 1, "phase2", roster, runId);
+          if (intermediateOption) {
+            if (await addAutoVote(event, intermediateOption, 1, "phase2", roster, runId)) result.added += 1;
+            else result.failed += 1;
+          }
         }
         done.phase2 = true;
       }
       if (!done.phase3) {
         for (const event of templates) {
           if (event.options.includes("upperIntermediate")) {
-            await addAutoVote(event, "upperIntermediate", 1, "phase3", roster, runId);
+            if (await addAutoVote(event, "upperIntermediate", 1, "phase3", roster, runId)) result.added += 1;
+            else result.failed += 1;
           }
         }
         done.phase3 = true;
       }
       writeJson(AUTO_DONE_KEY, done);
       saveAutoRoster(roster);
-      return true;
+      applyAutoVotes.lastResult = result;
+      return result.added > 0 || result.failed === 0;
     }
 
     function renderAdminEventOptions() {
@@ -8697,7 +8716,9 @@ This account will be used continuously, so please enter the information correctl
       localStorage.setItem(AUTO_RUN_KEY, Date.now().toString(36).slice(-5));
       writeJson(AUTO_ROSTER_KEY, []);
       if (!(await applyAutoVotes())) return;
-      messageEl.textContent = t("autoUploadSaved");
+      const result = applyAutoVotes.lastResult || { added: 0, failed: 0 };
+      messageEl.textContent = `${t("autoUploadSaved")} 성공 ${result.added}명${result.failed ? ` · 실패 ${result.failed}명` : ""}`;
+      renderAdminStatus();
       render();
     }
 
@@ -8708,7 +8729,9 @@ This account will be used continuously, so please enter the information correctl
       writeJson(AUTO_ROSTER_KEY, []);
       localStorage.setItem(AUTO_UPLOAD_KEY, String(Date.now()));
       if (!(await applyAutoVotes())) return;
-      messageEl.textContent = t("autoApplied");
+      const result = applyAutoVotes.lastResult || { added: 0, failed: 0 };
+      messageEl.textContent = `${t("autoApplied")} 성공 ${result.added}명${result.failed ? ` · 실패 ${result.failed}명` : ""}`;
+      renderAdminStatus();
       render();
     }
 
