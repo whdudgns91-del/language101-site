@@ -3133,6 +3133,98 @@
       color: var(--purple-deep);
     }
 
+    /* Readability and mobile performance pass. */
+    .notification-panel,
+    .study-alert-card,
+    .like-alert-card,
+    .notice,
+    .profile-log-card,
+    .application-card {
+      color: var(--ink);
+    }
+
+    .notification-panel h2,
+    .study-alert-card strong,
+    .study-alert-card p,
+    .like-alert-card strong,
+    .notice h2,
+    .profile-log-card strong,
+    .application-card strong {
+      color: var(--ink) !important;
+      font-weight: 900;
+    }
+
+    .study-alert-card small,
+    .like-alert-card small,
+    .notice p,
+    .profile-log-card small,
+    .application-card small,
+    .meta,
+    .helper {
+      color: #51436f !important;
+      font-weight: 750;
+    }
+
+    .like-alert-card {
+      border-color: rgba(232, 75, 106, 0.24);
+      background: #fff3f6;
+    }
+
+    .study-alert-card {
+      border-color: rgba(124, 58, 237, 0.26);
+      background: #f5f0ff;
+    }
+
+    .card,
+    .event-card,
+    .level-card,
+    .ranking,
+    .panel,
+    .profile-menu-card {
+      box-shadow: 0 8px 20px rgba(91, 33, 182, 0.08);
+    }
+
+    .card,
+    .event-card,
+    .material-group,
+    .profile-log-card,
+    .application-card {
+      content-visibility: auto;
+      contain-intrinsic-size: 220px;
+    }
+
+    .bottom-nav,
+    .like-modal-backdrop,
+    .profile-detail-actions {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    @media (max-width: 768px) {
+      .hero,
+      .card,
+      .event-card,
+      .level-card,
+      .ranking,
+      .panel,
+      .profile-menu-card,
+      .bottom-nav {
+        box-shadow: 0 6px 14px rgba(91, 33, 182, 0.07);
+      }
+
+      .social-link,
+      .icon-btn,
+      .translate-button,
+      .btn,
+      .profile-menu-card {
+        transition: none;
+      }
+
+      .heart-burst span {
+        animation-duration: 650ms;
+      }
+    }
+
     .closed-vote-card .level-group {
       display: block;
       width: 100%;
@@ -3965,6 +4057,7 @@ This account will be used continuously, so please enter the information correctl
     let votesPollTimer = null;
     let votesLoadSerial = 0;
     let latestAppliedVotesSerial = 0;
+    let autoVoteBatchInProgress = false;
     let remoteVoteMetaCache = {};
     let remoteEventsCache = [];
     let eventsLoadedFromSupabase = false;
@@ -5572,12 +5665,15 @@ This account will be used continuously, so please enter the information correctl
       realtimeChannel = supabaseClient
         .channel(`votes-realtime-${Date.now()}`)
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "votes" }, (payload) => {
+          if (autoVoteBatchInProgress) return;
           loadVotesFromSupabase({ silent: true, force: true, requiredRow: payload.new }).catch(() => {});
         })
         .on("postgres_changes", { event: "UPDATE", schema: "public", table: "votes" }, (payload) => {
+          if (autoVoteBatchInProgress) return;
           loadVotesFromSupabase({ silent: true, force: true, requiredRow: payload.new }).catch(() => {});
         })
         .on("postgres_changes", { event: "DELETE", schema: "public", table: "votes" }, () => {
+          if (autoVoteBatchInProgress) return;
           loadVotesFromSupabase({ silent: true, force: true }).catch(() => {});
         })
         .subscribe((status) => {
@@ -6377,7 +6473,9 @@ This account will be used continuously, so please enter the information correctl
 
     async function addAutoVote(event, option, slot, phase, roster, runId) {
       const member = makeAutoMember(event, option, slot, runId);
-      if (await addVoteForMember(event.id, option, member)) {
+      if (!member?.id) return false;
+      saveDirectoryMember(member);
+      if (await insertSupabaseVote(event.id, option, member)) {
         roster.push(`${formatDateLabel(event.start)} ${t(event.title)} / ${t(option)}: ${member.name}`);
         return true;
       }
@@ -6399,53 +6497,59 @@ This account will be used continuously, so please enter the information correctl
       const runId = localStorage.getItem(AUTO_RUN_KEY) || Date.now().toString(36).slice(-5);
       const result = { added: 0, failed: 0 };
       localStorage.setItem(AUTO_RUN_KEY, runId);
+      autoVoteBatchInProgress = true;
 
-      if (!done.phase1) {
-        for (const event of templates) {
-          if (event.options.includes("beginner")) {
-            for (const slot of [1, 2, 3]) {
-              if (await addAutoVote(event, "beginner", slot, "phase1", roster, runId)) result.added += 1;
+      try {
+        if (!done.phase1) {
+          for (const event of templates) {
+            if (event.options.includes("beginner")) {
+              for (const slot of [1, 2, 3]) {
+                if (await addAutoVote(event, "beginner", slot, "phase1", roster, runId)) result.added += 1;
+                else result.failed += 1;
+              }
+            }
+            const beginnerOption = ["jpBeginner", "cnBeginner"].find((option) => event.options.includes(option));
+            if (beginnerOption) {
+              for (const slot of [1, 2]) {
+                if (await addAutoVote(event, beginnerOption, slot, "phase1", roster, runId)) result.added += 1;
+                else result.failed += 1;
+              }
+            }
+          }
+          done.phase1 = true;
+        }
+        if (!done.phase2) {
+          for (const event of templates) {
+            if (event.options.includes("intermediate")) {
+              for (const slot of [1, 2]) {
+                if (await addAutoVote(event, "intermediate", slot, "phase2", roster, runId)) result.added += 1;
+                else result.failed += 1;
+              }
+            }
+            const intermediateOption = ["jpIntermediate", "cnIntermediate"].find((option) => event.options.includes(option));
+            if (intermediateOption) {
+              if (await addAutoVote(event, intermediateOption, 1, "phase2", roster, runId)) result.added += 1;
               else result.failed += 1;
             }
           }
-          const beginnerOption = ["jpBeginner", "cnBeginner"].find((option) => event.options.includes(option));
-          if (beginnerOption) {
-            for (const slot of [1, 2]) {
-              if (await addAutoVote(event, beginnerOption, slot, "phase1", roster, runId)) result.added += 1;
+          done.phase2 = true;
+        }
+        if (!done.phase3) {
+          for (const event of templates) {
+            if (event.options.includes("upperIntermediate")) {
+              if (await addAutoVote(event, "upperIntermediate", 1, "phase3", roster, runId)) result.added += 1;
               else result.failed += 1;
             }
           }
+          done.phase3 = true;
         }
-        done.phase1 = true;
-      }
-      if (!done.phase2) {
-        for (const event of templates) {
-          if (event.options.includes("intermediate")) {
-            for (const slot of [1, 2]) {
-              if (await addAutoVote(event, "intermediate", slot, "phase2", roster, runId)) result.added += 1;
-              else result.failed += 1;
-            }
-          }
-          const intermediateOption = ["jpIntermediate", "cnIntermediate"].find((option) => event.options.includes(option));
-          if (intermediateOption) {
-            if (await addAutoVote(event, intermediateOption, 1, "phase2", roster, runId)) result.added += 1;
-            else result.failed += 1;
-          }
-        }
-        done.phase2 = true;
-      }
-      if (!done.phase3) {
-        for (const event of templates) {
-          if (event.options.includes("upperIntermediate")) {
-            if (await addAutoVote(event, "upperIntermediate", 1, "phase3", roster, runId)) result.added += 1;
-            else result.failed += 1;
-          }
-        }
-        done.phase3 = true;
+      } finally {
+        autoVoteBatchInProgress = false;
       }
       writeJson(AUTO_DONE_KEY, done);
       saveAutoRoster(roster);
       applyAutoVotes.lastResult = result;
+      if (result.added > 0) await loadVotesFromSupabase({ silent: true, force: true });
       return result.added > 0 || result.failed === 0;
     }
 
