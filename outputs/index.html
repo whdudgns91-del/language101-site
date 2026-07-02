@@ -3157,19 +3157,19 @@
 
     .closed-vote-card .level-member-list {
       display: grid;
-      grid-template-columns: 1fr !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
       width: 100%;
-      gap: 8px;
+      gap: 10px;
       padding: 8px;
     }
 
     .closed-vote-card .attendance-row {
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-columns: auto minmax(0, 1fr);
       width: 100%;
-      gap: 10px;
-      align-items: center;
-      padding: 10px;
+      gap: 8px;
+      align-items: start;
+      padding: 11px;
     }
 
     .closed-vote-card .attendance-row > span:not(.attendance-status) {
@@ -3180,11 +3180,14 @@
     }
 
     .closed-vote-card .attendance-row strong {
-      display: block;
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-height: 1.32;
       white-space: normal;
       word-break: keep-all;
       overflow-wrap: anywhere;
-      line-height: 1.32;
     }
 
     .closed-vote-card .attendance-row small {
@@ -3194,7 +3197,8 @@
     }
 
     .closed-vote-card .attendance-status {
-      justify-self: end;
+      grid-column: 1 / -1;
+      justify-self: start;
       flex-shrink: 0;
       max-width: 112px;
       text-align: center;
@@ -3233,17 +3237,17 @@
 
       .level-member-list {
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         width: 100%;
-        gap: 8px;
+        gap: 10px;
         padding: 8px;
       }
 
       .attendance-row {
         display: grid;
-        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-columns: auto minmax(0, 1fr);
         width: 100%;
-        gap: 10px;
+        gap: 8px;
         align-items: center;
         padding: 10px;
       }
@@ -3272,8 +3276,8 @@
       }
 
       .attendance-status {
-        grid-column: auto;
-        justify-self: end;
+        grid-column: 1 / -1;
+        justify-self: start;
         flex-shrink: 0;
         max-width: 96px;
         text-align: center;
@@ -3298,6 +3302,27 @@
 
       .attendance-toolbar .sheet-sync-button {
         flex-basis: 100%;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .closed-vote-card .level-member-list {
+        gap: 8px;
+        padding: 6px;
+      }
+
+      .closed-vote-card .attendance-row {
+        padding: 9px;
+        gap: 7px;
+      }
+
+      .closed-vote-card .attendance-row strong {
+        font-size: 12px;
+      }
+
+      .closed-vote-card .attendance-row small,
+      .closed-vote-card .attendance-status {
+        font-size: 10px;
       }
     }
   </style>
