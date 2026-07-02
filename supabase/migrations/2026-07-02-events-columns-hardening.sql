@@ -1,13 +1,20 @@
-alter table public.events
-add column if not exists id text;
-
-update public.events
-set id = 'event-' || md5(
-  coalesce(title, '') || '-' ||
-  coalesce(event_date::text, '') || '-' ||
-  coalesce(created_at::text, now()::text)
-)
-where id is null or id = '';
+create table if not exists public.events (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  event_date date not null,
+  start_time text,
+  end_time text,
+  location text,
+  image_url text,
+  short_description text,
+  detail_content text,
+  price text,
+  status text default '모집중',
+  apply_url text,
+  is_visible boolean default true,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
 
 do $$
 begin
@@ -25,8 +32,8 @@ end $$;
 alter table public.events
 add column if not exists title text,
 add column if not exists event_date date,
-add column if not exists start_time time,
-add column if not exists end_time time,
+add column if not exists start_time text,
+add column if not exists end_time text,
 add column if not exists location text,
 add column if not exists image_url text,
 add column if not exists short_description text,

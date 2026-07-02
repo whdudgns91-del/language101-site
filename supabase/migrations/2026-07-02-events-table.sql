@@ -1,9 +1,9 @@
 create table if not exists public.events (
-  id text primary key,
+  id uuid primary key default gen_random_uuid(),
   title text not null,
-  event_date date,
-  start_time time,
-  end_time time,
+  event_date date not null,
+  start_time text,
+  end_time text,
   location text,
   image_url text,
   short_description text,
@@ -82,7 +82,7 @@ insert into public.events (
   apply_url,
   is_visible
 ) values (
-  '2026-07-language101-drinking-party',
+  '00000000-0000-4000-8000-000020260725',
   '7월 언어교환101 술파티',
   '2026-07-25',
   '19:00',

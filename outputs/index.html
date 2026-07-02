@@ -2974,6 +2974,155 @@
     .bottom-nav {
       border-radius: 22px 22px 0 0;
     }
+
+    /* Admin readability guard: keep admin text clear on the light purple theme. */
+    .admin-panel,
+    .admin-card,
+    .admin-card details,
+    .closed-vote-card,
+    .closed-vote-body,
+    .level-member-list,
+    .closed-list-panel,
+    .closed-list-group,
+    .attendance-toolbar,
+    .attendance-row,
+    .closed-list-card,
+    .audit-help-box,
+    .audit-summary-pill,
+    .person-search-result {
+      color: var(--ink);
+    }
+
+    .admin-panel h2,
+    .admin-card h3,
+    .admin-card h4,
+    .admin-card summary,
+    .admin-card strong,
+    .admin-card .small-note strong,
+    .admin-audit-section-title,
+    .closed-vote-title,
+    .closed-list-name,
+    .attendance-row strong,
+    .person-search-result h4,
+    .person-search-list strong {
+      color: var(--ink) !important;
+    }
+
+    .admin-card .helper,
+    .admin-card .small-note,
+    .admin-panel .helper,
+    .closed-vote-meta,
+    .closed-toggle-mark,
+    .closed-list-table td,
+    .closed-list-card small,
+    .attendance-row small,
+    .person-search-list li,
+    .audit-help-box,
+    .audit-summary-pill {
+      color: var(--subtle) !important;
+    }
+
+    .admin-card details,
+    .closed-vote-card,
+    .level-member-list,
+    .closed-list-panel,
+    .closed-list-group,
+    .attendance-toolbar,
+    .attendance-row,
+    .closed-list-card {
+      border-color: var(--paper-line);
+      background: #ffffff;
+    }
+
+    .closed-vote-card[open] {
+      border-color: rgba(124, 58, 237, 0.28);
+      background: linear-gradient(180deg, #fbf8ff, #ffffff);
+    }
+
+    .closed-vote-title strong,
+    .admin-audit-section-title,
+    .person-search-result h4 span,
+    .attendance-count {
+      color: var(--purple-deep) !important;
+    }
+
+    .level-group-badge {
+      background: #fbf8ff;
+      color: var(--ink);
+    }
+
+    .level-group-badge small {
+      color: var(--subtle) !important;
+    }
+
+    .level-group-badge.level-green {
+      border-color: rgba(34, 197, 94, 0.36);
+      color: #15803d !important;
+    }
+
+    .level-group-badge.level-yellow {
+      border-color: rgba(59, 130, 246, 0.34);
+      color: #1d4ed8 !important;
+    }
+
+    .level-group-badge.level-blue {
+      border-color: rgba(124, 58, 237, 0.34);
+      color: var(--purple-deep) !important;
+    }
+
+    .closed-list-group.level-green h4 {
+      color: #15803d !important;
+    }
+
+    .closed-list-group.level-yellow h4 {
+      color: #1d4ed8 !important;
+    }
+
+    .closed-list-group.level-blue h4 {
+      color: var(--purple-deep) !important;
+    }
+
+    .closed-list-table th {
+      color: var(--muted) !important;
+    }
+
+    .attendance-status {
+      background: #f1f5f9;
+      color: #334155;
+    }
+
+    .attendance-status.attended {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .attendance-status.synced {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .attendance-status.unmatched {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .attendance-status.duplicated {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .audit-help-box {
+      border-color: rgba(124, 58, 237, 0.22);
+      background: #fbf8ff;
+    }
+
+    .audit-help-box strong {
+      color: var(--purple-deep) !important;
+    }
+
+    .sheet-result {
+      color: var(--purple-deep);
+    }
   </style>
 </head>
 <body>
@@ -7309,11 +7458,11 @@ This account will be used continuously, so please enter the information correctl
     async function readAdminEventForm() {
       const selectedId = adminEventManagerSelectEl?.value && adminEventManagerSelectEl.value !== "__new__"
         ? adminEventManagerSelectEl.value
-        : `event-${Date.now().toString(36)}`;
+        : "";
       const status = ["모집중", "마감임박", "마감"].includes(adminEventStatusSelectEl?.value)
         ? adminEventStatusSelectEl.value
         : "모집중";
-      return normalizeEventItem({
+      const event = normalizeEventItem({
         id: selectedId,
         title: adminEventTitleInputEl?.value.trim(),
         event_date: adminEventDateInputEl?.value,
@@ -7329,6 +7478,8 @@ This account will be used continuously, so please enter the information correctl
         is_visible: Boolean(adminEventVisibleInputEl?.checked),
         updated_at: new Date().toISOString()
       });
+      if (!selectedId) event.id = "";
+      return event;
     }
 
     function renderAdminEventManager() {
@@ -7352,10 +7503,24 @@ This account will be used continuously, so please enter the information correctl
       });
     }
 
+    function supabaseEventErrorMessage(error) {
+      const raw = error?.message || String(error || "");
+      try {
+        const parsed = JSON.parse(raw);
+        return [
+          parsed.message,
+          parsed.details && `details: ${parsed.details}`,
+          parsed.hint && `hint: ${parsed.hint}`,
+          parsed.code && `code: ${parsed.code}`
+        ].filter(Boolean).join(" / ");
+      } catch {
+        return raw;
+      }
+    }
+
     async function saveEventToSupabase(event) {
       if (!isSupabaseConfigured()) throw new Error("Supabase 설정이 필요합니다.");
       const body = {
-        id: event.id,
         title: event.title,
         event_date: event.event_date || null,
         start_time: event.start_time || null,
@@ -7370,14 +7535,19 @@ This account will be used continuously, so please enter the information correctl
         is_visible: event.is_visible,
         updated_at: new Date().toISOString()
       };
+      if (event.id) body.id = event.id;
       try {
         let data = null;
         let error = null;
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?on_conflict=id`, {
-          method: "POST",
+        const isUpdate = Boolean(event.id);
+        const url = isUpdate
+          ? `${SUPABASE_URL}/rest/v1/events?id=eq.${encodeURIComponent(event.id)}&select=*`
+          : `${SUPABASE_URL}/rest/v1/events?select=*`;
+        const response = await fetch(url, {
+          method: isUpdate ? "PATCH" : "POST",
           headers: supabaseRestHeaders({
             "Content-Type": "application/json",
-            Prefer: "resolution=merge-duplicates,return=representation"
+            Prefer: "return=representation"
           }),
           body: JSON.stringify(body)
         });
@@ -7385,6 +7555,9 @@ This account will be used continuously, so please enter the information correctl
         else data = await response.json();
         console.log("event save result", data, error);
         if (error) throw error;
+        if (isUpdate && Array.isArray(data) && !data.length) {
+          throw new Error("수정할 이벤트를 Supabase에서 찾지 못했습니다. 새 이벤트 작성으로 다시 저장해주세요.");
+        }
         const savedEvent = normalizeEventItem(Array.isArray(data) ? data[0] : body);
         return savedEvent;
       } catch (error) {
@@ -7449,9 +7622,10 @@ This account will be used continuously, so please enter the information correctl
         viewSavedEventEl.dataset.eventId = savedEvent.id;
       } catch (error) {
         console.error("event save failed", error);
-        const errorText = `❌ 이벤트 저장 실패\n실패 이유: ${error.message}`;
+        const detail = supabaseEventErrorMessage(error);
+        const errorText = `❌ 이벤트 저장 실패\n실패 이유: ${detail}`;
         showAdminEventStatus("error", errorText);
-        messageEl.textContent = `이벤트 저장 실패: ${error.message}`;
+        messageEl.textContent = `이벤트 저장 실패: ${detail}`;
       } finally {
         saveAdminEventEl.disabled = false;
       }
