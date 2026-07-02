@@ -882,6 +882,34 @@
       font-size: 24px;
     }
 
+    .profile-point-guide {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+      padding: 13px;
+      border: 1px solid rgba(124, 58, 237, 0.18);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(255, 255, 255, 0.94));
+      color: #312e81;
+      box-shadow: 0 10px 26px rgba(124, 58, 237, 0.08);
+    }
+
+    .profile-point-guide strong {
+      grid-column: 1 / -1;
+      color: #4c1d95;
+      font-size: 14px;
+      font-weight: 950;
+    }
+
+    .profile-point-guide span {
+      min-width: 0;
+      color: #1f1646;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
     .icon-guide {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3703,9 +3731,16 @@ This account will be used continuously, so please enter the information correctl
           <div class="xp-bar" aria-hidden="true"><span id="xpFill" style="width:0%"></span></div>
           <div class="stats">
             <span class="profile-top-stat clickable" id="attendPill"><span class="stat-icon">✅</span><span>출석 0<small>출석 체크</small></span></span>
-            <span class="profile-top-stat" id="heartPill"><span class="stat-icon">❤️</span><span>받은 좋아요 0<small>익명 좋아요</small></span></span>
+            <span class="profile-top-stat clickable" id="heartPill"><span class="stat-icon">💌</span><span>좋아요 보내기<small>스터디 후 익명 좋아요</small></span></span>
             <span class="pill clickable hidden" id="pointPill">0 pt</span>
             <span class="pill clickable hidden" id="sentHeartPill">보낸 좋아요 0</span>
+          </div>
+          <div class="profile-point-guide" aria-label="포인트 적립 안내">
+            <strong>포인트 적립 안내</strong>
+            <span>스터디 신청 +200P</span>
+            <span>선착순 10명 보너스 +50P</span>
+            <span>관리자 출석 체크 +50P</span>
+            <span>받은 익명 좋아요 +100P</span>
           </div>
           <div class="study-alerts" id="profileAlertList"></div>
           <div class="profile-actions">
@@ -3713,9 +3748,9 @@ This account will be used continuously, so please enter the information correctl
               <span class="profile-menu-icon">📅</span>
               <span><strong>내 신청 내역</strong><small>내가 신청한 스터디 확인</small></span>
             </button>
-            <button type="button" class="profile-menu-card" id="showLikeAfterStudy">
-              <span class="profile-menu-icon">💌</span>
-              <span><strong>스터디 후 익명 좋아요</strong><small>함께했던 멤버에게 익명 좋아요 보내기</small></span>
+            <button type="button" class="profile-menu-card" id="showReceivedHeartLog">
+              <span class="profile-menu-icon">❤️</span>
+              <span><strong>받은 좋아요 보기</strong><small>내가 받은 익명 좋아요 확인</small></span>
             </button>
             <button type="button" class="profile-menu-card" id="showPointLog">
               <span class="profile-menu-icon">P</span>
@@ -3888,6 +3923,7 @@ This account will be used continuously, so please enter the information correctl
     let expandedPollId = "";
 
     const pointRules = {
+      vote: 200,
       attendance: 200,
       heart: 100,
       earlyBonus: 50,
@@ -3953,6 +3989,7 @@ This account will be used continuously, so please enter the information correctl
     const showApplicationLogEl = document.querySelector("#showApplicationLog");
     const showLevelGuideEl = document.querySelector("#showLevelGuide");
     const showLikeAfterStudyEl = document.querySelector("#showLikeAfterStudy");
+    const showReceivedHeartLogEl = document.querySelector("#showReceivedHeartLog");
     const levelGuideEl = document.querySelector("#levelGuide");
     const showPointLogEl = document.querySelector("#showPointLog");
     const showSentHeartLogEl = document.querySelector("#showSentHeartLog");
@@ -4053,6 +4090,8 @@ This account will be used continuously, so please enter the information correctl
     let votesLoadSerial = 0;
     let latestAppliedVotesSerial = 0;
     let autoVoteBatchInProgress = false;
+    let receivedLikesSyncInFlight = false;
+    const receivedLikesSyncedMembers = new Set();
     let remoteVoteMetaCache = {};
     let remoteEventsCache = [];
     let eventsLoadedFromSupabase = false;
@@ -5676,11 +5715,15 @@ This account will be used continuously, so please enter the information correctl
         });
     }
 
-    function processIncomingLikeRow(row) {
+    function receivedLikeProcessKey(row, memberId) {
+      return `${row?.study_id || ""}|${row?.sender_id || ""}|${memberId || ""}`;
+    }
+
+    function processIncomingLikeRow(row, options = {}) {
       const member = getMember();
       if (!member?.id || !row?.receiver_ids?.includes(member.id)) return;
       const processed = readJson(REMOTE_LIKE_RECEIVED_KEY, {});
-      const key = row.id || `${row.study_id}|${row.sender_id}|${member.id}`;
+      const key = receivedLikeProcessKey(row, member.id);
       if (processed[key]) return;
       const stats = getStats();
       const entry = ensureStatsEntry(stats, member);
@@ -5695,7 +5738,38 @@ This account will be used continuously, so please enter the information correctl
         detail: `오늘 모임에서 익명 좋아요를 받았습니다. +${pointRules.heart}P`
       });
       messageEl.textContent = "오늘 모임에서 좋아요를 받았어요 😊";
-      render();
+      if (options.render !== false) render();
+    }
+
+    async function loadReceivedLikesFromSupabase(member) {
+      if (!supabaseClient || !member?.id) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from("post_study_likes")
+          .select("*")
+          .contains("receiver_ids", [member.id])
+          .order("created_at", { ascending: false })
+          .limit(100);
+        if (error) throw error;
+        let changed = false;
+        (data || []).forEach((row) => {
+          const before = JSON.stringify(readJson(REMOTE_LIKE_RECEIVED_KEY, {}));
+          processIncomingLikeRow(row, { render: false });
+          const after = JSON.stringify(readJson(REMOTE_LIKE_RECEIVED_KEY, {}));
+          if (before !== after) changed = true;
+        });
+        if (changed) render();
+      } catch (error) {
+        console.warn("received likes sync failed", error?.message || error);
+      }
+    }
+
+    function syncReceivedLikesForMember(member) {
+      if (!supabaseClient || !member?.id || receivedLikesSyncInFlight || receivedLikesSyncedMembers.has(member.id)) return;
+      receivedLikesSyncInFlight = true;
+      loadReceivedLikesFromSupabase(member)
+        .then(() => receivedLikesSyncedMembers.add(member.id))
+        .finally(() => { receivedLikesSyncInFlight = false; });
     }
 
     function subscribePostStudyLikesRealtime() {
@@ -6027,6 +6101,11 @@ This account will be used continuously, so please enter the information correctl
       return `<article class="profile-log-card"><strong>${escapeHtml(formatRecordDate(record.timestamp))}</strong><small>대상자: ${escapeHtml(record.detail || "-")}</small>${event ? `<small>스터디: ${escapeHtml(event)}</small>` : ""}</article>`;
     }
 
+    function renderReceivedHeartRecord(record) {
+      const event = record.event ? recordEventLabel(record.event) : "";
+      return `<article class="profile-log-card"><strong>${escapeHtml(formatRecordDate(record.timestamp))} <span class="point-plus">+${pointRules.heart}P</span></strong><small>익명 좋아요를 받았습니다.</small>${event ? `<small>스터디: ${escapeHtml(event)}</small>` : ""}</article>`;
+    }
+
     function bindInlineLikeAfterStudy() {
       profileDetailEl.querySelectorAll("[data-inline-like-event]").forEach((button) => {
         button.addEventListener("click", () => {
@@ -6112,6 +6191,13 @@ This account will be used continuously, so please enter the information correctl
         body = lines.length
           ? lines.map(renderSentHeartRecord).join("")
           : `<article class="profile-log-card"><strong>보낸 좋아요가 없습니다.</strong></article>`;
+      } else if (kind === "receivedHearts") {
+        title = "받은 좋아요 보기";
+        const stats = getMemberStats(member);
+        const lines = records.filter((record) => record.action === "heart_received");
+        body = `<article class="profile-total-card"><small>받은 좋아요</small><strong>${stats.hearts.toLocaleString()}개 · +${(stats.hearts * pointRules.heart).toLocaleString()}P</strong></article>` + (lines.length
+          ? lines.map(renderReceivedHeartRecord).join("")
+          : `<article class="profile-log-card"><strong>받은 좋아요가 없습니다.</strong><small>스터디 후 멤버가 익명 좋아요를 보내면 여기에 표시됩니다.</small></article>`);
       } else if (kind === "applications") {
         title = "내 신청 내역";
         const rows = getApplicationRows(member);
@@ -7979,6 +8065,7 @@ This account will be used continuously, so please enter the information correctl
       messageEl.textContent = t("started", { name: member.name });
       logMemberAction(action, member, { detail: `member ${action}` });
       render();
+      syncReceivedLikesForMember(member);
       return member;
     }
 
@@ -8172,7 +8259,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function savePostStudyLikesToSupabase(eventId, sender, targetMembers) {
-      if (!supabaseClient || !eventId || !sender?.id || !targetMembers?.length) return;
+      if (!supabaseClient || !eventId || !sender?.id || !targetMembers?.length) return false;
       try {
         const { error } = await supabaseClient.from("post_study_likes").insert({
           study_id: eventPublicIdFromInternalId(eventId),
@@ -8182,8 +8269,10 @@ This account will be used continuously, so please enter the information correctl
           receiver_names: targetMembers.map((member) => member.name)
         });
         if (error) console.warn("post_study_likes insert failed", error.message);
+        return !error;
       } catch (error) {
         console.warn("post_study_likes insert failed", error?.message || error);
+        return false;
       }
     }
 
@@ -8248,7 +8337,7 @@ This account will be used continuously, so please enter the information correctl
       if (event) openLikePromptModal(event);
     }
 
-    function sendHeart() {
+    async function sendHeart() {
       const member = getMember() || saveMember();
       const rawTargets = selectedLikeTargets.filter((id) => isActualLikeTarget(id, member));
       const targets = rawTargets.slice(0, 2);
@@ -8299,6 +8388,7 @@ This account will be used continuously, so please enter the information correctl
 
       const stats = getStats();
       const senderStats = ensureStatsEntry(stats, member);
+      const processedReceivedLikes = readJson(REMOTE_LIKE_RECEIVED_KEY, {});
       const targetMembers = [];
       newTargets.forEach((target) => {
         sent[`${member.id}|${selectedLikeEventId}|${target}`] = true;
@@ -8307,10 +8397,15 @@ This account will be used continuously, so please enter the information correctl
         const targetStats = ensureStatsEntry(stats, targetMember);
         targetStats.hearts += 1;
         targetStats.points += pointRules.heart;
+        processedReceivedLikes[receivedLikeProcessKey({
+          study_id: eventPublicIdFromInternalId(selectedLikeEventId),
+          sender_id: member.id
+        }, target)] = new Date().toISOString();
       });
       senderStats.sentHearts += newTargets.length;
       writeJson(STATS_KEY, stats);
       writeJson(HEARTS_KEY, sent);
+      writeJson(REMOTE_LIKE_RECEIVED_KEY, processedReceivedLikes);
       targetMembers.forEach((targetMember) => {
         logMemberAction("heart_received", targetMember, {
           event: selectedLikeEventId,
@@ -8319,8 +8414,10 @@ This account will be used continuously, so please enter the information correctl
         });
       });
       logMemberAction("heart_sent", member, { event: selectedLikeEventId, option: "study", detail: newTargets.map((target) => memberFromId(target).name).join(", ") });
-      savePostStudyLikesToSupabase(selectedLikeEventId, member, targetMembers);
-      messageEl.textContent = "✅ 익명 좋아요를 보냈습니다. 상대방 프로필의 받은 좋아요 수가 증가합니다.";
+      const savedRemote = await savePostStudyLikesToSupabase(selectedLikeEventId, member, targetMembers);
+      messageEl.textContent = savedRemote
+        ? "✅ 익명 좋아요를 보냈습니다. 상대방 프로필의 받은 좋아요 수가 증가합니다."
+        : "✅ 익명 좋아요를 보냈습니다. 이 기기에는 반영됐지만 Supabase 저장 상태를 확인해주세요.";
       selectedLikeTargets = [];
       closeLikePromptModal();
       showHeartBurst();
@@ -8332,6 +8429,7 @@ This account will be used continuously, so please enter the information correctl
       if (member) {
         memberNameEl.value = member.name || "";
         memberBirthEl.value = member.birth || "";
+        syncReceivedLikesForMember(member);
       }
       const stats = member ? ensureStats(member)[member.id] : { points: 0, attendance: 0, hearts: 0, sentHearts: 0 };
       const level = getLevel(stats.points);
@@ -8354,7 +8452,10 @@ This account will be used continuously, so please enter the information correctl
       xpFillEl.style.width = `${(stats.points % 1000) / 10}%`;
       pointPillEl.textContent = t("points", { points: stats.points });
       attendPillEl.innerHTML = `<span class="stat-icon">✅</span><span>출석 ${stats.attendance}<small>출석 체크</small></span>`;
-      heartPillEl.innerHTML = `<span class="stat-icon">❤️</span><span>받은 좋아요 ${stats.hearts}<small>익명 좋아요</small></span>`;
+      heartPillEl.innerHTML = `<span class="stat-icon">💌</span><span>좋아요 보내기<small>스터디 후 익명 좋아요</small></span>`;
+      if (showReceivedHeartLogEl) {
+        showReceivedHeartLogEl.innerHTML = `<span class="profile-menu-icon">❤️</span><span><strong>받은 좋아요 ${stats.hearts}</strong><small>받은 익명 좋아요 · +${(stats.hearts * pointRules.heart).toLocaleString()}P</small></span>`;
+      }
       sentHeartPillEl.textContent = t("sentHearts", { count: stats.sentHearts });
     }
 
@@ -8871,7 +8972,7 @@ This account will be used continuously, so please enter the information correctl
       voteSectionEl.classList.toggle("hidden", !isLoggedIn || showProfile || showAdmin || showEventPage);
       iconGuideEl?.classList.toggle("hidden", !showProfile || profileView !== "main");
       eventPageEl.classList.toggle("hidden", !showEventPage);
-      logoutPanelEl.classList.toggle("hidden", !isLoggedIn);
+      logoutPanelEl.classList.toggle("hidden", !isLoggedIn || activeView !== "profile");
       profileOpenEl?.classList.toggle("hidden", !isLoggedIn);
       notificationOpenEl.classList.toggle("hidden", !isLoggedIn);
       bottomNavEl.classList.toggle("hidden", !isLoggedIn);
@@ -9035,8 +9136,10 @@ This account will be used continuously, so please enter the information correctl
     showPointLogEl.addEventListener("click", () => showProfileDetail("points"));
     showSentHeartLogEl.addEventListener("click", () => showProfileDetail("sentHearts"));
     showLevelGuideEl.addEventListener("click", () => showProfileDetail("levels"));
-    showLikeAfterStudyEl.addEventListener("click", () => showProfileDetail("likeAfterStudy"));
+    showLikeAfterStudyEl?.addEventListener("click", () => showProfileDetail("likeAfterStudy"));
+    showReceivedHeartLogEl?.addEventListener("click", () => showProfileDetail("receivedHearts"));
     attendPillEl.addEventListener("click", () => showProfileDetail("attendance"));
+    heartPillEl.addEventListener("click", () => showProfileDetail("likeAfterStudy"));
     pointPillEl.addEventListener("click", () => showProfileDetail("points"));
     sentHeartPillEl.addEventListener("click", () => showProfileDetail("sentHearts"));
     logoutButtonEl.addEventListener("click", logoutMember);
