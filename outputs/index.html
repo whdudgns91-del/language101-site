@@ -1947,6 +1947,16 @@
       color: #991b1b;
     }
 
+    #viewSavedEvent.hidden {
+      display: none;
+    }
+
+    .event-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
     .grid.two {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3110,6 +3120,7 @@
           <label class="check-row"><input id="adminEventVisibleInput" type="checkbox" checked> 회원 화면에 노출</label>
           <button type="button" class="btn primary" id="saveAdminEvent">이벤트 저장</button>
           <p class="event-admin-status hidden" id="adminEventStatus" role="status"></p>
+          <button type="button" class="btn hidden" id="viewSavedEvent">이벤트 페이지에서 확인하기</button>
           <button type="button" class="btn" id="newAdminEvent">새 이벤트 작성</button>
           <div class="event-admin-list" id="adminEventList"></div>
         </section>
@@ -3559,6 +3570,7 @@ This account will be used continuously, so please enter the information correctl
     const adminEventVisibleInputEl = document.querySelector("#adminEventVisibleInput");
     const saveAdminEventEl = document.querySelector("#saveAdminEvent");
     const adminEventStatusEl = document.querySelector("#adminEventStatus");
+    const viewSavedEventEl = document.querySelector("#viewSavedEvent");
     const newAdminEventEl = document.querySelector("#newAdminEvent");
     const adminEventListEl = document.querySelector("#adminEventList");
     const adminEventSelectEl = document.querySelector("#adminEventSelect");
@@ -7028,7 +7040,7 @@ This account will be used continuously, so please enter the information correctl
         detail_content: event.detail_content || "",
         price: event.price || "",
         status: cleanStatus,
-        apply_url: event.apply_url || "https://pf.kakao.com/_xbMxiVxb",
+        apply_url: event.apply_url || "",
         is_visible: event.is_visible !== false,
         created_at: event.created_at || new Date().toISOString(),
         updated_at: event.updated_at || new Date().toISOString()
@@ -7073,6 +7085,7 @@ This account will be used continuously, so please enter the information correctl
       if (!adminEventStatusEl) return;
       adminEventStatusEl.textContent = text;
       adminEventStatusEl.className = `event-admin-status ${type}`;
+      viewSavedEventEl?.classList.toggle("hidden", type !== "success");
       if (type === "success") {
         window.clearTimeout(showAdminEventStatus.timer);
         showAdminEventStatus.timer = window.setTimeout(() => {
@@ -7157,7 +7170,7 @@ This account will be used continuously, so please enter the information correctl
             </div>
           </article>
           <div class="event-sticky-cta">
-            <a class="btn primary" href="${escapeHtml(selected.apply_url || "https://pf.kakao.com/_xbMxiVxb")}" target="_blank" rel="noreferrer">신청/문의하기</a>
+            <button type="button" class="btn primary" data-event-apply="${escapeHtml(selected.id)}">신청하기 / 문의하기</button>
           </div>
         `;
       } else {
@@ -7177,7 +7190,10 @@ This account will be used continuously, so please enter the information correctl
                     <span>시간: ${escapeHtml(formatEventTime(event))}</span>
                   </div>
                   <p class="event-description">${escapeHtml(event.short_description)}</p>
-                  <button type="button" class="btn primary" data-event-detail="${escapeHtml(event.id)}">상세보기</button>
+                  <div class="event-actions">
+                    <button type="button" class="btn primary" data-event-detail="${escapeHtml(event.id)}">상세보기</button>
+                    <button type="button" class="btn" data-event-apply="${escapeHtml(event.id)}">신청하기</button>
+                  </div>
                 </div>
               </article>
             `).join("")}
@@ -7188,6 +7204,16 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function bindEventPageActions() {
+      eventContentEl?.querySelectorAll("[data-event-apply]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const event = getAllEvents().find((item) => item.id === button.dataset.eventApply);
+          if (!event?.apply_url) {
+            messageEl.textContent = "신청 링크가 등록되지 않았습니다.";
+            return;
+          }
+          window.open(event.apply_url, "_blank", "noopener,noreferrer");
+        });
+      });
       eventContentEl?.querySelectorAll("[data-event-detail]").forEach((button) => {
         button.addEventListener("click", () => {
           selectedEventDetailId = button.dataset.eventDetail;
@@ -7229,11 +7255,12 @@ This account will be used continuously, so please enter the information correctl
         detail_content: "",
         price: "",
         status: "모집중",
-        apply_url: "https://pf.kakao.com/_xbMxiVxb",
+        apply_url: "",
         is_visible: true
       });
       fillAdminEventForm(sample);
       if (adminEventManagerSelectEl) adminEventManagerSelectEl.value = "__new__";
+      viewSavedEventEl?.classList.add("hidden");
     }
 
     function fillAdminEventForm(event) {
@@ -7298,7 +7325,7 @@ This account will be used continuously, so please enter the information correctl
         detail_content: adminEventDetailInputEl?.value.trim(),
         price: adminEventPriceInputEl?.value.trim(),
         status,
-        apply_url: adminEventApplyInputEl?.value.trim() || "https://pf.kakao.com/_xbMxiVxb",
+        apply_url: adminEventApplyInputEl?.value.trim() || "",
         is_visible: Boolean(adminEventVisibleInputEl?.checked),
         updated_at: new Date().toISOString()
       });
@@ -7344,6 +7371,8 @@ This account will be used continuously, so please enter the information correctl
         updated_at: new Date().toISOString()
       };
       try {
+        let data = null;
+        let error = null;
         const response = await fetch(`${SUPABASE_URL}/rest/v1/events?on_conflict=id`, {
           method: "POST",
           headers: supabaseRestHeaders({
@@ -7352,10 +7381,11 @@ This account will be used continuously, so please enter the information correctl
           }),
           body: JSON.stringify(body)
         });
-        if (!response.ok) throw new Error(await response.text());
-        const rows = await response.json();
-        const savedEvent = normalizeEventItem(Array.isArray(rows) ? rows[0] : body);
-        console.log("event saved", savedEvent);
+        if (!response.ok) error = new Error(await response.text());
+        else data = await response.json();
+        console.log("event save result", data, error);
+        if (error) throw error;
+        const savedEvent = normalizeEventItem(Array.isArray(data) ? data[0] : body);
         return savedEvent;
       } catch (error) {
         console.warn("events save failed", error);
@@ -7367,7 +7397,7 @@ This account will be used continuously, so please enter the information correctl
       if (!isSupabaseConfigured()) return false;
       try {
         const visibleFilter = options.includeHidden ? "" : "&is_visible=eq.true";
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=*${visibleFilter}&order=event_date.asc`, {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=*${visibleFilter}&order=event_date.asc.nullslast&order=created_at.desc`, {
           headers: supabaseRestHeaders()
         });
         if (!response.ok) throw new Error(await response.text());
@@ -7375,12 +7405,15 @@ This account will be used continuously, so please enter the information correctl
         const events = Array.isArray(rows) ? rows.map(normalizeEventItem) : [];
         remoteEventsCache = events;
         eventsLoadedFromSupabase = true;
-        console.log("events loaded", events);
+        console.log("events loaded from supabase", events);
         renderEventPage();
         renderAdminEventManager();
         return true;
       } catch (error) {
         console.warn("events load failed", error);
+        eventsLoadedFromSupabase = true;
+        remoteEventsCache = [];
+        renderEventPage();
         return false;
       }
     }
@@ -7391,7 +7424,7 @@ This account will be used continuously, so please enter the information correctl
         ? adminEventManagerSelectEl.value
         : "";
       const event = await readAdminEventForm();
-      console.log("event form submit", event);
+      console.log("event formData before save", event);
       console.log("event save mode", selectedEventId ? "update" : "insert");
       const validationMessage = validateAdminEventForm(event);
       if (validationMessage) {
@@ -7413,6 +7446,7 @@ This account will be used continuously, so please enter the information correctl
         renderAdminEventManager();
         if (adminEventManagerSelectEl) adminEventManagerSelectEl.value = savedEvent.id;
         fillAdminEventForm(savedEvent);
+        viewSavedEventEl.dataset.eventId = savedEvent.id;
       } catch (error) {
         console.error("event save failed", error);
         const errorText = `❌ 이벤트 저장 실패\n실패 이유: ${error.message}`;
@@ -8527,6 +8561,16 @@ This account will be used continuously, so please enter the information correctl
     });
     newAdminEventEl?.addEventListener("click", resetAdminEventForm);
     saveAdminEventEl?.addEventListener("click", saveAdminEvent);
+    viewSavedEventEl?.addEventListener("click", async () => {
+      const eventId = viewSavedEventEl.dataset.eventId || "";
+      await openEventPage();
+      if (eventId) {
+        selectedEventDetailId = "";
+        const cardButton = [...(eventContentEl?.querySelectorAll("[data-event-detail]") || [])]
+          .find((button) => button.dataset.eventDetail === eventId);
+        cardButton?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
     adminEventImageFileEl?.addEventListener("change", () => {
       const file = adminEventImageFileEl.files?.[0];
       if (!file) return;
