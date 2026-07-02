@@ -1769,6 +1769,10 @@
       line-height: 1.3;
     }
 
+    .event-image-placeholder.hidden {
+      display: none;
+    }
+
     .event-image-placeholder small {
       color: rgba(255, 255, 255, 0.8);
       font-size: 12px;
@@ -1916,6 +1920,31 @@
       min-height: 36px;
       padding: 7px 10px;
       font-size: 12px;
+    }
+
+    .event-admin-status {
+      margin: 0;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.45;
+    }
+
+    .event-admin-status.hidden {
+      display: none;
+    }
+
+    .event-admin-status.success {
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .event-admin-status.error {
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      background: #fee2e2;
+      color: #991b1b;
     }
 
     .grid.two {
@@ -3080,6 +3109,7 @@
           </div>
           <label class="check-row"><input id="adminEventVisibleInput" type="checkbox" checked> 회원 화면에 노출</label>
           <button type="button" class="btn primary" id="saveAdminEvent">이벤트 저장</button>
+          <p class="event-admin-status hidden" id="adminEventStatus" role="status"></p>
           <button type="button" class="btn" id="newAdminEvent">새 이벤트 작성</button>
           <div class="event-admin-list" id="adminEventList"></div>
         </section>
@@ -3528,6 +3558,7 @@ This account will be used continuously, so please enter the information correctl
     const adminEventApplyInputEl = document.querySelector("#adminEventApplyInput");
     const adminEventVisibleInputEl = document.querySelector("#adminEventVisibleInput");
     const saveAdminEventEl = document.querySelector("#saveAdminEvent");
+    const adminEventStatusEl = document.querySelector("#adminEventStatus");
     const newAdminEventEl = document.querySelector("#newAdminEvent");
     const adminEventListEl = document.querySelector("#adminEventList");
     const adminEventSelectEl = document.querySelector("#adminEventSelect");
@@ -5707,6 +5738,7 @@ This account will be used continuously, so please enter the information correctl
       }
       if (view === "admin") {
         adminPanelEl.classList.remove("hidden");
+        loadEventsFromSupabase({ includeHidden: true }).catch(() => {});
         renderAdminEventManager();
         renderAdminEventOptions();
         renderAdminRealEventOptions();
@@ -6981,18 +7013,21 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function normalizeEventItem(event = {}) {
+      const cleanTime = (value) => String(value || "").slice(0, 5);
+      const cleanDate = (value) => String(value || "").slice(0, 10);
+      const cleanStatus = ["모집중", "마감임박", "마감"].includes(event.status) ? event.status : "모집중";
       return {
         id: event.id || `event-${Date.now().toString(36)}`,
         title: event.title || "",
-        event_date: event.event_date || "",
-        start_time: event.start_time || "",
-        end_time: event.end_time || "",
+        event_date: cleanDate(event.event_date),
+        start_time: cleanTime(event.start_time),
+        end_time: cleanTime(event.end_time),
         location: event.location || "",
         image_url: event.image_url || "",
         short_description: event.short_description || "",
         detail_content: event.detail_content || "",
         price: event.price || "",
-        status: event.status || "모집중",
+        status: cleanStatus,
         apply_url: event.apply_url || "https://pf.kakao.com/_xbMxiVxb",
         is_visible: event.is_visible !== false,
         created_at: event.created_at || new Date().toISOString(),
@@ -7034,6 +7069,35 @@ This account will be used continuously, so please enter the information correctl
       return status || "모집중";
     }
 
+    function showAdminEventStatus(type, text) {
+      if (!adminEventStatusEl) return;
+      adminEventStatusEl.textContent = text;
+      adminEventStatusEl.className = `event-admin-status ${type}`;
+      if (type === "success") {
+        window.clearTimeout(showAdminEventStatus.timer);
+        showAdminEventStatus.timer = window.setTimeout(() => {
+          adminEventStatusEl.classList.add("hidden");
+        }, 3000);
+      }
+    }
+
+    function isUsableEventImageUrl(value = "") {
+      const url = String(value || "").trim();
+      if (!url) return false;
+      if (/^data:image\/(png|jpe?g|webp|gif|avif);base64,/i.test(url)) return true;
+      try {
+        const parsed = new URL(url);
+        if (!/^https?:$/i.test(parsed.protocol)) return false;
+        return /\.(png|jpe?g|webp|gif|avif|bmp|svg)$/i.test(parsed.pathname);
+      } catch {
+        return false;
+      }
+    }
+
+    function eventImagePlaceholder(event) {
+      return `<div class="event-image-placeholder"><span>🍻 ${escapeHtml(event.title || "언어교환101 이벤트")}</span><small>Language Exchange 101 Event</small></div>`;
+    }
+
     function formatEventDate(value) {
       if (!value) return "날짜 미정";
       const date = new Date(`${value}T00:00:00+09:00`);
@@ -7055,10 +7119,10 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function renderEventImage(event) {
-      if (event.image_url) {
-        return `<img src="${escapeHtml(event.image_url)}" alt="${escapeHtml(event.title)}">`;
+      if (isUsableEventImageUrl(event.image_url)) {
+        return `<img src="${escapeHtml(event.image_url)}" alt="${escapeHtml(event.title)}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';">${eventImagePlaceholder(event).replace("event-image-placeholder", "event-image-placeholder hidden")}`;
       }
-      return `<div class="event-image-placeholder"><span>🍻 ${escapeHtml(event.title || "언어교환101 이벤트")}</span><small>Language Exchange 101 Event</small></div>`;
+      return eventImagePlaceholder(event);
     }
 
     function renderEventPage() {
@@ -7180,6 +7244,7 @@ This account will be used continuously, so please enter the information correctl
       if (adminEventEndInputEl) adminEventEndInputEl.value = item.end_time;
       if (adminEventLocationInputEl) adminEventLocationInputEl.value = item.location;
       if (adminEventImageInputEl) adminEventImageInputEl.value = item.image_url;
+      if (adminEventImageFileEl) adminEventImageFileEl.value = "";
       if (adminEventShortInputEl) adminEventShortInputEl.value = item.short_description;
       if (adminEventDetailInputEl) adminEventDetailInputEl.value = item.detail_content;
       if (adminEventPriceInputEl) adminEventPriceInputEl.value = item.price;
@@ -7188,10 +7253,39 @@ This account will be used continuously, so please enter the information correctl
       if (adminEventVisibleInputEl) adminEventVisibleInputEl.checked = item.is_visible !== false;
     }
 
-    function readAdminEventForm() {
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function getAdminEventImageUrl() {
+      const file = adminEventImageFileEl?.files?.[0];
+      if (file) return readFileAsDataUrl(file);
+      const typedUrl = adminEventImageInputEl?.value.trim() || "";
+      return isUsableEventImageUrl(typedUrl) ? typedUrl : "";
+    }
+
+    function validateAdminEventForm(event) {
+      if (!event.title) return "이벤트 제목을 입력해주세요.";
+      if (!event.event_date) return "이벤트 날짜를 선택해주세요.";
+      if (!event.start_time) return "시작 시간을 입력해주세요.";
+      if (!event.location) return "장소를 입력해주세요.";
+      if (!event.short_description) return "간단 소개글을 입력해주세요.";
+      if (!event.detail_content) return "상세 내용을 입력해주세요.";
+      return "";
+    }
+
+    async function readAdminEventForm() {
       const selectedId = adminEventManagerSelectEl?.value && adminEventManagerSelectEl.value !== "__new__"
         ? adminEventManagerSelectEl.value
         : `event-${Date.now().toString(36)}`;
+      const status = ["모집중", "마감임박", "마감"].includes(adminEventStatusSelectEl?.value)
+        ? adminEventStatusSelectEl.value
+        : "모집중";
       return normalizeEventItem({
         id: selectedId,
         title: adminEventTitleInputEl?.value.trim(),
@@ -7199,11 +7293,11 @@ This account will be used continuously, so please enter the information correctl
         start_time: adminEventStartInputEl?.value,
         end_time: adminEventEndInputEl?.value,
         location: adminEventLocationInputEl?.value.trim(),
-        image_url: adminEventImageInputEl?.value.trim(),
+        image_url: await getAdminEventImageUrl(),
         short_description: adminEventShortInputEl?.value.trim(),
         detail_content: adminEventDetailInputEl?.value.trim(),
         price: adminEventPriceInputEl?.value.trim(),
-        status: adminEventStatusSelectEl?.value || "모집중",
+        status,
         apply_url: adminEventApplyInputEl?.value.trim() || "https://pf.kakao.com/_xbMxiVxb",
         is_visible: Boolean(adminEventVisibleInputEl?.checked),
         updated_at: new Date().toISOString()
@@ -7269,10 +7363,11 @@ This account will be used continuously, so please enter the information correctl
       }
     }
 
-    async function loadEventsFromSupabase() {
+    async function loadEventsFromSupabase(options = {}) {
       if (!isSupabaseConfigured()) return false;
       try {
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=*&is_visible=eq.true&order=event_date.asc`, {
+        const visibleFilter = options.includeHidden ? "" : "&is_visible=eq.true";
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=*${visibleFilter}&order=event_date.asc`, {
           headers: supabaseRestHeaders()
         });
         if (!response.ok) throw new Error(await response.text());
@@ -7292,22 +7387,39 @@ This account will be used continuously, so please enter the information correctl
 
     async function saveAdminEvent() {
       if (!adminUnlocked) return;
-      const event = readAdminEventForm();
-      if (!event.title || !event.event_date) {
-        messageEl.textContent = "이벤트 제목과 날짜를 입력해주세요.";
+      const selectedEventId = adminEventManagerSelectEl?.value && adminEventManagerSelectEl.value !== "__new__"
+        ? adminEventManagerSelectEl.value
+        : "";
+      const event = await readAdminEventForm();
+      console.log("event form submit", event);
+      console.log("event save mode", selectedEventId ? "update" : "insert");
+      const validationMessage = validateAdminEventForm(event);
+      if (validationMessage) {
+        showAdminEventStatus("error", validationMessage);
+        messageEl.textContent = validationMessage;
         return;
       }
       try {
+        saveAdminEventEl.disabled = true;
         const savedEvent = await saveEventToSupabase(event);
         const events = getLocalEvents().filter((item) => item.id !== savedEvent.id);
         events.push(savedEvent);
         saveLocalEvents(events);
         selectedEventDetailId = "";
-        await loadEventsFromSupabase();
-        messageEl.textContent = "이벤트가 저장되었습니다. 이벤트 페이지에서 확인할 수 있습니다.";
+        await loadEventsFromSupabase({ includeHidden: true });
+        const successText = "✅ 이벤트가 저장되었습니다. 이벤트 페이지에 반영되었습니다.";
+        showAdminEventStatus("success", successText);
+        messageEl.textContent = successText;
         renderAdminEventManager();
+        if (adminEventManagerSelectEl) adminEventManagerSelectEl.value = savedEvent.id;
+        fillAdminEventForm(savedEvent);
       } catch (error) {
+        console.error("event save failed", error);
+        const errorText = `❌ 이벤트 저장 실패\n실패 이유: ${error.message}`;
+        showAdminEventStatus("error", errorText);
         messageEl.textContent = `이벤트 저장 실패: ${error.message}`;
+      } finally {
+        saveAdminEventEl.disabled = false;
       }
     }
 
@@ -8063,6 +8175,7 @@ This account will be used continuously, so please enter the information correctl
       messageEl.textContent = t("adminUnlocked");
       renderAdminEventOptions();
       renderAdminRealEventOptions();
+      loadEventsFromSupabase({ includeHidden: true }).catch(() => {});
       renderAdminStatus();
       renderAdminScheduleOptions();
       renderAdminVoteAudit();
