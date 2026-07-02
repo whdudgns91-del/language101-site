@@ -3713,9 +3713,9 @@ This account will be used continuously, so please enter the information correctl
               <span class="profile-menu-icon">📅</span>
               <span><strong>내 신청 내역</strong><small>내가 신청한 스터디 확인</small></span>
             </button>
-            <button type="button" class="profile-menu-card" id="showAttendanceLog">
-              <span class="profile-menu-icon">✅</span>
-              <span><strong>내 참석 보기</strong><small>참석한 스터디 기록 확인</small></span>
+            <button type="button" class="profile-menu-card" id="showLikeAfterStudy">
+              <span class="profile-menu-icon">💌</span>
+              <span><strong>스터디 후 익명 좋아요</strong><small>함께했던 멤버에게 익명 좋아요 보내기</small></span>
             </button>
             <button type="button" class="profile-menu-card" id="showPointLog">
               <span class="profile-menu-icon">P</span>
@@ -3728,10 +3728,6 @@ This account will be used continuously, so please enter the information correctl
             <button type="button" class="profile-menu-card" id="showLevelGuide">
               <span class="profile-menu-icon">🏆</span>
               <span><strong>레벨 등급 보기</strong><small>레벨별 조건 및 혜택 확인</small></span>
-            </button>
-            <button type="button" class="profile-menu-card" id="showLikeAfterStudy">
-              <span class="profile-menu-icon">💌</span>
-              <span><strong>스터디 후 익명 좋아요</strong><small>함께했던 멤버에게 익명 좋아요 보내기</small></span>
             </button>
           </div>
           <button type="button" class="btn level-guide-toggle hidden" id="levelGuideToggle" data-i18n="levelGuideButton">레벨 등급 보기</button>
@@ -3958,7 +3954,6 @@ This account will be used continuously, so please enter the information correctl
     const showLevelGuideEl = document.querySelector("#showLevelGuide");
     const showLikeAfterStudyEl = document.querySelector("#showLikeAfterStudy");
     const levelGuideEl = document.querySelector("#levelGuide");
-    const showAttendanceLogEl = document.querySelector("#showAttendanceLog");
     const showPointLogEl = document.querySelector("#showPointLog");
     const showSentHeartLogEl = document.querySelector("#showSentHeartLog");
     const profileDetailEl = document.querySelector("#profileDetail");
@@ -9037,7 +9032,6 @@ This account will be used continuously, so please enter the information correctl
     });
     likePromptSendEl.addEventListener("click", sendHeart);
     showApplicationLogEl.addEventListener("click", () => showProfileDetail("applications"));
-    showAttendanceLogEl.addEventListener("click", () => showProfileDetail("attendance"));
     showPointLogEl.addEventListener("click", () => showProfileDetail("points"));
     showSentHeartLogEl.addEventListener("click", () => showProfileDetail("sentHearts"));
     showLevelGuideEl.addEventListener("click", () => showProfileDetail("levels"));
