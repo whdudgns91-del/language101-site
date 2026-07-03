@@ -4613,6 +4613,9 @@ This account will be used continuously, so please enter the information correctl
     let membersLoadInFlight = false;
     let membersLoadedFromSupabase = false;
     let browserNotificationRequestStarted = false;
+    let lastAppliedStaticLang = "";
+    let staticI18nElements = [];
+    let lastClosedEmailCheckAt = 0;
     const adminAuditOpenKeys = new Set();
     const adminClosedAuditFilter = {
       sort: "recent",
@@ -5441,10 +5444,13 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function applyStaticTranslations() {
-      document.querySelectorAll("[data-i18n]").forEach((el) => {
+      if (lastAppliedStaticLang === currentLang && staticI18nElements.length) return;
+      staticI18nElements = Array.from(document.querySelectorAll("[data-i18n]"));
+      staticI18nElements.forEach((el) => {
         el.textContent = t(el.dataset.i18n);
       });
       document.documentElement.lang = currentLang;
+      lastAppliedStaticLang = currentLang;
     }
 
     function readJson(key, fallback) {
@@ -5800,6 +5806,60 @@ This account will be used continuously, so please enter the information correctl
       return votes;
     }
 
+    function applyRealtimeVoteRow(row) {
+      if (!row?.name || !row?.birth || !row?.vote_option) return;
+      const eventId = rowInternalEventId(row);
+      if (!eventId) return;
+      const member = makeMember(row.name, row.birth);
+      saveDirectoryMember(member);
+      const currentMeta = remoteVoteMetaCache[eventId]?.[member.id];
+      if (currentMeta?.createdAt && row.created_at && new Date(currentMeta.createdAt) > new Date(row.created_at)) return;
+      if (!remoteVotesCache[eventId]) remoteVotesCache[eventId] = {};
+      Object.keys(remoteVotesCache[eventId]).forEach((option) => {
+        remoteVotesCache[eventId][option] = remoteVotesCache[eventId][option].filter((id) => id !== member.id);
+      });
+      if (!remoteVoteMetaCache[eventId]) remoteVoteMetaCache[eventId] = {};
+      if (row.vote_option === "__cancelled__") {
+        delete remoteVoteMetaCache[eventId][member.id];
+      } else {
+        if (!remoteVotesCache[eventId][row.vote_option]) remoteVotesCache[eventId][row.vote_option] = [];
+        if (!remoteVotesCache[eventId][row.vote_option].includes(member.id)) {
+          remoteVotesCache[eventId][row.vote_option].push(member.id);
+        }
+        remoteVoteMetaCache[eventId][member.id] = {
+          rowId: row.id || "",
+          option: row.vote_option,
+          createdAt: row.created_at || "",
+          attended: Boolean(row.attended),
+          syncedToSheet: Boolean(row.synced_to_sheet),
+          sheetSyncStatus: row.sheet_sync_status || ""
+        };
+      }
+      templates = buildWeeklyTemplates();
+      closedTemplates = buildClosedTemplates();
+      renderVoteDependentSections();
+    }
+
+    function renderVoteDependentSections() {
+      if (activeView === "vote" || activeView === "home") {
+        renderPolls();
+        if (activeFilter === "materials") renderMaterials();
+      }
+      if (activeView === "admin" && adminUnlocked) {
+        renderAdminVoteAudit();
+      }
+      if (activeView === "profile") {
+        renderLevel();
+        if (profileView === "main") renderRanking();
+        if (activeProfileDetail === "likeAfterStudy") {
+          renderLikeEvents();
+          renderLikeTargets();
+        }
+        renderProfileScreen();
+      }
+      renderStudyNotifications({ full: !notificationPanelEl.classList.contains("hidden"), profileReminder: activeView === "profile" && profileView === "main" });
+    }
+
     function getLevel(points) {
       return Math.min(100, Math.max(1, Math.floor(points / 1000) + 1));
     }
@@ -6111,7 +6171,8 @@ This account will be used continuously, so please enter the information correctl
       if (!isSupabaseConfigured() || membersLoadInFlight || (membersLoadedFromSupabase && !force)) return false;
       membersLoadInFlight = true;
       try {
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/members?select=*&order=joined_at.desc.nullslast&limit=5000`, {
+        const columns = "id,name,birth,english_level,my_level,gender,nationality,age_group,target_language,joined_at,created_at";
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/members?select=${columns}&order=joined_at.desc.nullslast&limit=1000`, {
           headers: supabaseRestHeaders()
         });
         if (!response.ok) throw new Error(await response.text());
@@ -6238,7 +6299,8 @@ This account will be used continuously, so please enter the information correctl
 
     async function fetchVotesByColumn(column, values) {
       if (!values.length) return [];
-      const url = `${SUPABASE_URL}/rest/v1/votes?select=*&${column}=in.${encodeURIComponent(encodeInList(values))}&order=created_at.desc`;
+      const columns = "id,name,birth,level,event_id,vote_option,created_at,attended,synced_to_sheet,sheet_sync_status,sheet_synced_at";
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=${columns}&${column}=in.${encodeURIComponent(encodeInList(values))}&order=created_at.desc&limit=2000`;
       const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
@@ -6302,7 +6364,8 @@ This account will be used continuously, so please enter the information correctl
       const publicEventId = eventPublicIdFromInternalId(eventId);
       const eventColumn = useEventIdColumn ? "event_id" : "level";
       const eventValue = useEventIdColumn ? publicEventId : eventId;
-      const url = `${SUPABASE_URL}/rest/v1/votes?select=*&${eventColumn}=eq.${encodeURIComponent(eventValue)}&name=eq.${encodeURIComponent(member.name)}&birth=eq.${encodeURIComponent(member.birth)}&order=created_at.desc&limit=1`;
+      const columns = "id,name,birth,level,event_id,vote_option,created_at,attended,synced_to_sheet,sheet_sync_status,sheet_synced_at";
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=${columns}&${eventColumn}=eq.${encodeURIComponent(eventValue)}&name=eq.${encodeURIComponent(member.name)}&birth=eq.${encodeURIComponent(member.birth)}&order=created_at.desc&limit=1`;
       const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
@@ -6426,7 +6489,7 @@ This account will be used continuously, so please enter the information correctl
         level: eventId,
         event_id: eventPublicIdFromInternalId(eventId),
         vote_option: option
-      }).select("*").single();
+      }).select("id,name,birth,level,event_id,vote_option,created_at,attended,synced_to_sheet,sheet_sync_status,sheet_synced_at").single();
       if (error) {
         messageEl.textContent = `${errorPrefix}: ${error.message}`;
         return false;
@@ -6457,11 +6520,11 @@ This account will be used continuously, so please enter the information correctl
         .channel(`votes-realtime-${Date.now()}`)
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "votes" }, (payload) => {
           if (autoVoteBatchInProgress) return;
-          loadVotesFromSupabase({ silent: true, force: true, requiredRow: payload.new }).catch(() => {});
+          applyRealtimeVoteRow(payload.new);
         })
         .on("postgres_changes", { event: "UPDATE", schema: "public", table: "votes" }, (payload) => {
           if (autoVoteBatchInProgress) return;
-          loadVotesFromSupabase({ silent: true, force: true, requiredRow: payload.new }).catch(() => {});
+          applyRealtimeVoteRow(payload.new);
         })
         .on("postgres_changes", { event: "DELETE", schema: "public", table: "votes" }, () => {
           if (autoVoteBatchInProgress) return;
@@ -6506,10 +6569,10 @@ This account will be used continuously, so please enter the information correctl
       try {
         const { data, error } = await supabaseClient
           .from("study_likes")
-          .select("*")
+          .select("id,study_id,sender_user_id,receiver_user_id,created_at")
           .eq("receiver_user_id", member.id)
           .order("created_at", { ascending: false })
-          .limit(100);
+          .limit(50);
         if (error) throw error;
         let changed = false;
         (data || []).forEach((row) => {
@@ -6524,10 +6587,10 @@ This account will be used continuously, so please enter the information correctl
         try {
           const { data, error: legacyError } = await supabaseClient
             .from("post_study_likes")
-            .select("*")
+            .select("id,study_id,sender_id,sender_name,receiver_ids,receiver_names,created_at")
             .contains("receiver_ids", [member.id])
             .order("created_at", { ascending: false })
-            .limit(100);
+            .limit(50);
           if (legacyError) throw legacyError;
           let changed = false;
           (data || []).forEach((row) => {
@@ -6548,10 +6611,10 @@ This account will be used continuously, so please enter the information correctl
       try {
         const { data, error } = await supabaseClient
           .from("notifications")
-          .select("*")
+          .select("id,user_id,study_id,type,title,message,target_view,is_read,read_at,expires_at,created_at")
           .eq("user_id", member.id)
           .order("created_at", { ascending: false })
-          .limit(100);
+          .limit(30);
         if (error) throw error;
         (data || []).forEach((row) => {
           upsertNotification({
@@ -6592,7 +6655,7 @@ This account will be used continuously, so please enter the information correctl
           const member = getMember();
           if (member?.id && payload.new?.user_id === member.id) {
             upsertNotification(payload.new);
-            renderStudyNotifications();
+            renderStudyNotifications({ full: !notificationPanelEl.classList.contains("hidden") });
           }
         })
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "post_study_likes" }, (payload) => {
@@ -6604,10 +6667,10 @@ This account will be used continuously, so please enter the information correctl
     function startVotesPolling() {
       if (votesPollTimer) window.clearInterval(votesPollTimer);
       votesPollTimer = window.setInterval(() => {
-        if (!document.hidden && (activeView === "vote" || activeView === "home" || activeView === "profile")) {
+        if (!document.hidden && (activeView === "vote" || activeView === "home" || activeView === "admin")) {
           loadVotesFromSupabase({ silent: true });
         }
-      }, 30000);
+      }, 120000);
     }
 
     async function initSupabase() {
@@ -6960,29 +7023,43 @@ This account will be used continuously, so please enter the information correctl
       }
     }
 
-    function renderStudyNotifications() {
+    function updateNotificationBadge(member = getMember()) {
+      if (!notificationDotEl) return;
+      const unreadCount = getUserNotifications(member).filter((item) => !item.is_read).length;
+      notificationDotEl.textContent = unreadCount > 99 ? "99+" : String(unreadCount);
+      notificationDotEl.classList.toggle("hidden", unreadCount === 0);
+    }
+
+    function renderStudyNotifications(options = {}) {
+      const full = options.full !== false;
+      const profileReminder = Boolean(options.profileReminder);
+      const browser = Boolean(options.browser);
       const member = getMember();
-      const alerts = getUpcomingStudyAlerts(member);
-      const likeEvents = getLikeEligibleEvents(member)
-        .filter((event) => getActualLikeTargetsForEvent(event.id, member).length > 0);
-      likeEvents.forEach((event) => {
-        if (member?.id) buildLikeReminderNotification(member, event);
-      });
-      const receivedHearts = getMemberRecords(member)
-        .filter((record) => record.action === "heart_received")
-        .filter((record) => {
-          const at = new Date(record.timestamp);
-          return !Number.isNaN(at.getTime()) && Date.now() - at.getTime() < 1000 * 60 * 60 * 24 * 2;
-        })
-        .slice(0, 5);
+      let alerts = [];
+      let likeEvents = [];
+      let receivedHearts = [];
+      if (full || profileReminder || browser) {
+        alerts = getUpcomingStudyAlerts(member);
+        likeEvents = getLikeEligibleEvents(member)
+          .filter((event) => getActualLikeTargetsForEvent(event.id, member).length > 0);
+        likeEvents.forEach((event) => {
+          if (member?.id) buildLikeReminderNotification(member, event);
+        });
+        receivedHearts = getMemberRecords(member)
+          .filter((record) => record.action === "heart_received")
+          .filter((record) => {
+            const at = new Date(record.timestamp);
+            return !Number.isNaN(at.getTime()) && Date.now() - at.getTime() < 1000 * 60 * 60 * 24 * 2;
+          })
+          .slice(0, 5);
+      }
       const storedNotifications = getUserNotifications(member);
-      const unreadCount = storedNotifications.filter((item) => !item.is_read).length;
       const notificationHtml = [
         ...alerts.map(renderStudyAlert),
         ...storedNotifications.map(renderNotificationCard),
         ...receivedHearts.map(renderReceivedHeartAlert)
       ];
-      if (notificationListEl) {
+      if (full && notificationListEl) {
         notificationListEl.innerHTML = notificationHtml.length
           ? notificationHtml.join("")
           : `<article class="profile-log-card"><strong>새 알림이 없습니다.</strong><small>신청한 스터디와 수업 후 좋아요 알림이 여기에 표시됩니다.</small></article>`;
@@ -6995,18 +7072,17 @@ This account will be used continuously, so please enter the information correctl
         });
       }
       if (profileAlertListEl) {
-        const showProfileReminder = activeView === "profile" && profileView === "main" && likeEvents.length > 0;
+        const showProfileReminder = profileReminder && likeEvents.length > 0;
         profileAlertListEl.innerHTML = showProfileReminder
           ? `<article class="like-alert-card compact"><strong>💌 최근 참여한 스터디가 있어요.</strong><small>좋았던 사람에게 익명 좋아요를 보내보세요.</small></article>`
           : "";
         profileAlertListEl.classList.toggle("hidden", !showProfileReminder);
       }
-      if (notificationDotEl) {
-        notificationDotEl.textContent = unreadCount > 99 ? "99+" : String(unreadCount);
-        notificationDotEl.classList.toggle("hidden", unreadCount === 0);
+      updateNotificationBadge(member);
+      if (browser) {
+        markBrowserNotifications(alerts);
+        markLikeBrowserNotifications(likeEvents, receivedHearts);
       }
-      markBrowserNotifications(alerts);
-      markLikeBrowserNotifications(likeEvents, receivedHearts);
     }
 
     function applicationCard(row) {
@@ -7385,8 +7461,8 @@ This account will be used continuously, so please enter the information correctl
       }
       if (view === "admin") {
         adminPanelEl.classList.remove("hidden");
-        loadEventsFromSupabase({ includeHidden: true }).catch(() => {});
-        loadMembersFromSupabase({ force: true }).then(() => renderAdminMembers()).catch(() => {});
+        if (!eventsLoadedFromSupabase) loadEventsFromSupabase({ includeHidden: true }).catch(() => {});
+        loadMembersFromSupabase().then(() => renderAdminMembers()).catch(() => {});
         renderAdminEventManager();
         renderAdminEventOptions();
         renderAdminRealEventOptions();
@@ -7532,6 +7608,9 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function checkClosedPollEmails() {
+      const now = Date.now();
+      if (now - lastClosedEmailCheckAt < 60000) return;
+      lastClosedEmailCheckAt = now;
       const votes = getVotes();
       const sent = readJson(CLOSED_EMAIL_KEY, {});
       Object.entries(votes).forEach(([eventId, eventVotes]) => {
@@ -8835,7 +8914,7 @@ This account will be used continuously, so please enter the information correctl
 
     function renderEventImage(event) {
       if (isUsableEventImageUrl(event.image_url)) {
-        return `<img src="${escapeHtml(event.image_url)}" alt="${escapeHtml(event.title)}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';">${eventImagePlaceholder(event).replace("event-image-placeholder", "event-image-placeholder hidden")}`;
+        return `<img src="${escapeHtml(event.image_url)}" alt="${escapeHtml(event.title)}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';">${eventImagePlaceholder(event).replace("event-image-placeholder", "event-image-placeholder hidden")}`;
       }
       return eventImagePlaceholder(event);
     }
@@ -9081,6 +9160,7 @@ This account will be used continuously, so please enter the information correctl
 
     async function saveEventToSupabase(event) {
       if (!isSupabaseConfigured()) throw new Error("Supabase 설정이 필요합니다.");
+      const columns = "id,title,event_date,start_time,end_time,location,image_url,short_description,detail_content,price,status,apply_url,detail_url,is_visible,created_at,updated_at";
       const body = {
         title: event.title,
         event_date: event.event_date || null,
@@ -9103,8 +9183,8 @@ This account will be used continuously, so please enter the information correctl
         let error = null;
         const isUpdate = Boolean(event.id);
         const url = isUpdate
-          ? `${SUPABASE_URL}/rest/v1/events?id=eq.${encodeURIComponent(event.id)}&select=*`
-          : `${SUPABASE_URL}/rest/v1/events?select=*`;
+          ? `${SUPABASE_URL}/rest/v1/events?id=eq.${encodeURIComponent(event.id)}&select=${columns}`
+          : `${SUPABASE_URL}/rest/v1/events?select=${columns}`;
         const response = await fetch(url, {
           method: isUpdate ? "PATCH" : "POST",
           headers: supabaseRestHeaders({
@@ -9131,8 +9211,9 @@ This account will be used continuously, so please enter the information correctl
     async function loadEventsFromSupabase(options = {}) {
       if (!isSupabaseConfigured()) return false;
       try {
+        const columns = "id,title,event_date,start_time,end_time,location,image_url,short_description,detail_content,price,status,apply_url,detail_url,is_visible,created_at,updated_at";
         const visibleFilter = options.includeHidden ? "" : "&is_visible=eq.true";
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=*${visibleFilter}&order=event_date.asc.nullslast&order=created_at.desc`, {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=${columns}${visibleFilter}&order=event_date.asc.nullslast&order=created_at.desc&limit=100`, {
           headers: supabaseRestHeaders()
         });
         if (!response.ok) throw new Error(await response.text());
@@ -9140,14 +9221,14 @@ This account will be used continuously, so please enter the information correctl
         const events = Array.isArray(rows) ? rows.map(normalizeEventItem) : [];
         remoteEventsCache = events;
         eventsLoadedFromSupabase = true;
-        renderEventPage();
-        renderAdminEventManager();
+        if (activeView === "event") renderEventPage();
+        if (activeView === "admin" && adminUnlocked) renderAdminEventManager();
         return true;
       } catch (error) {
         console.warn("events load failed", error);
         eventsLoadedFromSupabase = true;
         remoteEventsCache = [];
-        renderEventPage();
+        if (activeView === "event") renderEventPage();
         return false;
       }
     }
@@ -9484,7 +9565,7 @@ This account will be used continuously, so please enter the information correctl
         const { data, error } = await supabaseClient
           .from("study_likes")
           .insert(rows)
-          .select("*");
+          .select("id,study_id,sender_user_id,receiver_user_id,created_at");
         if (error) throw error;
 
         (data || rows).forEach((row) => {
@@ -10341,7 +10422,7 @@ This account will be used continuously, so please enter the information correctl
       if (!getMember()) return;
       notificationPanelEl.classList.toggle("hidden");
       if (!notificationPanelEl.classList.contains("hidden")) {
-        renderStudyNotifications();
+        renderStudyNotifications({ full: true, browser: true });
         notificationPanelEl.scrollIntoView({ behavior: "smooth", block: "start" });
       }
       updateBackButton();
@@ -10353,13 +10434,15 @@ This account will be used continuously, so please enter the information correctl
       checkClosedPollEmails();
       applyStaticTranslations();
       renderNotice();
-      renderLevel();
-      if (activeView === "profile") renderRanking();
+      if (activeView === "profile") {
+        renderLevel();
+        if (profileView === "main") renderRanking();
+      }
       if (activeView === "vote" || activeView === "home") {
         renderPolls();
         if (activeFilter === "materials") renderMaterials();
       }
-      if (activeView === "profile") {
+      if (activeView === "profile" && activeProfileDetail === "likeAfterStudy") {
         renderLikeEvents();
         renderLikeTargets();
       }
@@ -10374,8 +10457,10 @@ This account will be used continuously, so please enter the information correctl
         renderAdminMembers();
       }
       if (activeView === "event") renderEventPage();
-      renderStudyNotifications();
-      renderProfileScreen();
+      renderStudyNotifications({
+        full: !notificationPanelEl.classList.contains("hidden"),
+        profileReminder: activeView === "profile" && profileView === "main"
+      });
       if (activeView === "admin" && adminUnlocked) setSheetStatus();
       updateContentMode();
       maybeShowLikePrompt();
@@ -10530,7 +10615,11 @@ This account will be used continuously, so please enter the information correctl
     messageEl.textContent = getMember() ? t("started", { name: getMember().name }) : t("selectName");
     setInterval(() => {
       if (!document.hidden) {
-        renderStudyNotifications();
+        renderStudyNotifications({
+          full: !notificationPanelEl.classList.contains("hidden"),
+          profileReminder: activeView === "profile" && profileView === "main",
+          browser: true
+        });
         maybeShowLikePrompt();
       }
     }, 60000);
