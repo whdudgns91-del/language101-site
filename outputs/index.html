@@ -711,6 +711,295 @@
       color: var(--ink);
     }
 
+    .admin-event-dashboard {
+      grid-column: 1 / -1;
+      padding: 0;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ffffff 0%, #fbf8ff 100%);
+    }
+
+    .event-admin-shell {
+      display: grid;
+      grid-template-columns: 184px minmax(0, 1fr);
+      min-height: 620px;
+    }
+
+    .event-admin-sidebar {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      border-right: 1px solid var(--paper-line);
+      padding: 18px 14px;
+      background: #f7f2ff;
+    }
+
+    .event-admin-sidebar strong {
+      margin-bottom: 8px;
+      color: var(--purple-deep);
+      font-size: 16px;
+      font-weight: 950;
+    }
+
+    .event-admin-nav {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 38px;
+      border: 0;
+      border-radius: 12px;
+      padding: 0 10px;
+      background: transparent;
+      color: var(--subtle);
+      font-size: 13px;
+      font-weight: 900;
+      text-align: left;
+    }
+
+    .event-admin-nav.active {
+      background: var(--purple-gradient);
+      color: #ffffff;
+      box-shadow: 0 10px 22px rgba(124, 58, 237, 0.22);
+    }
+
+    .event-admin-main {
+      display: grid;
+      gap: 18px;
+      padding: 20px;
+    }
+
+    .event-admin-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .event-admin-head h3 {
+      color: var(--ink);
+      font-size: 22px;
+      font-weight: 950;
+    }
+
+    .event-admin-toolbar {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) 150px 150px auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .event-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--paper-line);
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 12px 28px rgba(91, 33, 182, 0.08);
+    }
+
+    .event-admin-table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .event-admin-table th,
+    .event-admin-table td {
+      border-bottom: 1px solid #f0e8ff;
+      padding: 11px 12px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .event-admin-table th {
+      background: #faf7ff;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .event-admin-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .event-admin-thumb {
+      width: 72px;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border: 1px solid var(--paper-line);
+      border-radius: 10px;
+      background: #f3e8ff;
+    }
+
+    .event-admin-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .event-admin-title-cell {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .event-admin-title-cell strong {
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 950;
+      line-height: 1.25;
+      word-break: keep-all;
+    }
+
+    .event-admin-title-cell small {
+      color: var(--muted);
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .event-link-state,
+    .event-admin-badge {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 950;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .event-admin-badge.open {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .event-admin-badge.soon {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .event-admin-badge.closed {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .event-admin-badge.hidden-state {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .event-link-state.yes {
+      background: #ede9fe;
+      color: var(--purple-deep);
+    }
+
+    .event-link-state.no {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .event-admin-actions {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .event-action-btn {
+      display: inline-grid;
+      min-width: 36px;
+      min-height: 34px;
+      place-items: center;
+      border: 1px solid var(--paper-line);
+      border-radius: 10px;
+      background: #ffffff;
+      color: var(--purple-deep);
+      font-weight: 950;
+    }
+
+    .event-action-btn.danger {
+      border-color: #fecaca;
+      background: #fff1f2;
+      color: #e11d48;
+    }
+
+    .event-admin-workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .event-admin-form-card,
+    .event-admin-preview-card,
+    .event-admin-guide-card {
+      display: grid;
+      gap: 12px;
+      border: 1px solid var(--paper-line);
+      border-radius: 18px;
+      padding: 16px;
+      background: #ffffff;
+      box-shadow: 0 10px 24px rgba(91, 33, 182, 0.07);
+    }
+
+    .event-admin-form-card h4,
+    .event-admin-preview-card h4,
+    .event-admin-guide-card h4 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 950;
+    }
+
+    .event-admin-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .event-admin-preview-card .event-card,
+    .event-admin-preview-card .event-detail-card {
+      box-shadow: none;
+    }
+
+    .event-admin-guide-card ul {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .event-admin-guide-card li {
+      display: grid;
+      gap: 3px;
+      border: 1px solid #f0e8ff;
+      border-radius: 14px;
+      padding: 11px;
+      background: #fbf8ff;
+      color: var(--subtle);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .event-admin-guide-card li strong {
+      color: var(--purple-deep);
+      font-size: 13px;
+      font-weight: 950;
+    }
+
+    .event-reference-card {
+      border-color: #e9d5ff;
+      background: #faf5ff;
+    }
+
     .admin-card h3 {
       margin-bottom: 0;
       color: var(--ink);
@@ -2053,6 +2342,12 @@
       object-fit: cover;
     }
 
+    .event-image img.fit-contain,
+    .event-admin-thumb img.fit-contain {
+      object-fit: contain;
+      background: #f7f2ff;
+    }
+
     .event-image-placeholder {
       display: grid;
       gap: 8px;
@@ -3056,6 +3351,17 @@
     @media (max-width: 900px) {
       .dashboard, .material-groups, .admin-grid, .like-target-list, .like-event-list { grid-template-columns: 1fr; }
       .admin-audit-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .event-admin-shell,
+      .event-admin-workspace,
+      .event-admin-preview-grid {
+        grid-template-columns: 1fr;
+      }
+      .event-admin-sidebar {
+        display: none;
+      }
+      .event-admin-toolbar {
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
     @media (max-width: 640px) {
@@ -3165,6 +3471,22 @@
       }
       .admin-audit-controls {
         grid-template-columns: 1fr;
+      }
+      .event-admin-main {
+        padding: 14px;
+      }
+      .event-admin-toolbar {
+        grid-template-columns: 1fr;
+      }
+      .event-admin-head {
+        align-items: stretch;
+      }
+      .event-admin-head .btn,
+      #viewSavedEvent {
+        width: 100%;
+      }
+      .event-admin-table {
+        min-width: 680px;
       }
       .admin-search-row {
         grid-template-columns: 1fr;
@@ -3904,79 +4226,179 @@
           <button type="button" class="btn primary" id="saveNotice" data-i18n="adminSaveNotice">공지 저장</button>
         </section>
 
-        <section class="admin-card">
-          <h3>이벤트 등록/수정</h3>
-          <p class="helper">하단 이벤트 메뉴에 노출할 이벤트를 관리합니다.</p>
-          <div class="field">
-            <label for="adminEventManagerSelect">수정할 이벤트</label>
-            <select id="adminEventManagerSelect"></select>
-          </div>
-          <div class="field">
-            <label for="adminEventTitleInput">이벤트 제목</label>
-            <input id="adminEventTitleInput" placeholder="예: 7월 언어교환101 술파티">
-          </div>
-          <div class="field">
-            <label for="adminEventDateInput">이벤트 날짜</label>
-            <input id="adminEventDateInput" type="date">
-          </div>
-          <div class="grid two">
-            <div class="field">
-              <label for="adminEventStartInput">시작 시간</label>
-              <input id="adminEventStartInput" type="time">
+        <section class="admin-card admin-event-dashboard">
+          <div class="event-admin-shell">
+            <aside class="event-admin-sidebar" aria-label="이벤트 관리 메뉴">
+              <strong>언어교환101</strong>
+              <button type="button" class="event-admin-nav active">🎁 이벤트 관리</button>
+              <button type="button" class="event-admin-nav">🗓️ 스터디 관리</button>
+              <button type="button" class="event-admin-nav">📋 투표 관리</button>
+              <button type="button" class="event-admin-nav">👥 회원 관리</button>
+              <button type="button" class="event-admin-nav">📊 통계</button>
+            </aside>
+            <div class="event-admin-main">
+              <div class="event-admin-head">
+                <div>
+                  <h3>이벤트 관리</h3>
+                  <p class="helper">이벤트 등록, 수정, 삭제 및 노출 관리가 가능합니다.</p>
+                </div>
+                <button type="button" class="btn primary" id="newAdminEvent">+ 새 이벤트 작성</button>
+              </div>
+
+              <div class="event-admin-toolbar">
+                <div class="field">
+                  <label for="adminEventSearchInput">검색</label>
+                  <input id="adminEventSearchInput" placeholder="이벤트 제목 검색">
+                </div>
+                <div class="field">
+                  <label for="adminEventStatusFilter">상태 필터</label>
+                  <select id="adminEventStatusFilter">
+                    <option value="all">전체 상태</option>
+                    <option value="모집중">모집중</option>
+                    <option value="마감임박">마감임박</option>
+                    <option value="마감">마감</option>
+                    <option value="hidden">숨김</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="adminEventTypeFilter">유형 필터</label>
+                  <select id="adminEventTypeFilter">
+                    <option value="all">전체 유형</option>
+                    <option value="party">파티</option>
+                    <option value="study">스터디</option>
+                    <option value="trip">여행</option>
+                    <option value="meetup">모임</option>
+                  </select>
+                </div>
+                <button type="button" class="btn" id="viewSavedEvent">이벤트 페이지에서 확인하기</button>
+              </div>
+
+              <div class="event-table-wrap">
+                <table class="event-admin-table">
+                  <thead>
+                    <tr>
+                      <th>이미지</th>
+                      <th>이벤트 제목</th>
+                      <th>날짜</th>
+                      <th>장소</th>
+                      <th>상태</th>
+                      <th>신청 링크</th>
+                      <th>작업</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminEventList"></tbody>
+                </table>
+              </div>
+
+              <div class="event-admin-workspace">
+                <div class="event-admin-form-card">
+                  <h4>이벤트 등록 / 수정</h4>
+                  <div class="field">
+                    <label for="adminEventManagerSelect">수정할 이벤트</label>
+                    <select id="adminEventManagerSelect"></select>
+                  </div>
+                  <div class="field">
+                    <label for="adminEventTitleInput">이벤트 제목</label>
+                    <input id="adminEventTitleInput" placeholder="예: 7월 언어교환101 술파티">
+                  </div>
+                  <div class="field">
+                    <label for="adminEventDateInput">이벤트 날짜</label>
+                    <input id="adminEventDateInput" type="date">
+                  </div>
+                  <div class="grid two">
+                    <div class="field">
+                      <label for="adminEventStartInput">시작 시간</label>
+                      <input id="adminEventStartInput" type="time">
+                    </div>
+                    <div class="field">
+                      <label for="adminEventEndInput">종료 시간</label>
+                      <input id="adminEventEndInput" type="time">
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="adminEventLocationInput">장소</label>
+                    <input id="adminEventLocationInput" placeholder="예: 종각 / 추후 공지">
+                  </div>
+                  <div class="field">
+                    <label for="adminEventImageInput">대표 이미지 URL</label>
+                    <input id="adminEventImageInput" placeholder="https://...">
+                  </div>
+                  <div class="grid two">
+                    <div class="field">
+                      <label for="adminEventImageFile">대표 이미지 업로드</label>
+                      <input id="adminEventImageFile" type="file" accept="image/*">
+                    </div>
+                    <div class="field">
+                      <label for="adminEventImageFitSelect">이미지 표시 방식</label>
+                      <select id="adminEventImageFitSelect">
+                        <option value="cover">꽉 채우기</option>
+                        <option value="contain">전체 보이기</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="adminEventShortInput">간단 소개글</label>
+                    <textarea id="adminEventShortInput"></textarea>
+                  </div>
+                  <div class="field">
+                    <label for="adminEventDetailInput">상세 내용</label>
+                    <textarea id="adminEventDetailInput"></textarea>
+                  </div>
+                  <div class="grid two">
+                    <div class="field">
+                      <label for="adminEventPriceInput">가격 또는 참가비</label>
+                      <input id="adminEventPriceInput" placeholder="예: 추후 공지">
+                    </div>
+                    <div class="field">
+                      <label for="adminEventStatusSelect">상태</label>
+                      <select id="adminEventStatusSelect">
+                        <option value="모집중">모집중</option>
+                        <option value="마감임박">마감임박</option>
+                        <option value="마감">마감</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="adminEventApplyInput">신청 링크 또는 카카오톡 문의 링크</label>
+                    <input id="adminEventApplyInput" placeholder="https://pf.kakao.com/_xbMxiVxb">
+                  </div>
+                  <div class="field">
+                    <label for="adminEventDetailUrlInput">상세보기 링크</label>
+                    <input id="adminEventDetailUrlInput" placeholder="https://blog.naver.com/...">
+                  </div>
+                  <label class="check-row"><input id="adminEventVisibleInput" type="checkbox" checked> 회원 화면에 노출</label>
+                  <button type="button" class="btn primary" id="saveAdminEvent">이벤트 저장</button>
+                  <p class="event-admin-status hidden" id="adminEventStatus" role="status"></p>
+                </div>
+
+                <div class="event-admin-preview-card">
+                  <h4>회원 화면 미리보기</h4>
+                  <div class="event-admin-preview-grid" id="adminEventPreview"></div>
+                </div>
+              </div>
+
+              <div class="event-admin-workspace">
+                <div class="event-admin-guide-card">
+                  <h4>추가하면 좋은 기능</h4>
+                  <ul>
+                    <li><strong>이벤트 카테고리</strong>스터디, 파티, 여행, 모임 등 카테고리별 관리 가능</li>
+                    <li><strong>찜하기 기능</strong>관심 있는 이벤트를 저장하고 나중에 확인 가능</li>
+                    <li><strong>신청 현황 표시</strong>신청 인원과 남은 자리 실시간 확인 가능</li>
+                    <li><strong>이벤트 알림</strong>새 이벤트 등록 시 회원에게 알림 발송 가능</li>
+                    <li><strong>댓글 / 후기</strong>참여자 후기와 사진을 확인 가능</li>
+                  </ul>
+                </div>
+                <div class="event-admin-guide-card event-reference-card">
+                  <h4>참고 사항</h4>
+                  <ul>
+                    <li>이벤트 이미지는 1200x675px 또는 16:9 비율 권장</li>
+                    <li>신청 링크는 구글폼, 네이버폼, 카카오톡 링크 모두 가능</li>
+                    <li>회원 화면에 노출 체크 시 이벤트 목록에 표시됩니다</li>
+                  </ul>
+                </div>
+              </div>
             </div>
-            <div class="field">
-              <label for="adminEventEndInput">종료 시간</label>
-              <input id="adminEventEndInput" type="time">
-            </div>
           </div>
-          <div class="field">
-            <label for="adminEventLocationInput">장소</label>
-            <input id="adminEventLocationInput" placeholder="예: 종각 / 추후 공지">
-          </div>
-          <div class="field">
-            <label for="adminEventImageInput">대표 이미지 URL</label>
-            <input id="adminEventImageInput" placeholder="https://...">
-          </div>
-          <div class="field">
-            <label for="adminEventImageFile">대표 이미지 업로드</label>
-            <input id="adminEventImageFile" type="file" accept="image/*">
-          </div>
-          <div class="field">
-            <label for="adminEventShortInput">간단 소개글</label>
-            <textarea id="adminEventShortInput"></textarea>
-          </div>
-          <div class="field">
-            <label for="adminEventDetailInput">상세 내용</label>
-            <textarea id="adminEventDetailInput"></textarea>
-          </div>
-          <div class="grid two">
-            <div class="field">
-              <label for="adminEventPriceInput">가격 또는 참가비</label>
-              <input id="adminEventPriceInput" placeholder="예: 추후 공지">
-            </div>
-            <div class="field">
-              <label for="adminEventStatusSelect">상태</label>
-              <select id="adminEventStatusSelect">
-                <option value="모집중">모집중</option>
-                <option value="마감임박">마감임박</option>
-                <option value="마감">마감</option>
-              </select>
-            </div>
-          </div>
-          <div class="field">
-            <label for="adminEventApplyInput">신청 링크 또는 카카오톡 문의 링크</label>
-            <input id="adminEventApplyInput" placeholder="https://pf.kakao.com/_xbMxiVxb">
-          </div>
-          <div class="field">
-            <label for="adminEventDetailUrlInput">상세보기 링크</label>
-            <input id="adminEventDetailUrlInput" placeholder="https://blog.naver.com/...">
-          </div>
-          <label class="check-row"><input id="adminEventVisibleInput" type="checkbox" checked> 회원 화면에 노출</label>
-          <button type="button" class="btn primary" id="saveAdminEvent">이벤트 저장</button>
-          <p class="event-admin-status hidden" id="adminEventStatus" role="status"></p>
-          <button type="button" class="btn hidden" id="viewSavedEvent">이벤트 페이지에서 확인하기</button>
-          <button type="button" class="btn" id="newAdminEvent">새 이벤트 작성</button>
-          <div class="event-admin-list" id="adminEventList"></div>
         </section>
 
         <section class="admin-card">
@@ -4566,6 +4988,7 @@ This account will be used continuously, so please enter the information correctl
     const adminEventLocationInputEl = document.querySelector("#adminEventLocationInput");
     const adminEventImageInputEl = document.querySelector("#adminEventImageInput");
     const adminEventImageFileEl = document.querySelector("#adminEventImageFile");
+    const adminEventImageFitSelectEl = document.querySelector("#adminEventImageFitSelect");
     const adminEventShortInputEl = document.querySelector("#adminEventShortInput");
     const adminEventDetailInputEl = document.querySelector("#adminEventDetailInput");
     const adminEventPriceInputEl = document.querySelector("#adminEventPriceInput");
@@ -4578,6 +5001,10 @@ This account will be used continuously, so please enter the information correctl
     const viewSavedEventEl = document.querySelector("#viewSavedEvent");
     const newAdminEventEl = document.querySelector("#newAdminEvent");
     const adminEventListEl = document.querySelector("#adminEventList");
+    const adminEventSearchInputEl = document.querySelector("#adminEventSearchInput");
+    const adminEventStatusFilterEl = document.querySelector("#adminEventStatusFilter");
+    const adminEventTypeFilterEl = document.querySelector("#adminEventTypeFilter");
+    const adminEventPreviewEl = document.querySelector("#adminEventPreview");
     const adminEventSelectEl = document.querySelector("#adminEventSelect");
     const adminOptionSelectEl = document.querySelector("#adminOptionSelect");
     const adminRealEventSelectEl = document.querySelector("#adminRealEventSelect");
@@ -8869,7 +9296,9 @@ This account will be used continuously, so please enter the information correctl
         status: "모집중",
         apply_url: "https://forms.gle/y239zmAiwcNMvTXg6",
         detail_url: "https://blog.naver.com/bonsin11/224334559759",
+        image_fit: "cover",
         is_visible: true,
+        deleted_at: null,
         created_at: "2026-07-02T00:00:00+09:00",
         updated_at: "2026-07-02T00:00:00+09:00"
       }];
@@ -8897,7 +9326,9 @@ This account will be used continuously, so please enter the information correctl
         status: cleanStatus,
         apply_url: event.apply_url || (isJulyParty ? "https://forms.gle/y239zmAiwcNMvTXg6" : ""),
         detail_url: event.detail_url || (isJulyParty ? "https://blog.naver.com/bonsin11/224334559759" : ""),
+        image_fit: event.image_fit === "contain" ? "contain" : "cover",
         is_visible: event.is_visible !== false,
+        deleted_at: event.deleted_at || null,
         created_at: event.created_at || new Date().toISOString(),
         updated_at: event.updated_at || new Date().toISOString()
       };
@@ -8922,11 +9353,13 @@ This account will be used continuously, so please enter the information correctl
         const normalized = normalizeEventItem(event);
         byId.set(normalized.id, normalized);
       });
-      return [...byId.values()].sort((a, b) => new Date(a.event_date || 0) - new Date(b.event_date || 0));
+      return [...byId.values()]
+        .filter((event) => !event.deleted_at)
+        .sort((a, b) => new Date(a.event_date || 0) - new Date(b.event_date || 0));
     }
 
     function getVisibleEvents() {
-      return getAllEvents().filter((event) => event.is_visible !== false);
+      return getAllEvents().filter((event) => event.is_visible !== false && !event.deleted_at);
     }
 
     function eventStatusClass(status) {
@@ -8937,6 +9370,11 @@ This account will be used continuously, so please enter the information correctl
 
     function eventStatusText(status) {
       return status || "모집중";
+    }
+
+    function eventAdminStatusClass(event) {
+      if (event.is_visible === false) return "hidden-state";
+      return eventStatusClass(event.status);
     }
 
     function showAdminEventStatus(type, text) {
@@ -8990,8 +9428,9 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function renderEventImage(event) {
+      const fitClass = event.image_fit === "contain" ? "fit-contain" : "fit-cover";
       if (isUsableEventImageUrl(event.image_url)) {
-        return `<img src="${escapeHtml(event.image_url)}" alt="${escapeHtml(event.title)}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';">${eventImagePlaceholder(event).replace("event-image-placeholder", "event-image-placeholder hidden")}`;
+        return `<img class="${fitClass}" src="${escapeHtml(event.image_url)}" alt="${escapeHtml(event.title)}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';">${eventImagePlaceholder(event).replace("event-image-placeholder", "event-image-placeholder hidden")}`;
       }
       return eventImagePlaceholder(event);
     }
@@ -9120,6 +9559,7 @@ This account will be used continuously, so please enter the information correctl
         status: "모집중",
         apply_url: "",
         detail_url: "",
+        image_fit: "cover",
         is_visible: true
       });
       fillAdminEventForm(sample);
@@ -9142,6 +9582,7 @@ This account will be used continuously, so please enter the information correctl
       if (adminEventStatusSelectEl) adminEventStatusSelectEl.value = item.status;
       if (adminEventApplyInputEl) adminEventApplyInputEl.value = item.apply_url;
       if (adminEventDetailUrlInputEl) adminEventDetailUrlInputEl.value = item.detail_url;
+      if (adminEventImageFitSelectEl) adminEventImageFitSelectEl.value = item.image_fit || "cover";
       if (adminEventVisibleInputEl) adminEventVisibleInputEl.checked = item.is_visible !== false;
     }
 
@@ -9192,11 +9633,101 @@ This account will be used continuously, so please enter the information correctl
         status,
         apply_url: adminEventApplyInputEl?.value.trim() || "",
         detail_url: adminEventDetailUrlInputEl?.value.trim() || "",
+        image_fit: adminEventImageFitSelectEl?.value === "contain" ? "contain" : "cover",
         is_visible: Boolean(adminEventVisibleInputEl?.checked),
         updated_at: new Date().toISOString()
       });
       if (!selectedId) event.id = "";
       return event;
+    }
+
+    function readAdminEventPreviewForm() {
+      return normalizeEventItem({
+        id: adminEventManagerSelectEl?.value && adminEventManagerSelectEl.value !== "__new__" ? adminEventManagerSelectEl.value : "",
+        title: adminEventTitleInputEl?.value.trim(),
+        event_date: adminEventDateInputEl?.value,
+        start_time: adminEventStartInputEl?.value,
+        end_time: adminEventEndInputEl?.value,
+        location: adminEventLocationInputEl?.value.trim(),
+        image_url: adminEventImageInputEl?.value.trim(),
+        image_fit: adminEventImageFitSelectEl?.value === "contain" ? "contain" : "cover",
+        short_description: adminEventShortInputEl?.value.trim(),
+        detail_content: adminEventDetailInputEl?.value.trim(),
+        price: adminEventPriceInputEl?.value.trim(),
+        status: adminEventStatusSelectEl?.value || "모집중",
+        apply_url: adminEventApplyInputEl?.value.trim() || "",
+        detail_url: adminEventDetailUrlInputEl?.value.trim() || "",
+        is_visible: Boolean(adminEventVisibleInputEl?.checked)
+      });
+    }
+
+    function eventAdminType(event) {
+      const text = `${event.title || ""} ${event.short_description || ""} ${event.detail_content || ""}`.toLowerCase();
+      if (/술|파티|party|beer|drink|맥주|모임/.test(text)) return "party";
+      if (/여행|trip|서핑|beach|travel/.test(text)) return "trip";
+      if (/스터디|study|english|japanese|chinese/.test(text)) return "study";
+      return "meetup";
+    }
+
+    function filteredAdminEvents() {
+      const search = normalizeName(adminEventSearchInputEl?.value || "");
+      const status = adminEventStatusFilterEl?.value || "all";
+      const type = adminEventTypeFilterEl?.value || "all";
+      return getAllEvents().filter((event) => {
+        if (search && !normalizeName(`${event.title} ${event.location} ${event.short_description}`).includes(search)) return false;
+        if (status === "hidden" && event.is_visible !== false) return false;
+        if (status !== "all" && status !== "hidden" && event.status !== status) return false;
+        if (type !== "all" && eventAdminType(event) !== type) return false;
+        return true;
+      });
+    }
+
+    function renderEventAdminThumb(event) {
+      const fitClass = event.image_fit === "contain" ? "fit-contain" : "fit-cover";
+      if (isUsableEventImageUrl(event.image_url)) {
+        return `<img class="${fitClass}" src="${escapeHtml(event.image_url)}" alt="${escapeHtml(event.title)}" loading="lazy" decoding="async" onerror="this.parentElement.innerHTML='🎁';">`;
+      }
+      return "🎁";
+    }
+
+    function renderAdminEventPreview(event) {
+      if (!adminEventPreviewEl) return;
+      const item = normalizeEventItem(event || filteredAdminEvents()[0] || getAllEvents()[0] || defaultEvents()[0]);
+      adminEventPreviewEl.innerHTML = `
+        <article class="event-card">
+          <div class="event-image">${renderEventImage(item)}</div>
+          <div class="event-card-body">
+            <div class="event-meta-row">
+              <span class="event-status ${eventStatusClass(item.status)}">${escapeHtml(eventStatusText(item.status))}</span>
+              <span class="event-date-chip">${escapeHtml(formatEventDate(item.event_date))}</span>
+            </div>
+            <h3>${escapeHtml(item.title || "이벤트 제목")}</h3>
+            <div class="event-info-grid">
+              <span>시간: ${escapeHtml(formatEventTime(item))}</span>
+              <span>장소: ${escapeHtml(item.location || "추후 공지")}</span>
+              <span>참가비: ${escapeHtml(item.price || "추후 공지")}</span>
+            </div>
+            <p class="event-description">${escapeHtml(item.short_description || "간단 소개글이 여기에 표시됩니다.")}</p>
+            <div class="event-actions">
+              <button type="button" class="btn">상세보기</button>
+              <button type="button" class="btn primary">신청하기</button>
+            </div>
+          </div>
+        </article>
+        <article class="event-detail-card">
+          <div class="event-image">${renderEventImage(item)}</div>
+          <div class="event-detail-body">
+            <h3 class="event-detail-title">${escapeHtml(item.title || "이벤트 상세 페이지")}</h3>
+            <div class="event-detail-list">
+              <span>날짜: ${escapeHtml(formatEventDate(item.event_date))}</span>
+              <span>시간: ${escapeHtml(formatEventTime(item))}</span>
+              <span>장소: ${escapeHtml(item.location || "추후 공지")}</span>
+              <span>참가비: ${escapeHtml(item.price || "추후 공지")}</span>
+            </div>
+            <div class="event-detail-content">${escapeHtml(item.detail_content || "상세 내용이 여기에 표시됩니다.")}</div>
+          </div>
+        </article>
+      `;
     }
 
     function renderAdminEventManager() {
@@ -9205,18 +9736,41 @@ This account will be used continuously, so please enter the information correctl
       const currentValue = adminEventManagerSelectEl.value || "__new__";
       adminEventManagerSelectEl.innerHTML = `<option value="__new__">새 이벤트 작성</option>${events.map((event) => `<option value="${escapeHtml(event.id)}">${escapeHtml(event.title)} · ${escapeHtml(formatEventDate(event.event_date))}</option>`).join("")}`;
       adminEventManagerSelectEl.value = events.some((event) => event.id === currentValue) ? currentValue : "__new__";
-      adminEventListEl.innerHTML = events.map((event) => `
-        <button type="button" class="btn" data-admin-edit-event="${escapeHtml(event.id)}">
-          ${event.is_visible === false ? "숨김 · " : ""}${escapeHtml(event.title)} · ${escapeHtml(eventStatusText(event.status))}
-        </button>
-      `).join("");
+      const rows = filteredAdminEvents();
+      adminEventListEl.innerHTML = rows.length ? rows.map((event) => `
+        <tr>
+          <td><div class="event-admin-thumb">${renderEventAdminThumb(event)}</div></td>
+          <td>
+            <div class="event-admin-title-cell">
+              <strong>${escapeHtml(event.title || "제목 없음")}</strong>
+              <small>${escapeHtml(event.short_description || "간단 소개 없음")}</small>
+            </div>
+          </td>
+          <td>${escapeHtml(formatEventDate(event.event_date))}<br><small>${escapeHtml(formatEventTime(event))}</small></td>
+          <td>${escapeHtml(event.location || "추후 공지")}</td>
+          <td><span class="event-admin-badge ${eventAdminStatusClass(event)}">${event.is_visible === false ? "숨김" : escapeHtml(eventStatusText(event.status))}</span></td>
+          <td><span class="event-link-state ${event.apply_url ? "yes" : "no"}">${event.apply_url ? "링크 있음" : "링크 없음"}</span></td>
+          <td>
+            <div class="event-admin-actions">
+              <button type="button" class="event-action-btn" data-admin-edit-event="${escapeHtml(event.id)}" aria-label="수정">✎</button>
+              <button type="button" class="event-action-btn danger" data-admin-delete-event="${escapeHtml(event.id)}" aria-label="삭제">🗑</button>
+            </div>
+          </td>
+        </tr>
+      `).join("") : `<tr><td colspan="7"><p class="helper">조건에 맞는 이벤트가 없습니다.</p></td></tr>`;
+      const selectedForPreview = getAllEvents().find((item) => item.id === adminEventManagerSelectEl.value) || rows[0] || events[0];
+      renderAdminEventPreview(selectedForPreview);
       adminEventListEl.querySelectorAll("[data-admin-edit-event]").forEach((button) => {
         button.addEventListener("click", () => {
           const event = getAllEvents().find((item) => item.id === button.dataset.adminEditEvent);
           if (!event) return;
           adminEventManagerSelectEl.value = event.id;
           fillAdminEventForm(event);
+          renderAdminEventPreview(event);
         });
+      });
+      adminEventListEl.querySelectorAll("[data-admin-delete-event]").forEach((button) => {
+        button.addEventListener("click", () => deleteAdminEvent(button.dataset.adminDeleteEvent));
       });
     }
 
@@ -9237,7 +9791,7 @@ This account will be used continuously, so please enter the information correctl
 
     async function saveEventToSupabase(event) {
       if (!isSupabaseConfigured()) throw new Error("Supabase 설정이 필요합니다.");
-      const columns = "id,title,event_date,start_time,end_time,location,image_url,short_description,detail_content,price,status,apply_url,detail_url,is_visible,created_at,updated_at";
+      const columns = "id,title,event_date,start_time,end_time,location,image_url,short_description,detail_content,price,status,apply_url,detail_url,image_fit,is_visible,deleted_at,created_at,updated_at";
       const body = {
         title: event.title,
         event_date: event.event_date || null,
@@ -9251,7 +9805,9 @@ This account will be used continuously, so please enter the information correctl
         status: event.status,
         apply_url: event.apply_url,
         detail_url: event.detail_url,
+        image_fit: event.image_fit || "cover",
         is_visible: event.is_visible,
+        deleted_at: null,
         updated_at: new Date().toISOString()
       };
       if (event.id) body.id = event.id;
@@ -9288,9 +9844,9 @@ This account will be used continuously, so please enter the information correctl
     async function loadEventsFromSupabase(options = {}) {
       if (!isSupabaseConfigured()) return false;
       try {
-        const columns = "id,title,event_date,start_time,end_time,location,image_url,short_description,detail_content,price,status,apply_url,detail_url,is_visible,created_at,updated_at";
+        const columns = "id,title,event_date,start_time,end_time,location,image_url,short_description,detail_content,price,status,apply_url,detail_url,image_fit,is_visible,deleted_at,created_at,updated_at";
         const visibleFilter = options.includeHidden ? "" : "&is_visible=eq.true";
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=${columns}${visibleFilter}&order=event_date.asc.nullslast&order=created_at.desc&limit=100`, {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=${columns}${visibleFilter}&deleted_at=is.null&order=event_date.asc.nullslast&order=created_at.desc&limit=100`, {
           headers: supabaseRestHeaders()
         });
         if (!response.ok) throw new Error(await response.text());
@@ -9307,6 +9863,39 @@ This account will be used continuously, so please enter the information correctl
         remoteEventsCache = [];
         if (activeView === "event") renderEventPage();
         return false;
+      }
+    }
+
+    async function deleteAdminEvent(eventId) {
+      if (!adminUnlocked || !eventId) return;
+      const event = getAllEvents().find((item) => item.id === eventId);
+      if (!event) return;
+      if (!window.confirm("정말 이 이벤트를 삭제하시겠습니까?")) return;
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/events?id=eq.${encodeURIComponent(eventId)}`, {
+          method: "PATCH",
+          headers: supabaseRestHeaders({
+            "Content-Type": "application/json",
+            Prefer: "return=minimal"
+          }),
+          body: JSON.stringify({
+            deleted_at: new Date().toISOString(),
+            is_visible: false,
+            updated_at: new Date().toISOString()
+          })
+        });
+        if (!response.ok) throw new Error(await response.text());
+        saveLocalEvents(getLocalEvents().filter((item) => item.id !== eventId));
+        await loadEventsFromSupabase({ includeHidden: true });
+        resetAdminEventForm();
+        renderAdminEventManager();
+        showAdminEventStatus("success", "✅ 이벤트가 삭제되었습니다.");
+        messageEl.textContent = "✅ 이벤트가 삭제되었습니다.";
+      } catch (error) {
+        console.error("event delete failed", error);
+        const detail = supabaseEventErrorMessage(error);
+        showAdminEventStatus("error", `❌ 이벤트 삭제 실패\n실패 이유: ${detail}`);
+        messageEl.textContent = `이벤트 삭제 실패: ${detail}`;
       }
     }
 
@@ -9330,7 +9919,7 @@ This account will be used continuously, so please enter the information correctl
         saveLocalEvents(events);
         selectedEventDetailId = "";
         await loadEventsFromSupabase({ includeHidden: true });
-        const successText = "✅ 이벤트가 저장되었습니다. 이벤트 페이지에 반영되었습니다.";
+        const successText = selectedEventId ? "✅ 이벤트가 수정되었습니다." : "✅ 이벤트가 저장되었습니다. 이벤트 페이지에 반영되었습니다.";
         showAdminEventStatus("success", successText);
         messageEl.textContent = successText;
         renderAdminEventManager();
@@ -10705,11 +11294,42 @@ This account will be used continuously, so please enter the information correctl
     saveNoticeEl.addEventListener("click", saveNotice);
     adminEventManagerSelectEl?.addEventListener("change", () => {
       const event = getAllEvents().find((item) => item.id === adminEventManagerSelectEl.value);
-      if (event) fillAdminEventForm(event);
-      else resetAdminEventForm();
+      if (event) {
+        fillAdminEventForm(event);
+        renderAdminEventPreview(event);
+      } else {
+        resetAdminEventForm();
+      }
     });
-    newAdminEventEl?.addEventListener("click", resetAdminEventForm);
+    newAdminEventEl?.addEventListener("click", () => {
+      resetAdminEventForm();
+      renderAdminEventManager();
+      messageEl.textContent = "새 이벤트 작성 양식이 준비되었습니다.";
+    });
     saveAdminEventEl?.addEventListener("click", saveAdminEvent);
+    [adminEventSearchInputEl, adminEventStatusFilterEl, adminEventTypeFilterEl].forEach((control) => {
+      control?.addEventListener("input", renderAdminEventManager);
+      control?.addEventListener("change", renderAdminEventManager);
+    });
+    [
+      adminEventTitleInputEl,
+      adminEventDateInputEl,
+      adminEventStartInputEl,
+      adminEventEndInputEl,
+      adminEventLocationInputEl,
+      adminEventImageInputEl,
+      adminEventShortInputEl,
+      adminEventDetailInputEl,
+      adminEventPriceInputEl,
+      adminEventStatusSelectEl,
+      adminEventApplyInputEl,
+      adminEventDetailUrlInputEl,
+      adminEventImageFitSelectEl,
+      adminEventVisibleInputEl
+    ].forEach((control) => {
+      control?.addEventListener("input", () => renderAdminEventPreview(readAdminEventPreviewForm()));
+      control?.addEventListener("change", () => renderAdminEventPreview(readAdminEventPreviewForm()));
+    });
     viewSavedEventEl?.addEventListener("click", async () => {
       const eventId = viewSavedEventEl.dataset.eventId || "";
       await openEventPage();
@@ -10726,6 +11346,22 @@ This account will be used continuously, so please enter the information correctl
       const reader = new FileReader();
       reader.onload = () => {
         adminEventImageInputEl.value = String(reader.result || "");
+        renderAdminEventPreview(normalizeEventItem({
+          title: adminEventTitleInputEl?.value.trim(),
+          event_date: adminEventDateInputEl?.value,
+          start_time: adminEventStartInputEl?.value,
+          end_time: adminEventEndInputEl?.value,
+          location: adminEventLocationInputEl?.value.trim(),
+          image_url: adminEventImageInputEl.value,
+          image_fit: adminEventImageFitSelectEl?.value || "cover",
+          short_description: adminEventShortInputEl?.value.trim(),
+          detail_content: adminEventDetailInputEl?.value.trim(),
+          price: adminEventPriceInputEl?.value.trim(),
+          status: adminEventStatusSelectEl?.value || "모집중",
+          apply_url: adminEventApplyInputEl?.value.trim(),
+          detail_url: adminEventDetailUrlInputEl?.value.trim(),
+          is_visible: Boolean(adminEventVisibleInputEl?.checked)
+        }));
       };
       reader.readAsDataURL(file);
     });
