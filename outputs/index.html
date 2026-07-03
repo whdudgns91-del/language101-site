@@ -2460,6 +2460,28 @@
       text-align: left;
     }
 
+    .like-target span:first-child {
+      display: grid;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .like-target strong {
+      color: var(--ink);
+      line-height: 1.2;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    .like-target small {
+      color: var(--muted-strong);
+      font-size: 11px;
+      line-height: 1.25;
+      font-weight: 800;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
     .like-target.selected {
       border-color: var(--heart);
       background: #fff1f2;
@@ -2479,7 +2501,7 @@
       border-radius: 8px;
       padding: 9px 10px;
       background: rgba(239, 68, 68, 0.12);
-      color: #fecaca;
+      color: #b91c1c;
       font-weight: 900;
     }
 
@@ -5617,6 +5639,13 @@ This account will be used continuously, so please enter the information correctl
       return Boolean(member?.name) && !isSyntheticMember(member);
     }
 
+    function hasVerifiedMemberAccount(id) {
+      if (!hasActualMemberId(id)) return false;
+      const saved = getDirectory()[id];
+      const member = memberFromId(id);
+      return Boolean(saved?.name && (saved.birth || saved.birthdate) && member.id === id && !isSyntheticMember(member));
+    }
+
     function isRankingVisibleMember(memberOrId) {
       const member = typeof memberOrId === "string" ? memberFromId(memberOrId) : memberOrId;
       return isRealVisibleMember(member) && !isOperatorMember(member);
@@ -7124,24 +7153,28 @@ This account will be used continuously, so please enter the information correctl
       const votes = getVotes();
       const eventVotes = votes[selectedLikeEventId] || {};
       const sent = readJson(HEARTS_KEY, {});
-      const participants = [...new Set(Object.values(eventVotes).flat())]
-        .filter((id) => id !== member?.id)
-        .filter((id) => isActualLikeTarget(id, member));
+      const { validIds: participants, invalidMembers } = getLikeTargetGroupsForEvent(selectedLikeEventId, member);
       const targets = participants.length
         ? participants.map((id) => {
           const target = memberFromId(id);
           const alreadySent = Boolean(sent[`${member.id}|${selectedLikeEventId}|${id}`]);
-          return `<button type="button" class="${selectedLikeTargets.includes(id) ? "like-target selected" : "like-target"}" data-inline-like-target="${escapeHtml(id)}"${alreadySent ? " disabled" : ""}><span>${escapeHtml(target.name)}</span>${alreadySent ? `<span class="sent-badge">보냄</span>` : ""}</button>`;
+          const profile = memberProfileLine(target);
+          return `<button type="button" class="${selectedLikeTargets.includes(id) ? "like-target selected" : "like-target"}" data-inline-like-target="${escapeHtml(id)}"${alreadySent ? " disabled" : ""}><span><strong>${escapeHtml(target.name)}</strong><small>${escapeHtml(target.myLevel || target.englishLevel || "")}${profile ? ` · ${escapeHtml(profile)}` : ""}</small></span>${alreadySent ? `<span class="sent-badge">보냄</span>` : `<span>${selectedLikeTargets.includes(id) ? "♥" : "♡"}</span>`}</button>`;
         }).join("")
-        : `<p class="small-note">${t("noEventParticipants")}</p>`;
+        : `<p class="small-note">좋아요를 보낼 수 있는 실제 계정 멤버가 없습니다.</p>`;
+      const invalidList = invalidMembers.length
+        ? `<div class="small-note warning"><strong>아래 인원은 실제 계정과 매칭되지 않아 좋아요를 보낼 수 없습니다.</strong><br>${invalidMembers.map((item) => `- ${escapeHtml(item.name)}`).join("<br>")}</div>`
+        : "";
+      const sendDisabled = participants.length ? "" : " disabled";
       return `
         <article class="profile-log-card">
           <strong>날짜 선택</strong>
           <div class="like-event-list">${eventButtons}</div>
           <strong>오늘 함께한 사람</strong>
           <div class="like-target-list">${targets}</div>
+          ${invalidList}
           <small>실제 계정으로 신청한 멤버만 표시됩니다. 본인과 임시 인원은 제외됩니다.</small>
-          <button type="button" class="btn heart" data-send-heart-inline>${t("sendHeart")}</button>
+          <button type="button" class="btn heart" data-send-heart-inline${sendDisabled}>${t("sendHeart")}</button>
         </article>
       `;
     }
@@ -9493,7 +9526,24 @@ This account will be used continuously, so please enter the information correctl
     function isActualLikeTarget(id, currentMember) {
       if (!hasActualMemberId(id)) return false;
       if (currentMember?.id && id === currentMember.id) return false;
-      return isRealVisibleMember(id);
+      return isRealVisibleMember(id) && hasVerifiedMemberAccount(id);
+    }
+
+    function getLikeTargetGroupsForEvent(eventId, member) {
+      const votes = getVotes();
+      const eventVotes = votes[eventId] || {};
+      const rawIds = [...new Set(Object.values(eventVotes).flat())].filter((id) => id !== member?.id);
+      const validIds = [];
+      const invalidMembers = [];
+      rawIds.forEach((id) => {
+        const target = memberFromId(id);
+        if (isActualLikeTarget(id, member)) {
+          validIds.push(id);
+        } else if (target?.name && !isSyntheticMember(target)) {
+          invalidMembers.push(target);
+        }
+      });
+      return { validIds, invalidMembers };
     }
 
     function hasSentHeartForEvent(member, eventId) {
@@ -9540,8 +9590,12 @@ This account will be used continuously, so please enter the information correctl
       if (!supabaseClient || !eventId || !sender?.id || !targetMembers?.length) {
         return { ok: false, savedTargets: [], error: "Supabase 연결을 확인해주세요." };
       }
+      const safeTargets = targetMembers.filter((member) => member?.id && isActualLikeTarget(member.id, sender));
+      if (!safeTargets.length) {
+        return { ok: false, savedTargets: [], error: "좋아요를 보낼 수 있는 실제 계정 멤버가 없습니다." };
+      }
       const studyId = eventPublicIdFromInternalId(eventId);
-      const rows = targetMembers.map((member) => ({
+      const rows = safeTargets.map((member) => ({
         study_id: studyId,
         sender_user_id: sender.id,
         receiver_user_id: member.id,
@@ -9567,13 +9621,13 @@ This account will be used continuously, so please enter the information correctl
           .eq("sender_user_id", sender.id);
         if (existingError) {
           if (isMissingSupabaseTableError(existingError, "study_likes")) {
-            const notificationsSaved = await sendReceiverNotifications(rows, targetMembers);
+            const notificationsSaved = await sendReceiverNotifications(rows, safeTargets);
             if (!notificationsSaved) {
               return { ok: false, savedTargets: [], error: "하트 알림 저장에 실패했습니다. Supabase notifications 테이블을 확인해주세요." };
             }
             return {
               ok: true,
-              savedTargets: targetMembers.map((member) => member.id),
+              savedTargets: safeTargets.map((member) => member.id),
               rows,
               notificationOnly: true
             };
@@ -9582,7 +9636,7 @@ This account will be used continuously, so please enter the information correctl
         }
 
         const existingTargets = new Set((existingRows || []).map((row) => row.receiver_user_id));
-        const newTargets = targetMembers.filter((member) => !existingTargets.has(member.id));
+        const newTargets = safeTargets.filter((member) => !existingTargets.has(member.id));
         if (!newTargets.length) {
           return { ok: false, savedTargets: [], error: "이미 이 스터디에 익명 좋아요를 보냈습니다." };
         }
@@ -9638,10 +9692,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function getActualLikeTargetsForEvent(eventId, member) {
-      const votes = getVotes();
-      const eventVotes = votes[eventId] || {};
-      return [...new Set(Object.values(eventVotes).flat())]
-        .filter((id) => isActualLikeTarget(id, member));
+      return getLikeTargetGroupsForEvent(eventId, member).validIds;
     }
 
     function renderLikePromptTargets() {
@@ -9742,7 +9793,12 @@ This account will be used continuously, so please enter the information correctl
       }
 
       const requestedTargetMembers = newTargets.map((target) => memberFromId(target));
+      console.log("selectedStudyId", selectedLikeEventId);
+      console.log("senderUserId", member?.id);
+      console.log("selectedReceivers", requestedTargetMembers);
+      console.log("receiver ids", requestedTargetMembers.map((target) => target.id));
       const savedRemote = await savePostStudyLikesToSupabase(selectedLikeEventId, member, requestedTargetMembers);
+      console.log("like insert result", savedRemote.rows || null, savedRemote.ok ? null : savedRemote.error);
       if (!savedRemote.ok) {
         const errorText = friendlyHeartError(savedRemote.error);
         messageEl.textContent = errorText;
@@ -10140,16 +10196,19 @@ This account will be used continuously, so please enter the information correctl
         likeTargetListEl.innerHTML = `<p class="small-note">${t("likeWindowClosed")}</p>`;
         return;
       }
-      const eventVotes = votes[selectedLikeEventId] || {};
-      const participants = [...new Set(Object.values(eventVotes).flat())]
-        .filter((id) => id !== member?.id)
-        .filter((id) => isActualLikeTarget(id, member));
+      const { validIds: participants, invalidMembers } = getLikeTargetGroupsForEvent(selectedLikeEventId, member);
       likeTargetListEl.innerHTML = "";
       if (!participants.length) {
         const empty = document.createElement("p");
         empty.className = "small-note";
-        empty.textContent = t("noEventParticipants");
+        empty.textContent = "좋아요를 보낼 수 있는 실제 계정 멤버가 없습니다.";
         likeTargetListEl.appendChild(empty);
+        if (invalidMembers.length) {
+          const invalid = document.createElement("div");
+          invalid.className = "small-note warning";
+          invalid.innerHTML = `<strong>아래 인원은 실제 계정과 매칭되지 않아 좋아요를 보낼 수 없습니다.</strong><br>${invalidMembers.map((item) => `- ${escapeHtml(item.name)}`).join("<br>")}`;
+          likeTargetListEl.appendChild(invalid);
+        }
         return;
       }
       selectedLikeTargets = selectedLikeTargets.filter((id) => participants.includes(id));
@@ -10158,10 +10217,17 @@ This account will be used continuously, so please enter the information correctl
         const button = document.createElement("button");
         button.type = "button";
         button.className = selectedLikeTargets.includes(id) ? "like-target selected" : "like-target";
-        button.innerHTML = `<span>${targetMember.name}</span><span>${selectedLikeTargets.includes(id) ? "♥" : "♡"}</span>`;
+        const profile = memberProfileLine(targetMember);
+        button.innerHTML = `<span><strong>${escapeHtml(targetMember.name)}</strong><small>${escapeHtml(targetMember.myLevel || targetMember.englishLevel || "")}${profile ? ` · ${escapeHtml(profile)}` : ""}</small></span><span>${selectedLikeTargets.includes(id) ? "♥" : "♡"}</span>`;
         button.addEventListener("click", () => toggleLikeTarget(id));
         likeTargetListEl.appendChild(button);
       });
+      if (invalidMembers.length) {
+        const invalid = document.createElement("div");
+        invalid.className = "small-note warning";
+        invalid.innerHTML = `<strong>아래 인원은 실제 계정과 매칭되지 않아 좋아요를 보낼 수 없습니다.</strong><br>${invalidMembers.map((item) => `- ${escapeHtml(item.name)}`).join("<br>")}`;
+        likeTargetListEl.appendChild(invalid);
+      }
     }
 
     function toggleLikeTarget(id) {
