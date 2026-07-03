@@ -8,7 +8,7 @@ alter table public.votes
   alter column sheet_sync_status set default 'pending';
 
 create index if not exists votes_sheet_sync_idx
-  on public.votes (event_id, synced_to_sheet, sheet_sync_status);
+  on public.votes (level, synced_to_sheet, sheet_sync_status);
 
 do $$
 begin

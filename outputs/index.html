@@ -5950,15 +5950,8 @@ This account will be used continuously, so please enter the information correctl
         .map((rule) => `${rule.id}-${ymdCompact}`);
     }
 
-    function rowEventKey(row) {
-      if (row?.event_id) return row.event_id;
-      if (row?.level) return row.level;
-      return "";
-    }
-
     function rowInternalEventId(row) {
       if (row?.level && eventFromStoredId(row.level)) return row.level;
-      if (row?.event_id) return eventInternalIdsFromPublicId(row.event_id)[0] || row.event_id;
       return row?.level || "";
     }
 
@@ -6280,16 +6273,12 @@ This account will be used continuously, so please enter the information correctl
     function getVoteQueryIds(extraRow = null) {
       const events = getDisplayedEventsForVoteQuery();
       const internalIds = uniqueValues(events.map((event) => event.id));
-      const publicIds = uniqueValues(events.map((event) => event.eventId || eventPublicIdFromInternalId(event.id)));
       if (extraRow) {
         const internalId = rowInternalEventId(extraRow);
-        const publicId = rowEventKey(extraRow);
         if (internalId) internalIds.push(internalId);
-        if (publicId) publicIds.push(publicId);
       }
       return {
-        internalIds: uniqueValues(internalIds),
-        publicIds: uniqueValues(publicIds)
+        internalIds: uniqueValues(internalIds)
       };
     }
 
@@ -6299,7 +6288,7 @@ This account will be used continuously, so please enter the information correctl
 
     async function fetchVotesByColumn(column, values) {
       if (!values.length) return [];
-      const columns = "id,name,birth,level,event_id,vote_option,created_at,attended,synced_to_sheet,sheet_sync_status,sheet_synced_at";
+      const columns = "id,name,birth,level,vote_option,created_at";
       const url = `${SUPABASE_URL}/rest/v1/votes?select=${columns}&${column}=in.${encodeURIComponent(encodeInList(values))}&order=created_at.desc&limit=2000`;
       const response = await fetch(url, {
         method: "GET",
@@ -6317,18 +6306,8 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function selectVotesViaRest(extraRow = null) {
-      const { publicIds, internalIds } = getVoteQueryIds(extraRow);
-      try {
-        const eventIdRows = await fetchVotesByColumn("event_id", publicIds);
-        const legacyRows = await fetchVotesByColumn("level", internalIds).catch(() => []);
-        const byId = new Map();
-        eventIdRows.concat(legacyRows).forEach((row) => {
-          byId.set(row.id || `${row.name}|${row.birth}|${row.level}|${row.event_id}|${row.created_at}`, row);
-        });
-        return [...byId.values()];
-      } catch (eventIdError) {
-        return fetchVotesByColumn("level", internalIds);
-      }
+      const { internalIds } = getVoteQueryIds(extraRow);
+      return fetchVotesByColumn("level", internalIds);
     }
 
     function voteRowMatches(row, expectedRow) {
@@ -6360,12 +6339,9 @@ This account will be used continuously, so please enter the information correctl
       throw new Error("투표 저장은 요청됐지만 목록에서 확인되지 않았습니다. 잠시 후 새로고침 후 다시 확인해주세요.");
     }
 
-    async function selectExistingVoteViaRest(eventId, member, useEventIdColumn = true) {
-      const publicEventId = eventPublicIdFromInternalId(eventId);
-      const eventColumn = useEventIdColumn ? "event_id" : "level";
-      const eventValue = useEventIdColumn ? publicEventId : eventId;
-      const columns = "id,name,birth,level,event_id,vote_option,created_at,attended,synced_to_sheet,sheet_sync_status,sheet_synced_at";
-      const url = `${SUPABASE_URL}/rest/v1/votes?select=${columns}&${eventColumn}=eq.${encodeURIComponent(eventValue)}&name=eq.${encodeURIComponent(member.name)}&birth=eq.${encodeURIComponent(member.birth)}&order=created_at.desc&limit=1`;
+    async function selectExistingVoteViaRest(eventId, member) {
+      const columns = "id,name,birth,level,vote_option,created_at";
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=${columns}&level=eq.${encodeURIComponent(eventId)}&name=eq.${encodeURIComponent(member.name)}&birth=eq.${encodeURIComponent(member.birth)}&order=created_at.desc&limit=1`;
       const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
@@ -6382,14 +6358,13 @@ This account will be used continuously, so please enter the information correctl
       return Array.isArray(rows) ? rows[0] : null;
     }
 
-    async function updateVoteViaRest(rowId, eventId, option, member, useEventIdColumn = true) {
+    async function updateVoteViaRest(rowId, eventId, option, member) {
       const body = {
         name: member.name,
         birth: member.birth,
         level: eventId,
         vote_option: option
       };
-      if (useEventIdColumn) body.event_id = eventPublicIdFromInternalId(eventId);
       const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?id=eq.${encodeURIComponent(rowId)}`, {
         method: "PATCH",
         headers: supabaseRestHeaders({
@@ -6408,14 +6383,13 @@ This account will be used continuously, so please enter the information correctl
       return savedRow;
     }
 
-    async function postVoteViaRest(eventId, option, member, useEventIdColumn = true) {
+    async function postVoteViaRest(eventId, option, member) {
       const body = {
         name: member.name,
         birth: member.birth,
         level: eventId,
         vote_option: option
       };
-      if (useEventIdColumn) body.event_id = eventPublicIdFromInternalId(eventId);
       const response = await fetch(`${SUPABASE_URL}/rest/v1/votes`, {
         method: "POST",
         headers: supabaseRestHeaders({
@@ -6434,14 +6408,14 @@ This account will be used continuously, so please enter the information correctl
       return savedRow;
     }
 
-    async function insertVoteViaRest(eventId, option, member, useEventIdColumn = true) {
-      const existing = await selectExistingVoteViaRest(eventId, member, useEventIdColumn);
+    async function insertVoteViaRest(eventId, option, member) {
+      const existing = await selectExistingVoteViaRest(eventId, member);
       if (existing?.id && existing.vote_option !== "__cancelled__") {
         try {
-          return await updateVoteViaRest(existing.id, eventId, option, member, useEventIdColumn);
+          return await updateVoteViaRest(existing.id, eventId, option, member);
         } catch {}
       }
-      return postVoteViaRest(eventId, option, member, useEventIdColumn);
+      return postVoteViaRest(eventId, option, member);
     }
 
     async function loadVotesFromSupabase(options = {}) {
@@ -6473,13 +6447,11 @@ This account will be used continuously, so please enter the information correctl
 
     async function insertSupabaseRow(eventId, option, member, errorPrefix) {
       try {
-        return await insertVoteViaRest(eventId, option, member, true);
+        return await insertVoteViaRest(eventId, option, member);
       } catch (restError) {
-        try {
-          return await insertVoteViaRest(eventId, option, member, false);
-        } catch {}
+        console.error(errorPrefix, restError);
         if (!supabaseClient) {
-          messageEl.textContent = `${errorPrefix}: ${restError.message}`;
+          messageEl.textContent = "투표 저장에 실패했습니다. 잠시 후 다시 시도해주세요.";
           return false;
         }
       }
@@ -6487,11 +6459,11 @@ This account will be used continuously, so please enter the information correctl
         name: member.name,
         birth: member.birth,
         level: eventId,
-        event_id: eventPublicIdFromInternalId(eventId),
         vote_option: option
-      }).select("id,name,birth,level,event_id,vote_option,created_at,attended,synced_to_sheet,sheet_sync_status,sheet_synced_at").single();
+      }).select("id,name,birth,level,vote_option,created_at").single();
       if (error) {
-        messageEl.textContent = `${errorPrefix}: ${error.message}`;
+        console.error(errorPrefix, error);
+        messageEl.textContent = "투표 저장에 실패했습니다. 잠시 후 다시 시도해주세요.";
         return false;
       }
       return data;
