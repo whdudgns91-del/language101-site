@@ -866,7 +866,7 @@
 
     .profile-top-stat {
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-columns: auto minmax(0, 1fr) auto;
       gap: 9px;
       align-items: center;
       min-height: 72px;
@@ -880,6 +880,14 @@
       text-align: left;
     }
 
+    .profile-top-stat::after {
+      content: "›";
+      color: var(--muted);
+      font-size: 22px;
+      font-weight: 950;
+      line-height: 1;
+    }
+
     .profile-top-stat small {
       display: block;
       margin-top: 3px;
@@ -890,6 +898,25 @@
 
     .profile-top-stat .stat-icon {
       font-size: 24px;
+    }
+
+    .profile-top-stat b {
+      display: block;
+      margin-top: 1px;
+      color: var(--purple-deep);
+      font-size: 20px;
+      font-weight: 950;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .profile-top-stat strong {
+      display: block;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 950;
+      line-height: 1.25;
+      white-space: nowrap;
     }
 
     .profile-point-guide {
@@ -1135,6 +1162,30 @@
       gap: 8px;
     }
 
+    .profile-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+
+    .profile-tab {
+      min-height: 38px;
+      border: 1px solid var(--paper-line);
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--subtle);
+      font-size: 13px;
+      font-weight: 950;
+    }
+
+    .profile-tab.active {
+      border-color: rgba(124, 58, 237, 0.45);
+      background: var(--purple-gradient);
+      color: #ffffff;
+      box-shadow: 0 10px 22px rgba(124, 58, 237, 0.2);
+    }
+
     .profile-log-card,
     .application-card,
     .study-alert-card {
@@ -1195,8 +1246,8 @@
       margin-top: 6px;
       border-radius: 999px;
       padding: 3px 8px;
-      background: rgba(34, 197, 94, 0.16);
-      color: #86efac;
+      background: #dcfce7;
+      color: #15803d;
       font-size: 11px;
       font-weight: 900;
     }
@@ -1513,7 +1564,9 @@
 
     .like-modal-target.selected {
       border-color: rgba(232, 75, 106, 0.75);
-      background: rgba(232, 75, 106, 0.18);
+      background: #fff1f2;
+      color: #9f1239;
+      box-shadow: 0 10px 24px rgba(232, 75, 106, 0.14);
     }
 
     .like-modal-check {
@@ -2334,8 +2387,8 @@
 
     .like-target.selected {
       border-color: var(--heart);
-      background: rgba(232, 75, 106, 0.1);
-      color: #fecdd3;
+      background: #fff1f2;
+      color: #9f1239;
     }
 
     .small-note {
@@ -3911,8 +3964,8 @@ This account will be used continuously, so please enter the information correctl
           <p class="helper" id="levelText">투표와 참석 예약, 익명 좋아요가 포인트로 쌓입니다.</p>
           <div class="xp-bar" aria-hidden="true"><span id="xpFill" style="width:0%"></span></div>
           <div class="stats">
-            <span class="profile-top-stat clickable" id="attendPill"><span class="stat-icon">✅</span><span>출석 0<small>출석 체크</small></span></span>
-            <span class="profile-top-stat clickable" id="heartPill"><span class="stat-icon">💌</span><span>좋아요 보내기<small>스터디 후 익명 좋아요</small></span></span>
+            <span class="profile-top-stat clickable" id="attendPill"><span class="stat-icon">✅</span><span><strong>스터디 참석</strong><b>0회</b><small>참석 기록</small></span></span>
+            <span class="profile-top-stat clickable" id="heartPill"><span class="stat-icon">💗</span><span><strong>받은/보낸 좋아요</strong><b>0 / 0</b><small>좋아요 내역</small></span></span>
             <span class="pill clickable hidden" id="pointPill">0 pt</span>
             <span class="pill clickable hidden" id="sentHeartPill">보낸 좋아요 0</span>
           </div>
@@ -3933,25 +3986,9 @@ This account will be used continuously, so please enter the information correctl
             <button type="button" class="daily-checkin-button" id="dailyCheckinButton">출석 체크하기</button>
           </article>
           <div class="profile-actions">
-            <button type="button" class="profile-menu-card" id="showApplicationLog">
-              <span class="profile-menu-icon">📅</span>
-              <span><strong>내 신청 내역</strong><small>내가 신청한 스터디 확인</small></span>
-            </button>
-            <button type="button" class="profile-menu-card" id="showLikeAfterStudy">
-              <span class="profile-menu-icon">💌</span>
-              <span><strong>스터디 후 익명 좋아요</strong><small>함께했던 멤버에게 익명 좋아요 보내기</small></span>
-            </button>
-            <button type="button" class="profile-menu-card" id="showReceivedHeartLog">
-              <span class="profile-menu-icon">❤️</span>
-              <span><strong>받은 좋아요 보기</strong><small>내가 받은 익명 좋아요 확인</small></span>
-            </button>
             <button type="button" class="profile-menu-card" id="showPointLog">
               <span class="profile-menu-icon">P</span>
               <span><strong>포인트 내역</strong><small>포인트 적립 및 사용 내역 확인</small></span>
-            </button>
-            <button type="button" class="profile-menu-card" id="showSentHeartLog">
-              <span class="profile-menu-icon">❤️</span>
-              <span><strong>보낸 좋아요 보기</strong><small>내가 보낸 익명 좋아요 확인</small></span>
             </button>
             <button type="button" class="profile-menu-card" id="showLevelGuide">
               <span class="profile-menu-icon">🏆</span>
@@ -4284,6 +4321,7 @@ This account will be used continuously, so please enter the information correctl
     let selectedEventDetailId = "";
     let activeProfileDetail = "";
     let profileView = "main";
+    let likeHistoryTab = "received";
     let supabaseClient = null;
     let realtimeChannel = null;
     let likesRealtimeChannel = null;
@@ -5986,12 +6024,14 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function receivedLikeProcessKey(row, memberId) {
-      return `${row?.study_id || ""}|${row?.sender_id || ""}|${memberId || ""}`;
+      return `${row?.study_id || ""}|${row?.sender_user_id || row?.sender_id || ""}|${memberId || row?.receiver_user_id || ""}`;
     }
 
     function processIncomingLikeRow(row, options = {}) {
       const member = getMember();
-      if (!member?.id || !row?.receiver_ids?.includes(member.id)) return;
+      const receiverId = row?.receiver_user_id || "";
+      const legacyReceiverIds = Array.isArray(row?.receiver_ids) ? row.receiver_ids : [];
+      if (!member?.id || (receiverId !== member.id && !legacyReceiverIds.includes(member.id))) return;
       const processed = readJson(REMOTE_LIKE_RECEIVED_KEY, {});
       const key = receivedLikeProcessKey(row, member.id);
       if (processed[key]) return;
@@ -6007,6 +6047,7 @@ This account will be used continuously, so please enter the information correctl
         option: "study",
         detail: `오늘 모임에서 익명 좋아요를 받았습니다. +${pointRules.heart}P`
       });
+      upsertNotification(buildAnonymousLikeReceivedNotification(member, row));
       messageEl.textContent = "오늘 모임에서 좋아요를 받았어요 😊";
       if (options.render !== false) render();
     }
@@ -6015,9 +6056,9 @@ This account will be used continuously, so please enter the information correctl
       if (!supabaseClient || !member?.id) return;
       try {
         const { data, error } = await supabaseClient
-          .from("post_study_likes")
+          .from("study_likes")
           .select("*")
-          .contains("receiver_ids", [member.id])
+          .eq("receiver_user_id", member.id)
           .order("created_at", { ascending: false })
           .limit(100);
         if (error) throw error;
@@ -6030,14 +6071,62 @@ This account will be used continuously, so please enter the information correctl
         });
         if (changed) render();
       } catch (error) {
-        console.warn("received likes sync failed", error?.message || error);
+        console.warn("study_likes sync failed", error?.message || error);
+        try {
+          const { data, error: legacyError } = await supabaseClient
+            .from("post_study_likes")
+            .select("*")
+            .contains("receiver_ids", [member.id])
+            .order("created_at", { ascending: false })
+            .limit(100);
+          if (legacyError) throw legacyError;
+          let changed = false;
+          (data || []).forEach((row) => {
+            const before = JSON.stringify(readJson(REMOTE_LIKE_RECEIVED_KEY, {}));
+            processIncomingLikeRow(row, { render: false });
+            const after = JSON.stringify(readJson(REMOTE_LIKE_RECEIVED_KEY, {}));
+            if (before !== after) changed = true;
+          });
+          if (changed) render();
+        } catch (legacyError) {
+          console.warn("received likes legacy sync failed", legacyError?.message || legacyError);
+        }
+      }
+    }
+
+    async function loadNotificationsFromSupabase(member) {
+      if (!supabaseClient || !member?.id) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from("notifications")
+          .select("*")
+          .eq("user_id", member.id)
+          .order("created_at", { ascending: false })
+          .limit(100);
+        if (error) throw error;
+        (data || []).forEach((row) => {
+          upsertNotification({
+            user_id: row.user_id,
+            study_id: row.study_id || "",
+            type: row.type || "notice",
+            title: row.title || "",
+            message: row.message || "",
+            target_view: row.target_view || "",
+            is_read: Boolean(row.is_read),
+            read_at: row.read_at || "",
+            expires_at: row.expires_at || "",
+            created_at: row.created_at || new Date().toISOString()
+          });
+        });
+      } catch (error) {
+        console.warn("notifications sync failed", error?.message || error);
       }
     }
 
     function syncReceivedLikesForMember(member) {
       if (!supabaseClient || !member?.id || receivedLikesSyncInFlight || receivedLikesSyncedMembers.has(member.id)) return;
       receivedLikesSyncInFlight = true;
-      loadReceivedLikesFromSupabase(member)
+      Promise.all([loadReceivedLikesFromSupabase(member), loadNotificationsFromSupabase(member)])
         .then(() => receivedLikesSyncedMembers.add(member.id))
         .finally(() => { receivedLikesSyncInFlight = false; });
     }
@@ -6047,6 +6136,16 @@ This account will be used continuously, so please enter the information correctl
       if (likesRealtimeChannel) supabaseClient.removeChannel(likesRealtimeChannel);
       likesRealtimeChannel = supabaseClient
         .channel(`post-study-likes-${Date.now()}`)
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "study_likes" }, (payload) => {
+          processIncomingLikeRow(payload.new);
+        })
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, (payload) => {
+          const member = getMember();
+          if (member?.id && payload.new?.user_id === member.id) {
+            upsertNotification(payload.new);
+            renderStudyNotifications();
+          }
+        })
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "post_study_likes" }, (payload) => {
           processIncomingLikeRow(payload.new);
         })
@@ -6250,13 +6349,33 @@ This account will be used continuously, so please enter the information correctl
         ...existing,
         ...notification,
         id: existing.id || key,
-        is_read: Boolean(existing.is_read),
-        read_at: existing.read_at || "",
+        is_read: isNew ? Boolean(notification.is_read) : Boolean(existing.is_read || notification.is_read),
+        read_at: existing.read_at || notification.read_at || "",
         created_at: existing.created_at || new Date().toISOString()
       };
       saveStoredNotifications(notifications);
       if (isNew) saveNotificationToSupabase(notifications[key]);
       return notifications[key];
+    }
+
+    function buildAnonymousLikeReceivedNotification(member, row) {
+      const studyId = row?.study_id || "";
+      const internalStudyId = eventInternalIdsFromPublicId(studyId)[0] || studyId;
+      const event = resolveEventById(internalStudyId);
+      const label = event
+        ? `${formatDateLabel(event.start)} ${t(event.title)}`
+        : studyId;
+      return {
+        user_id: member.id,
+        study_id: studyId,
+        type: "anonymous_like_received",
+        title: "익명 좋아요를 받았습니다 💌",
+        message: "누군가 스터디 후 당신에게 익명 좋아요를 보냈어요.",
+        target_view: "profile.receivedHearts",
+        study_label: label,
+        is_read: false,
+        expires_at: ""
+      };
     }
 
     function buildLikeReminderNotification(member, event) {
@@ -6307,17 +6426,24 @@ This account will be used continuously, so please enter the information correctl
         selectedLikeTargets = [];
         setActiveView("profile");
         showProfileDetail("likeAfterStudy");
+      } else if (notification.type === "anonymous_like_received") {
+        setActiveView("profile");
+        showProfileDetail("receivedHearts");
       }
     }
 
     function renderNotificationCard(notification) {
       const status = notification.is_read ? "읽음" : "안 읽음";
       const cls = notification.is_read ? "read" : "unread";
+      const studyId = notification.study_id || "";
+      const internalStudyId = eventInternalIdsFromPublicId(studyId)[0] || studyId;
+      const event = resolveEventById(internalStudyId);
+      const studyLabel = notification.study_label || (event ? `${formatDateLabel(event.start)} ${t(event.title)}` : studyId);
       return `
         <button type="button" class="notification-card ${cls}" data-notification-id="${escapeHtml(notification.id)}">
           <strong>${escapeHtml(notification.title || "알림")}</strong>
           <span>${escapeHtml(notification.message || "")}</span>
-          <small>${escapeHtml(notification.study_label || "")}</small>
+          <small>${escapeHtml(studyLabel || "")}</small>
           <em>${escapeHtml(status)}</em>
         </button>
       `;
@@ -6533,6 +6659,32 @@ This account will be used continuously, so please enter the information correctl
       return `<article class="profile-log-card"><strong>${escapeHtml(formatRecordDate(record.timestamp))} <span class="point-plus">+${pointRules.heart}P</span></strong><small>익명 좋아요를 받았습니다.</small>${event ? `<small>스터디: ${escapeHtml(event)}</small>` : ""}</article>`;
     }
 
+    function renderLikeHistory(member) {
+      const records = getMemberRecords(member);
+      const receivedLines = records.filter((record) => record.action === "heart_received");
+      const sentLines = records.filter((record) => record.action === "heart_sent");
+      const activeLines = likeHistoryTab === "sent" ? sentLines : receivedLines;
+      const list = activeLines.length
+        ? activeLines.map((record) => likeHistoryTab === "sent" ? renderSentHeartRecord(record) : renderReceivedHeartRecord(record)).join("")
+        : `<article class="profile-log-card"><strong>${likeHistoryTab === "sent" ? "보낸 좋아요가 없습니다." : "받은 좋아요가 없습니다."}</strong><small>${likeHistoryTab === "sent" ? "스터디 후 보낸 익명 좋아요가 여기에 표시됩니다." : "보낸 사람 이름은 공개되지 않습니다."}</small></article>`;
+      return `
+        <div class="profile-tabs" role="tablist" aria-label="좋아요 내역">
+          <button type="button" class="profile-tab ${likeHistoryTab === "received" ? "active" : ""}" data-like-history-tab="received">받은 좋아요</button>
+          <button type="button" class="profile-tab ${likeHistoryTab === "sent" ? "active" : ""}" data-like-history-tab="sent">보낸 좋아요</button>
+        </div>
+        ${list}
+      `;
+    }
+
+    function bindLikeHistoryTabs() {
+      profileDetailEl.querySelectorAll("[data-like-history-tab]").forEach((button) => {
+        button.addEventListener("click", () => {
+          likeHistoryTab = button.dataset.likeHistoryTab || "received";
+          showProfileDetail("likes");
+        });
+      });
+    }
+
     function bindInlineLikeAfterStudy() {
       profileDetailEl.querySelectorAll("[data-inline-like-event]").forEach((button) => {
         button.addEventListener("click", () => {
@@ -6612,20 +6764,18 @@ This account will be used continuously, so please enter the information correctl
           ? pointRecords.map(renderPointRecord).join("")
           : `<article class="profile-log-card"><strong>${t("profileLogEmpty")}</strong></article>`);
       } else if (kind === "sentHearts") {
-        title = "보낸 좋아요 보기";
-        const lines = records.filter((record) => record.action === "heart_sent");
-        body = lines.length
-          ? lines.map(renderSentHeartRecord).join("")
-          : `<article class="profile-log-card"><strong>보낸 좋아요가 없습니다.</strong></article>`;
+        likeHistoryTab = "sent";
+        title = "좋아요 내역";
+        body = renderLikeHistory(member);
       } else if (kind === "receivedHearts") {
-        title = "받은 좋아요 보기";
-        const stats = getMemberStats(member);
-        const lines = records.filter((record) => record.action === "heart_received");
-        body = `<article class="profile-total-card"><small>받은 좋아요</small><strong>${stats.hearts.toLocaleString()}개 · +${(stats.hearts * pointRules.heart).toLocaleString()}P</strong></article>` + (lines.length
-          ? lines.map(renderReceivedHeartRecord).join("")
-          : `<article class="profile-log-card"><strong>받은 좋아요가 없습니다.</strong><small>스터디 후 멤버가 익명 좋아요를 보내면 여기에 표시됩니다.</small></article>`);
+        likeHistoryTab = "received";
+        title = "좋아요 내역";
+        body = renderLikeHistory(member);
+      } else if (kind === "likes") {
+        title = "좋아요 내역";
+        body = renderLikeHistory(member);
       } else if (kind === "applications") {
-        title = "내 신청 내역";
+        title = "스터디 참석 내역";
         const rows = getApplicationRows(member);
         body = rows.length
           ? rows.map(applicationCard).join("")
@@ -6643,6 +6793,7 @@ This account will be used continuously, so please enter the information correctl
       profileDetailEl.classList.remove("hidden");
       likePanelEl.classList.add("hidden");
       bindProfileBackButtons();
+      if (kind === "likes" || kind === "sentHearts" || kind === "receivedHearts") bindLikeHistoryTabs();
       if (kind === "likeAfterStudy") bindInlineLikeAfterStudy();
       renderProfileScreen();
       updateBackButton();
@@ -8685,20 +8836,58 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function savePostStudyLikesToSupabase(eventId, sender, targetMembers) {
-      if (!supabaseClient || !eventId || !sender?.id || !targetMembers?.length) return false;
+      if (!supabaseClient || !eventId || !sender?.id || !targetMembers?.length) {
+        return { ok: false, savedTargets: [], error: "Supabase 연결을 확인해주세요." };
+      }
+      const studyId = eventPublicIdFromInternalId(eventId);
       try {
-        const { error } = await supabaseClient.from("post_study_likes").insert({
-          study_id: eventPublicIdFromInternalId(eventId),
-          sender_id: sender.id,
-          sender_name: sender.name,
-          receiver_ids: targetMembers.map((member) => member.id),
-          receiver_names: targetMembers.map((member) => member.name)
+        const { data: existingRows, error: existingError } = await supabaseClient
+          .from("study_likes")
+          .select("receiver_user_id")
+          .eq("study_id", studyId)
+          .eq("sender_user_id", sender.id);
+        if (existingError) throw existingError;
+
+        const existingTargets = new Set((existingRows || []).map((row) => row.receiver_user_id));
+        const newTargets = targetMembers.filter((member) => !existingTargets.has(member.id));
+        if (!newTargets.length) {
+          return { ok: false, savedTargets: [], error: "이미 이 스터디에 익명 좋아요를 보냈습니다." };
+        }
+        if ((existingRows || []).length + newTargets.length > 2) {
+          return { ok: false, savedTargets: [], error: "한 스터디에서는 최대 2명까지만 좋아요를 보낼 수 있습니다." };
+        }
+
+        const rows = newTargets.map((member) => ({
+          study_id: studyId,
+          sender_user_id: sender.id,
+          receiver_user_id: member.id
+        }));
+        const { data, error } = await supabaseClient
+          .from("study_likes")
+          .insert(rows)
+          .select("*");
+        if (error) throw error;
+
+        (data || rows).forEach((row) => {
+          const receiver = memberFromId(row.receiver_user_id);
+          const notification = buildAnonymousLikeReceivedNotification(receiver, row);
+          saveNotificationToSupabase(notification);
         });
-        if (error) console.warn("post_study_likes insert failed", error.message);
-        return !error;
+
+        try {
+          await supabaseClient.from("post_study_likes").insert({
+            study_id: studyId,
+            sender_id: sender.id,
+            sender_name: sender.name,
+            receiver_ids: newTargets.map((member) => member.id),
+            receiver_names: newTargets.map((member) => member.name)
+          });
+        } catch {}
+
+        return { ok: true, savedTargets: newTargets.map((member) => member.id), rows: data || rows };
       } catch (error) {
-        console.warn("post_study_likes insert failed", error?.message || error);
-        return false;
+        console.warn("study_likes insert failed", error?.message || error);
+        return { ok: false, savedTargets: [], error: error?.message || "익명 좋아요 저장 실패" };
       }
     }
 
@@ -8806,11 +8995,26 @@ This account will be used continuously, so please enter the information correctl
         return;
       }
 
+      const requestedTargetMembers = newTargets.map((target) => memberFromId(target));
+      const savedRemote = await savePostStudyLikesToSupabase(selectedLikeEventId, member, requestedTargetMembers);
+      if (!savedRemote.ok) {
+        const errorText = savedRemote.error || "익명 좋아요 저장에 실패했습니다.";
+        messageEl.textContent = errorText;
+        setLikePromptMessage(errorText);
+        return;
+      }
+      const savedTargetIds = savedRemote.savedTargets || [];
+      if (!savedTargetIds.length) {
+        messageEl.textContent = "이미 이 스터디에 익명 좋아요를 보냈습니다.";
+        setLikePromptMessage("이미 이 스터디에 익명 좋아요를 보냈습니다.");
+        return;
+      }
+
       const stats = getStats();
       const senderStats = ensureStatsEntry(stats, member);
       const processedReceivedLikes = readJson(REMOTE_LIKE_RECEIVED_KEY, {});
       const targetMembers = [];
-      newTargets.forEach((target) => {
+      savedTargetIds.forEach((target) => {
         sent[`${member.id}|${selectedLikeEventId}|${target}`] = true;
         const targetMember = memberFromId(target);
         targetMembers.push(targetMember);
@@ -8819,10 +9023,11 @@ This account will be used continuously, so please enter the information correctl
         targetStats.points += pointRules.heart;
         processedReceivedLikes[receivedLikeProcessKey({
           study_id: eventPublicIdFromInternalId(selectedLikeEventId),
-          sender_id: member.id
+          sender_user_id: member.id,
+          receiver_user_id: target
         }, target)] = new Date().toISOString();
       });
-      senderStats.sentHearts += newTargets.length;
+      senderStats.sentHearts += savedTargetIds.length;
       writeJson(STATS_KEY, stats);
       writeJson(HEARTS_KEY, sent);
       writeJson(REMOTE_LIKE_RECEIVED_KEY, processedReceivedLikes);
@@ -8830,14 +9035,11 @@ This account will be used continuously, so please enter the information correctl
         logMemberAction("heart_received", targetMember, {
           event: selectedLikeEventId,
           option: "study",
-          detail: t("pointLogHeart", { date: formatRecordDate(new Date().toISOString()), target: member.name, points: pointRules.heart })
+          detail: `익명 좋아요를 받았습니다. +${pointRules.heart}P`
         });
       });
-      logMemberAction("heart_sent", member, { event: selectedLikeEventId, option: "study", detail: newTargets.map((target) => memberFromId(target).name).join(", ") });
-      const savedRemote = await savePostStudyLikesToSupabase(selectedLikeEventId, member, targetMembers);
-      messageEl.textContent = savedRemote
-        ? "✅ 익명 좋아요를 보냈습니다. 상대방 프로필의 받은 좋아요 수가 증가합니다."
-        : "✅ 익명 좋아요를 보냈습니다. 이 기기에는 반영됐지만 Supabase 저장 상태를 확인해주세요.";
+      logMemberAction("heart_sent", member, { event: selectedLikeEventId, option: "study", detail: savedTargetIds.map((target) => memberFromId(target).name).join(", ") });
+      messageEl.textContent = "✅ 익명 좋아요를 보냈습니다.";
       selectedLikeTargets = [];
       closeLikePromptModal();
       showHeartBurst();
@@ -8930,8 +9132,8 @@ This account will be used continuously, so please enter the information correctl
       });
       xpFillEl.style.width = `${(stats.points % 1000) / 10}%`;
       pointPillEl.textContent = t("points", { points: stats.points });
-      attendPillEl.innerHTML = `<span class="stat-icon">✅</span><span>스터디 참석 ${stats.attendance}회<small>스터디 참석 기록</small></span>`;
-      heartPillEl.innerHTML = `<span class="stat-icon">💌</span><span>좋아요 보내기<small>스터디 후 익명 좋아요</small></span>`;
+      attendPillEl.innerHTML = `<span class="stat-icon">✅</span><span><strong>스터디 참석</strong><b>${stats.attendance}회</b><small>참석 기록</small></span>`;
+      heartPillEl.innerHTML = `<span class="stat-icon">💗</span><span><strong>받은/보낸 좋아요</strong><b>${stats.hearts} / ${stats.sentHearts}</b><small>좋아요 내역</small></span>`;
       renderDailyCheckinCard(member);
       if (showReceivedHeartLogEl) {
         showReceivedHeartLogEl.innerHTML = `<span class="profile-menu-icon">❤️</span><span><strong>받은 좋아요 ${stats.hearts}</strong><small>받은 익명 좋아요 · +${(stats.hearts * pointRules.heart).toLocaleString()}P</small></span>`;
@@ -9618,14 +9820,14 @@ This account will be used continuously, so please enter the information correctl
       selectedLikeTargets = [];
     });
     likePromptSendEl.addEventListener("click", sendHeart);
-    showApplicationLogEl.addEventListener("click", () => showProfileDetail("applications"));
+    showApplicationLogEl?.addEventListener("click", () => showProfileDetail("applications"));
     showPointLogEl.addEventListener("click", () => showProfileDetail("points"));
-    showSentHeartLogEl.addEventListener("click", () => showProfileDetail("sentHearts"));
+    showSentHeartLogEl?.addEventListener("click", () => showProfileDetail("sentHearts"));
     showLevelGuideEl.addEventListener("click", () => showProfileDetail("levels"));
     showLikeAfterStudyEl?.addEventListener("click", () => showProfileDetail("likeAfterStudy"));
     showReceivedHeartLogEl?.addEventListener("click", () => showProfileDetail("receivedHearts"));
-    attendPillEl.addEventListener("click", () => showProfileDetail("attendance"));
-    heartPillEl.addEventListener("click", () => showProfileDetail("likeAfterStudy"));
+    attendPillEl.addEventListener("click", () => showProfileDetail("applications"));
+    heartPillEl.addEventListener("click", () => showProfileDetail("likes"));
     dailyCheckinButtonEl?.addEventListener("click", handleDailyCheckin);
     pointPillEl.addEventListener("click", () => showProfileDetail("points"));
     sentHeartPillEl.addEventListener("click", () => showProfileDetail("sentHearts"));
