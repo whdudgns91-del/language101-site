@@ -3787,7 +3787,6 @@ This account will be used continuously, so please enter the information correctl
             <span>관리자 출석 체크 +50P</span>
             <span>받은 익명 좋아요 +100P</span>
           </div>
-          <div class="study-alerts" id="profileAlertList"></div>
           <div class="profile-actions">
             <button type="button" class="profile-menu-card" id="showApplicationLog">
               <span class="profile-menu-icon">📅</span>
@@ -3810,6 +3809,7 @@ This account will be used continuously, so please enter the information correctl
               <span><strong>레벨 등급 보기</strong><small>레벨별 조건 및 혜택 확인</small></span>
             </button>
           </div>
+          <div class="study-alerts profile-like-reminder hidden" id="profileAlertList"></div>
           <button type="button" class="btn level-guide-toggle hidden" id="levelGuideToggle" data-i18n="levelGuideButton">레벨 등급 보기</button>
           <div class="level-guide hidden" id="levelGuide">
             <div data-i18n="levelGuideRookie">🌱 Rookie (Lv.1~20) : 첫걸음을 시작한 단계</div>
@@ -5832,8 +5832,10 @@ This account will be used continuously, so please enter the information correctl
     function startVotesPolling() {
       if (votesPollTimer) window.clearInterval(votesPollTimer);
       votesPollTimer = window.setInterval(() => {
-        loadVotesFromSupabase({ silent: true });
-      }, 1000);
+        if (!document.hidden && (activeView === "vote" || activeView === "home" || activeView === "profile")) {
+          loadVotesFromSupabase({ silent: true });
+        }
+      }, 30000);
     }
 
     async function initSupabase() {
@@ -5848,7 +5850,6 @@ This account will be used continuously, so please enter the information correctl
         subscribePostStudyLikesRealtime();
       }
       await loadVotesFromSupabase();
-      await loadEventsFromSupabase();
       startVotesPolling();
     }
 
@@ -6048,8 +6049,13 @@ This account will be used continuously, so please enter the information correctl
         ? items.join("")
         : `<article class="profile-log-card"><strong>새 알림이 없습니다.</strong><small>신청한 스터디와 수업 후 좋아요 알림이 여기에 표시됩니다.</small></article>`;
       if (notificationListEl) notificationListEl.innerHTML = html;
-      if (profileAlertListEl) profileAlertListEl.innerHTML = alerts.map(renderStudyAlert).join("");
-      if (profileAlertListEl) profileAlertListEl.classList.add("hidden");
+      if (profileAlertListEl) {
+        const showProfileReminder = activeView === "profile" && profileView === "main" && likeEvents.length > 0;
+        profileAlertListEl.innerHTML = showProfileReminder
+          ? `<article class="like-alert-card compact"><strong>💌 최근 참여한 스터디가 있어요.</strong><small>좋았던 사람에게 익명 좋아요를 보내보세요.</small></article>`
+          : "";
+        profileAlertListEl.classList.toggle("hidden", !showProfileReminder);
+      }
       if (notificationDotEl) notificationDotEl.classList.toggle("hidden", !items.length);
       markBrowserNotifications(alerts);
       markLikeBrowserNotifications(likeEvents, receivedHearts);
@@ -6087,7 +6093,7 @@ This account will be used continuously, so please enter the information correctl
       const eventButtons = eligibleEvents.map((event) => `
         <button type="button" class="${selectedLikeEventId === event.id ? "like-event selected" : "like-event"}" data-inline-like-event="${escapeHtml(event.id)}">
           <span>${escapeHtml(formatDateLabel(event.start))} ${escapeHtml(t(event.title))}</span>
-          <small>${escapeHtml(formatTime(event.start))} · ${escapeHtml(event.place)}</small>
+          <small>${escapeHtml(formatTime(event.start))} ~ ${escapeHtml(formatTime(event.end))}</small>
         </button>
       `).join("");
       const votes = getVotes();
@@ -6105,8 +6111,11 @@ This account will be used continuously, so please enter the information correctl
         : `<p class="small-note">${t("noEventParticipants")}</p>`;
       return `
         <article class="profile-log-card">
+          <strong>날짜 선택</strong>
           <div class="like-event-list">${eventButtons}</div>
+          <strong>오늘 함께한 사람</strong>
           <div class="like-target-list">${targets}</div>
+          <small>실제 계정으로 신청한 멤버만 표시됩니다. 본인과 임시 인원은 제외됩니다.</small>
           <button type="button" class="btn heart" data-send-heart-inline>${t("sendHeart")}</button>
         </article>
       `;
@@ -6197,7 +6206,6 @@ This account will be used continuously, so please enter the information correctl
       if (showingMain) {
         profileDetailEl.classList.add("hidden");
         likePanelEl.classList.add("hidden");
-        if (profileAlertListEl) profileAlertListEl.classList.add("hidden");
       }
     }
 
@@ -6979,8 +6987,6 @@ This account will be used continuously, so please enter the information correctl
 
       let result = {};
       try {
-        console.log("[Language101] Google Sheets URL", GOOGLE_SHEETS_ATTENDANCE_URL);
-        console.log("[Language101] Google Sheets POST Body", payload);
         const response = await fetch(GOOGLE_SHEETS_ATTENDANCE_URL, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -6995,7 +7001,6 @@ This account will be used continuously, so please enter the information correctl
         }
         result.study_date = result.study_date || payload.study_date;
         result.study_title = result.study_title || payload.study_title;
-        console.log("[Language101] Apps Script Response", result);
       } catch (error) {
         setAttendanceSheetResult(eventId, `Google Sheets 반영 실패\n${error.message}\n실패 대상: ${selectedMembers.map(({ member }) => member.name).join(", ")}`);
         renderAdminVoteAudit();
@@ -8007,7 +8012,7 @@ This account will be used continuously, so please enter the information correctl
         });
         if (!response.ok) error = new Error(await response.text());
         else data = await response.json();
-        console.log("event save result", data, error);
+        if (error) console.warn("event save result", data, error);
         if (error) throw error;
         if (isUpdate && Array.isArray(data) && !data.length) {
           throw new Error("수정할 이벤트를 Supabase에서 찾지 못했습니다. 새 이벤트 작성으로 다시 저장해주세요.");
@@ -8032,7 +8037,6 @@ This account will be used continuously, so please enter the information correctl
         const events = Array.isArray(rows) ? rows.map(normalizeEventItem) : [];
         remoteEventsCache = events;
         eventsLoadedFromSupabase = true;
-        console.log("events loaded from supabase", events);
         renderEventPage();
         renderAdminEventManager();
         return true;
@@ -8051,8 +8055,6 @@ This account will be used continuously, so please enter the information correctl
         ? adminEventManagerSelectEl.value
         : "";
       const event = await readAdminEventForm();
-      console.log("event formData before save", event);
-      console.log("event save mode", selectedEventId ? "update" : "insert");
       const validationMessage = validateAdminEventForm(event);
       if (validationMessage) {
         showAdminEventStatus("error", validationMessage);
@@ -8255,7 +8257,7 @@ This account will be used continuously, so please enter the information correctl
       if (!event?.end) return false;
       const end = new Date(event.end);
       const close = new Date(end);
-      close.setDate(close.getDate() + 1);
+      close.setDate(close.getDate() + 7);
       close.setHours(23, 59, 59, 999);
       return now >= end && now <= close;
     }
@@ -8293,6 +8295,8 @@ This account will be used continuously, so please enter the information correctl
     function getLikeEligibleEvents(member) {
       if (!member) return [];
       const votes = getVotes();
+      const now = new Date();
+      const recentLimit = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       return Object.entries(votes)
         .filter(([, eventVotes]) => memberVotedInEvent(eventVotes, member.id))
         .map(([eventId]) => {
@@ -8300,7 +8304,10 @@ This account will be used continuously, so please enter the information correctl
           return event ? getEvent(event) : null;
         })
         .filter(Boolean)
-        .filter((event) => isLikeWindowOpen(event))
+        .filter((event) => {
+          const end = new Date(event.end);
+          return !Number.isNaN(end.getTime()) && now >= end && end >= recentLimit;
+        })
         .filter((event) => !hasSentHeartForEvent(member, event.id))
         .sort((a, b) => new Date(b.start) - new Date(a.start));
     }
@@ -8375,13 +8382,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function maybeShowLikePrompt() {
-      const member = getMember();
-      if (!member || !likePromptModalEl?.classList.contains("hidden")) return;
-      if (activeView === "admin" || activeView === "event") return;
-      const event = getLikeEligibleEvents(member)
-        .filter((item) => !isLikePromptDismissed(member, item.id))
-        .find((item) => getActualLikeTargetsForEvent(item.id, member).length > 0);
-      if (event) openLikePromptModal(event);
+      return;
     }
 
     async function sendHeart() {
@@ -9019,7 +9020,7 @@ This account will be used continuously, so please enter the information correctl
       voteSectionEl.classList.toggle("hidden", !isLoggedIn || showProfile || showAdmin || showEventPage);
       iconGuideEl?.classList.toggle("hidden", !showProfile || profileView !== "main");
       eventPageEl.classList.toggle("hidden", !showEventPage);
-      logoutPanelEl.classList.toggle("hidden", !isLoggedIn || activeView !== "profile");
+      logoutPanelEl.classList.toggle("hidden", !isLoggedIn || activeView !== "profile" || profileView !== "main");
       profileOpenEl?.classList.toggle("hidden", !isLoggedIn);
       notificationOpenEl.classList.toggle("hidden", !isLoggedIn);
       bottomNavEl.classList.toggle("hidden", !isLoggedIn);
@@ -9101,22 +9102,28 @@ This account will be used continuously, so please enter the information correctl
       applyStaticTranslations();
       renderNotice();
       renderLevel();
-      renderRanking();
-      renderPolls();
-      renderLikeEvents();
-      renderLikeTargets();
-      renderMaterials();
-      renderAdminEventOptions();
-      renderAdminRealEventOptions();
-      renderAdminScheduleOptions();
-      renderAdminStatus();
-      renderAdminVoteAudit();
-      renderAdminHeartAudit();
-      renderAdminEventManager();
-      renderEventPage();
+      if (activeView === "profile") renderRanking();
+      if (activeView === "vote" || activeView === "home") {
+        renderPolls();
+        if (activeFilter === "materials") renderMaterials();
+      }
+      if (activeView === "profile") {
+        renderLikeEvents();
+        renderLikeTargets();
+      }
+      if (activeView === "admin" && adminUnlocked) {
+        renderAdminEventOptions();
+        renderAdminRealEventOptions();
+        renderAdminScheduleOptions();
+        renderAdminStatus();
+        renderAdminVoteAudit();
+        renderAdminHeartAudit();
+        renderAdminEventManager();
+      }
+      if (activeView === "event") renderEventPage();
       renderStudyNotifications();
       renderProfileScreen();
-      setSheetStatus();
+      if (activeView === "admin" && adminUnlocked) setSheetStatus();
       updateContentMode();
       maybeShowLikePrompt();
     }
@@ -9263,7 +9270,10 @@ This account will be used continuously, so please enter the information correctl
 
     messageEl.textContent = getMember() ? t("started", { name: getMember().name }) : t("selectName");
     setInterval(() => {
-      render();
+      if (!document.hidden) {
+        renderStudyNotifications();
+        maybeShowLikePrompt();
+      }
     }, 60000);
     render();
     initSupabase();
