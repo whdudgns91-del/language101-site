@@ -12,6 +12,39 @@ alter table public.study_likes add column if not exists sender_user_id text;
 alter table public.study_likes add column if not exists receiver_user_id text;
 alter table public.study_likes add column if not exists created_at timestamptz default now();
 
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'study_likes'
+      and column_name = 'study_id'
+      and data_type = 'uuid'
+  ) then
+    alter table public.study_likes alter column study_id type text using study_id::text;
+  end if;
+
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'study_likes'
+      and column_name = 'sender_user_id'
+      and data_type = 'uuid'
+  ) then
+    alter table public.study_likes alter column sender_user_id type text using sender_user_id::text;
+  end if;
+
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'study_likes'
+      and column_name = 'receiver_user_id'
+      and data_type = 'uuid'
+  ) then
+    alter table public.study_likes alter column receiver_user_id type text using receiver_user_id::text;
+  end if;
+end $$;
+
 create unique index if not exists study_likes_unique_receiver
 on public.study_likes (study_id, sender_user_id, receiver_user_id);
 
@@ -68,6 +101,29 @@ alter table public.notifications add column if not exists is_read boolean defaul
 alter table public.notifications add column if not exists read_at timestamptz;
 alter table public.notifications add column if not exists expires_at timestamptz;
 alter table public.notifications add column if not exists created_at timestamptz default now();
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'notifications'
+      and column_name = 'user_id'
+      and data_type = 'uuid'
+  ) then
+    alter table public.notifications alter column user_id type text using user_id::text;
+  end if;
+
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'notifications'
+      and column_name = 'study_id'
+      and data_type = 'uuid'
+  ) then
+    alter table public.notifications alter column study_id type text using study_id::text;
+  end if;
+end $$;
 
 create unique index if not exists notifications_user_study_type_unique
 on public.notifications (user_id, study_id, type);

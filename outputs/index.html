@@ -6629,7 +6629,7 @@ This account will be used continuously, so please enter the information correctl
             read_at: row.read_at || "",
             expires_at: row.expires_at || "",
             created_at: row.created_at || new Date().toISOString()
-          });
+          }, { sync: false });
         });
       } catch (error) {
         console.warn("notifications sync failed", error?.message || error);
@@ -6655,7 +6655,7 @@ This account will be used continuously, so please enter the information correctl
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, (payload) => {
           const member = getMember();
           if (member?.id && payload.new?.user_id === member.id) {
-            upsertNotification(payload.new);
+            upsertNotification(payload.new, { sync: false });
             renderStudyNotifications({ full: !notificationPanelEl.classList.contains("hidden") });
           }
         })
@@ -6834,8 +6834,30 @@ This account will be used continuously, so please enter the information correctl
       return message || "익명 좋아요 저장에 실패했습니다.";
     }
 
+    function isSupabaseColumnError(text, columnName) {
+      const message = String(text || "");
+      return message.includes(`'${columnName}' column`)
+        || message.includes(`column "${columnName}"`)
+        || (message.includes(columnName) && message.includes("schema cache"));
+    }
+
+    async function postNotificationBody(body, { prefer = "" } = {}) {
+      const headers = supabaseRestHeaders({ "Content-Type": "application/json" });
+      if (prefer) headers.Prefer = prefer;
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/notifications`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body)
+      });
+      if (!response.ok) {
+        const detail = await response.text().catch(() => "");
+        return { ok: false, error: detail || response.statusText };
+      }
+      return { ok: true };
+    }
+
     async function saveNotificationToSupabase(notification) {
-      if (!isSupabaseConfigured()) return false;
+      if (!isSupabaseConfigured()) return { ok: false, error: "Supabase 설정이 필요합니다." };
       const body = {
         user_id: notification.user_id,
         study_id: notification.study_id || "",
@@ -6856,15 +6878,35 @@ This account will be used continuously, so please enter the information correctl
           }),
           body: JSON.stringify(body)
         });
-        if (!response.ok) {
-          const detail = await response.text().catch(() => "");
-          console.error("notification save failed", detail || response.statusText);
-          return false;
+        if (response.ok) return { ok: true };
+
+        const detail = await response.text().catch(() => "");
+        const canRetryAsInsert = detail.includes("there is no unique or exclusion constraint")
+          || detail.includes("42P10")
+          || detail.includes("on_conflict");
+        const canRetryMinimal = ["target_view", "expires_at", "read_at", "is_read"].some((column) => isSupabaseColumnError(detail, column));
+        if (canRetryAsInsert) {
+          const retry = await postNotificationBody(body);
+          if (retry.ok) return retry;
         }
-        return true;
+        if (canRetryMinimal) {
+          const minimalBody = {
+            user_id: body.user_id,
+            study_id: body.study_id,
+            type: body.type,
+            title: body.title,
+            message: body.message
+          };
+          const retry = await postNotificationBody(minimalBody);
+          if (retry.ok) return retry;
+          console.error("notification save failed", retry.error);
+          return retry;
+        }
+        console.error("notification save failed", detail || response.statusText);
+        return { ok: false, error: detail || response.statusText };
       } catch (error) {
         console.error("notification save failed", error?.message || error);
-        return false;
+        return { ok: false, error: error?.message || "알림 저장 실패" };
       }
     }
 
@@ -6882,7 +6924,8 @@ This account will be used continuously, so please enter the information correctl
       }).catch(() => {});
     }
 
-    function upsertNotification(notification) {
+    function upsertNotification(notification, options = {}) {
+      const shouldSync = options.sync !== false;
       const notifications = getStoredNotifications();
       const key = notificationKey(notification.user_id, notification.study_id, notification.type);
       const existing = notifications[key] || {};
@@ -6896,7 +6939,7 @@ This account will be used continuously, so please enter the information correctl
         created_at: existing.created_at || new Date().toISOString()
       };
       saveStoredNotifications(notifications);
-      if (isNew) saveNotificationToSupabase(notifications[key]);
+      if (isNew && shouldSync) saveNotificationToSupabase(notifications[key]);
       return notifications[key];
     }
 
@@ -6913,8 +6956,8 @@ This account will be used continuously, so please enter the information correctl
         user_id: member.id,
         study_id: studyId,
         type: "anonymous_like_received",
-        title: "You received an anonymous like 💌",
-        message: `Someone sent you an anonymous like.\nSender info: ${senderInfo}`,
+        title: "익명 좋아요를 받았습니다 💌",
+        message: `누군가 스터디 후 당신에게 익명 좋아요를 보냈어요.\nSender info: ${senderInfo}`,
         target_view: "profile.receivedHearts",
         study_label: label,
         is_read: false,
@@ -9611,7 +9654,10 @@ This account will be used continuously, so please enter the information correctl
           };
           return saveNotificationToSupabase(buildAnonymousLikeReceivedNotification(receiver, row));
         }));
-        return results.every(Boolean);
+        return {
+          ok: results.every((result) => result?.ok),
+          errors: results.filter((result) => !result?.ok).map((result) => result?.error || "알림 저장 실패")
+        };
       };
       try {
         const { data: existingRows, error: existingError } = await supabaseClient
@@ -9621,15 +9667,10 @@ This account will be used continuously, so please enter the information correctl
           .eq("sender_user_id", sender.id);
         if (existingError) {
           if (isMissingSupabaseTableError(existingError, "study_likes")) {
-            const notificationsSaved = await sendReceiverNotifications(rows, safeTargets);
-            if (!notificationsSaved) {
-              return { ok: false, savedTargets: [], error: "하트 알림 저장에 실패했습니다. Supabase notifications 테이블을 확인해주세요." };
-            }
             return {
-              ok: true,
-              savedTargets: safeTargets.map((member) => member.id),
-              rows,
-              notificationOnly: true
+              ok: false,
+              savedTargets: [],
+              error: "좋아요 저장 테이블이 준비되지 않았습니다. Supabase study_likes SQL을 적용해주세요."
             };
           }
           throw existingError;
@@ -9655,24 +9696,16 @@ This account will be used continuously, so please enter the information correctl
           .select("id,study_id,sender_user_id,receiver_user_id,created_at");
         if (error) {
           if (isMissingSupabaseTableError(error, "study_likes")) {
-            const notificationsSaved = await sendReceiverNotifications(rowsToInsert, newTargets);
-            if (!notificationsSaved) {
-              return { ok: false, savedTargets: [], error: "하트 알림 저장에 실패했습니다. Supabase notifications 테이블을 확인해주세요." };
-            }
             return {
-              ok: true,
-              savedTargets: newTargets.map((member) => member.id),
-              rows: rowsToInsert,
-              notificationOnly: true
+              ok: false,
+              savedTargets: [],
+              error: "좋아요 저장 테이블이 준비되지 않았습니다. Supabase study_likes SQL을 적용해주세요."
             };
           }
           throw error;
         }
 
-        const notificationsSaved = await sendReceiverNotifications(data || rowsToInsert, newTargets);
-        if (!notificationsSaved) {
-          return { ok: false, savedTargets: [], error: "하트는 저장됐지만 상대방 알림 저장에 실패했습니다. 잠시 후 다시 시도해주세요." };
-        }
+        const notificationResult = await sendReceiverNotifications(data || rowsToInsert, newTargets);
 
         try {
           await supabaseClient.from("post_study_likes").insert({
@@ -9684,7 +9717,12 @@ This account will be used continuously, so please enter the information correctl
           });
         } catch {}
 
-        return { ok: true, savedTargets: newTargets.map((member) => member.id), rows: data || rowsToInsert };
+        return {
+          ok: true,
+          savedTargets: newTargets.map((member) => member.id),
+          rows: data || rowsToInsert,
+          notificationError: notificationResult.ok ? "" : notificationResult.errors.join(" / ")
+        };
       } catch (error) {
         console.warn("study_likes insert failed", error?.message || error);
         return { ok: false, savedTargets: [], error: friendlyHeartError(error?.message || "익명 좋아요 저장 실패") };
@@ -9841,7 +9879,11 @@ This account will be used continuously, so please enter the information correctl
         });
       });
       logMemberAction("heart_sent", member, { event: selectedLikeEventId, option: "study", detail: savedTargetIds.map((target) => memberFromId(target).name).join(", ") });
-      messageEl.textContent = "✅ 익명 좋아요를 보냈습니다.";
+      const successText = savedRemote.notificationError
+        ? `✅ 익명 좋아요를 보냈습니다. 알림 저장은 확인이 필요합니다: ${savedRemote.notificationError}`
+        : "✅ 익명 좋아요를 보냈습니다.";
+      messageEl.textContent = successText;
+      setLikePromptMessage(successText);
       selectedLikeTargets = [];
       closeLikePromptModal();
       showHeartBurst();
