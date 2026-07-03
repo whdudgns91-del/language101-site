@@ -443,11 +443,44 @@
       white-space: pre-line;
     }
 
+    .login-heading {
+      grid-column: 1 / -1;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .login-heading h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 26px;
+      font-weight: 950;
+      letter-spacing: 0;
+    }
+
+    .login-heading p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
     .field-help {
       margin: 4px 0 0;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.35;
+    }
+
+    .level-note {
+      margin: 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(167, 139, 250, 0.16));
+      color: #5b21b6;
+      font-size: 12px;
+      font-weight: 850;
+      line-height: 1.45;
     }
 
     .login-error {
@@ -2490,7 +2523,7 @@
 
     .admin-member-controls {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(6, minmax(0, 1fr));
       gap: 10px;
       margin: 10px 0 12px;
     }
@@ -3978,57 +4011,69 @@
         </section>
 
         <section class="admin-card admin-member-card">
-          <h3>회원 관리</h3>
-          <p class="helper">가입한 회원의 레벨, 성별, 국적, 나이대와 활동 통계를 확인합니다.</p>
+          <h3>Member Management</h3>
+          <p class="helper">Check each member's level, target language, demographics, and activity stats.</p>
           <div class="admin-member-controls">
             <div class="field">
-              <label for="adminMemberSearch">이름 검색</label>
+              <label for="adminMemberSearch">Name Search</label>
               <input id="adminMemberSearch" placeholder="예: deo, Yuna, 김해민">
             </div>
             <div class="field">
-              <label for="adminMemberGenderFilter">성별</label>
-              <select id="adminMemberGenderFilter">
-                <option value="all">전체 성별</option>
-                <option value="남자">남자</option>
-                <option value="여자">여자</option>
-                <option value="선택 안 함">선택 안 함</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="adminMemberNationalityFilter">국적</label>
-              <select id="adminMemberNationalityFilter">
-                <option value="all">전체 국적</option>
-                <option value="한국">한국</option>
-                <option value="미국">미국</option>
-                <option value="일본">일본</option>
-                <option value="중국">중국</option>
-                <option value="프랑스">프랑스</option>
-                <option value="독일">독일</option>
-                <option value="캐나다">캐나다</option>
-                <option value="호주">호주</option>
-                <option value="기타">기타</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="adminMemberAgeFilter">나이대</label>
-              <select id="adminMemberAgeFilter">
-                <option value="all">전체 나이대</option>
-                <option value="10대">10대</option>
-                <option value="20대">20대</option>
-                <option value="30대">30대</option>
-                <option value="40대">40대</option>
-                <option value="50대 이상">50대 이상</option>
-                <option value="선택 안 함">선택 안 함</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="adminMemberLevelFilter">영어 레벨</label>
+              <label for="adminMemberLevelFilter">My Level</label>
               <select id="adminMemberLevelFilter">
-                <option value="all">전체 레벨</option>
+                <option value="all">All Levels</option>
+                <option value="I'm not sure yet">I'm not sure yet</option>
                 <option value="Beginner">Beginner</option>
                 <option value="Intermediate">Intermediate</option>
                 <option value="Upper Intermediate">Upper Intermediate</option>
-                <option value="미입력">미입력</option>
+                <option value="Advanced">Advanced</option>
+                <option value="Not entered">Not entered</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="adminMemberLanguageFilter">Language</label>
+              <select id="adminMemberLanguageFilter">
+                <option value="all">All Languages</option>
+                <option value="English">English</option>
+                <option value="Japanese">Japanese</option>
+                <option value="Chinese">Chinese</option>
+                <option value="Korean">Korean</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="adminMemberGenderFilter">Gender</label>
+              <select id="adminMemberGenderFilter">
+                <option value="all">All Genders</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="adminMemberNationalityFilter">Nationality</label>
+              <select id="adminMemberNationalityFilter">
+                <option value="all">All Nationalities</option>
+                <option value="Korea">Korea</option>
+                <option value="United States">United States</option>
+                <option value="Japan">Japan</option>
+                <option value="China">China</option>
+                <option value="France">France</option>
+                <option value="Germany">Germany</option>
+                <option value="Canada">Canada</option>
+                <option value="Australia">Australia</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="adminMemberAgeFilter">Age Group</label>
+              <select id="adminMemberAgeFilter">
+                <option value="all">All Ages</option>
+                <option value="10s">10s</option>
+                <option value="20s">20s</option>
+                <option value="30s">30s</option>
+                <option value="40s">40s</option>
+                <option value="50s+">50s+</option>
+                <option value="Prefer not to say">Prefer not to say</option>
               </select>
             </div>
           </div>
@@ -4078,7 +4123,11 @@
       </div>
     </section>
 
-    <section class="panel login" id="loginPanel" aria-label="참여자 로그인">
+    <section class="panel login" id="loginPanel" aria-label="Create Your Account">
+      <div class="login-heading">
+        <h2>Create Your Account</h2>
+        <p>Join Language101 and start your language journey!</p>
+      </div>
       <div class="field">
         <label for="memberName" data-i18n="nameLabel">Name</label>
         <p class="field-help" data-i18n="nameHelp">Korean or English name is okay.</p>
@@ -4092,54 +4141,64 @@
       </div>
       <div class="member-extra-grid" aria-label="회원 추가 정보">
         <div class="field">
-          <label for="memberEnglishLevel">English Level</label>
+          <label for="memberEnglishLevel">My Level</label>
+          <p class="field-help">Not sure? Choose "I'm not sure yet". You can update it anytime later.</p>
           <select id="memberEnglishLevel">
-            <option value="">영어 레벨 선택</option>
+            <option value="I'm not sure yet">I'm not sure yet</option>
             <option value="Beginner">Beginner</option>
             <option value="Intermediate">Intermediate</option>
             <option value="Upper Intermediate">Upper Intermediate</option>
+            <option value="Advanced">Advanced</option>
           </select>
+          <p class="level-note">Don’t worry. You can change your level anytime later from your Profile.</p>
         </div>
         <div class="field">
-          <label for="memberGender">성별</label>
+          <label for="memberGender">Gender</label>
           <select id="memberGender">
-            <option value="">성별 선택</option>
-            <option value="남자">남자</option>
-            <option value="여자">여자</option>
-            <option value="선택 안 함">선택 안 함</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Prefer not to say">Prefer not to say</option>
           </select>
         </div>
         <div class="field">
-          <label for="memberNationality">국적</label>
+          <label for="memberNationality">Nationality</label>
           <select id="memberNationality">
-            <option value="">국적 선택</option>
-            <option value="한국">한국</option>
-            <option value="미국">미국</option>
-            <option value="일본">일본</option>
-            <option value="중국">중국</option>
-            <option value="프랑스">프랑스</option>
-            <option value="독일">독일</option>
-            <option value="캐나다">캐나다</option>
-            <option value="호주">호주</option>
-            <option value="기타">기타</option>
+            <option value="Korea">Korea</option>
+            <option value="United States">United States</option>
+            <option value="Japan">Japan</option>
+            <option value="China">China</option>
+            <option value="France">France</option>
+            <option value="Germany">Germany</option>
+            <option value="Canada">Canada</option>
+            <option value="Australia">Australia</option>
+            <option value="Other">Other</option>
           </select>
         </div>
         <div class="field">
-          <label for="memberAgeGroup">나이대</label>
+          <label for="memberAgeGroup">Age Group</label>
           <select id="memberAgeGroup">
-            <option value="">나이대 선택</option>
-            <option value="10대">10대</option>
-            <option value="20대">20대</option>
-            <option value="30대">30대</option>
-            <option value="40대">40대</option>
-            <option value="50대 이상">50대 이상</option>
-            <option value="선택 안 함">선택 안 함</option>
+            <option value="10s">10s</option>
+            <option value="20s">20s</option>
+            <option value="30s">30s</option>
+            <option value="40s">40s</option>
+            <option value="50s+">50s+</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="memberTargetLanguage">Language I Want to Learn</label>
+          <p class="field-help">You can select one primary language.</p>
+          <select id="memberTargetLanguage">
+            <option value="English">English</option>
+            <option value="Japanese">Japanese</option>
+            <option value="Chinese">Chinese</option>
+            <option value="Korean">Korean</option>
           </select>
         </div>
       </div>
       <div class="login-actions">
-        <button type="button" class="btn primary" id="saveMember" data-i18n="loginButton">Already registered? → Login</button>
-        <button type="button" class="btn" id="registerMember" data-i18n="registerButton">First time here? → Sign up</button>
+        <button type="button" class="btn primary" id="registerMember" data-i18n="registerButton">Create Account</button>
+        <button type="button" class="btn" id="saveMember" data-i18n="loginButton">Already registered? → Login</button>
       </div>
       <p class="helper login-guide" data-i18n="loginHelp">Please use the same name as your Kakao open chat nickname.
 Your name and birthdate cannot be changed after registration.
@@ -4190,7 +4249,7 @@ This account will be used continuously, so please enter the information correctl
             </button>
             <button type="button" class="profile-menu-card" id="showMemberEdit">
               <span class="profile-menu-icon">🪪</span>
-              <span><strong>회원 정보 수정</strong><small>성별, 국적, 나이대, 영어 레벨 수정</small></span>
+              <span><strong>Edit Profile</strong><small>Update level, language, and profile info</small></span>
             </button>
             <button type="button" class="profile-menu-card" id="showLevelGuide">
               <span class="profile-menu-icon">🏆</span>
@@ -4382,6 +4441,7 @@ This account will be used continuously, so please enter the information correctl
     const memberGenderEl = document.querySelector("#memberGender");
     const memberNationalityEl = document.querySelector("#memberNationality");
     const memberAgeGroupEl = document.querySelector("#memberAgeGroup");
+    const memberTargetLanguageEl = document.querySelector("#memberTargetLanguage");
     const saveMemberEl = document.querySelector("#saveMember");
     const registerMemberEl = document.querySelector("#registerMember");
     const headerUserNameEl = document.querySelector("#headerUserName");
@@ -4522,6 +4582,7 @@ This account will be used continuously, so please enter the information correctl
     const adminMemberNationalityFilterEl = document.querySelector("#adminMemberNationalityFilter");
     const adminMemberAgeFilterEl = document.querySelector("#adminMemberAgeFilter");
     const adminMemberLevelFilterEl = document.querySelector("#adminMemberLevelFilter");
+    const adminMemberLanguageFilterEl = document.querySelector("#adminMemberLanguageFilter");
     const adminMemberListEl = document.querySelector("#adminMemberList");
 
     let activeFilter = "all";
@@ -4572,7 +4633,7 @@ This account will be used continuously, so please enter the information correctl
         birthHelp: "6 digits only",
         startButton: "로그인 하기",
         loginButton: "Already registered? → Login",
-        registerButton: "First time here? → Sign up",
+        registerButton: "Create Account",
         loginHelp: "Please use the same name as your Kakao open chat nickname.\nYour name and birthdate cannot be changed after registration.\nThis account will be used continuously, so please enter the information correctly.",
         weeklyTop: "🏆 주간 레벨 TOP 3",
         rankingHelp: "월요일~일요일 사이 받은 주간 포인트 기준으로 실시간 계산됩니다.",
@@ -4765,7 +4826,7 @@ This account will be used continuously, so please enter the information correctl
         birthHelp: "6 digits only",
         startButton: "Log In",
         loginButton: "Already registered? → Login",
-        registerButton: "First time here? → Sign up",
+        registerButton: "Create Account",
         loginHelp: "Please use the same name as your Kakao open chat nickname.\nYour name and birthdate cannot be changed after registration.\nThis account will be used continuously, so please enter the information correctly.",
         weeklyTop: "🏆 Weekly Level TOP 3",
         rankingHelp: "Calculated in realtime from points received between Monday and Sunday.",
@@ -4957,9 +5018,9 @@ This account will be used continuously, so please enter the information correctl
         birthLabel: "Birthdate",
         birthHelp: "6 digits only",
         startButton: "ログイン",
-        loginButton: "🔑 登録済みですか？ → ログイン",
-        registerButton: "🆕 初めてですか？ → 新規登録",
-        loginHelp: "⚠️ 初回登録情報は変更できません。正確に入力してください。今後も使う情報なので必ず覚えておいてください。",
+        loginButton: "Already registered? → Login",
+        registerButton: "Create Account",
+        loginHelp: "Please use the same name as your Kakao open chat nickname.\nYour name and birthdate cannot be changed after registration.\nThis account will be used continuously, so please enter the information correctly.",
         weeklyTop: "🏆 週間レベルTOP 3",
         rankingHelp: "月曜日から日曜日までに獲得した週間ポイントでリアルタイム計算されます。",
         voteTitle: "🗳️ 今週のスタディ投票",
@@ -5150,9 +5211,9 @@ This account will be used continuously, so please enter the information correctl
         birthLabel: "Birthdate",
         birthHelp: "6 digits only",
         startButton: "登录",
-        loginButton: "🔑 已注册？→ 登录",
-        registerButton: "🆕 第一次？→ 新注册",
-        loginHelp: "⚠️ 首次注册信息无法更改。请准确输入，并记住以后会继续使用的信息。",
+        loginButton: "Already registered? → Login",
+        registerButton: "Create Account",
+        loginHelp: "Please use the same name as your Kakao open chat nickname.\nYour name and birthdate cannot be changed after registration.\nThis account will be used continuously, so please enter the information correctly.",
         weeklyTop: "🏆 本周等级 TOP 3",
         rankingHelp: "根据周一到周日获得的每周积分实时计算。",
         voteTitle: "🗳️ 本周学习投票",
@@ -5397,19 +5458,55 @@ This account will be used continuously, so please enter the information correctl
     }
 
     const memberProfileDefaults = {
-      englishLevel: "",
-      gender: "",
-      nationality: "",
-      ageGroup: "",
+      englishLevel: "I'm not sure yet",
+      myLevel: "I'm not sure yet",
+      gender: "Prefer not to say",
+      nationality: "Korea",
+      ageGroup: "Prefer not to say",
+      targetLanguage: "English",
       joinedAt: ""
     };
 
+    function normalizeProfileChoice(value, map, fallback = "") {
+      const raw = String(value || "").trim();
+      if (!raw) return fallback;
+      return map[raw] || raw;
+    }
+
     function normalizeMemberProfile(profile = {}) {
+      const level = normalizeProfileChoice(profile.myLevel || profile.my_level || profile.englishLevel || profile.english_level, {
+        "": "I'm not sure yet",
+        "영어 레벨 선택": "I'm not sure yet"
+      }, "I'm not sure yet");
       return {
-        englishLevel: profile.englishLevel || profile.english_level || "",
-        gender: profile.gender || "",
-        nationality: profile.nationality || "",
-        ageGroup: profile.ageGroup || profile.age_group || "",
+        englishLevel: level,
+        myLevel: level,
+        gender: normalizeProfileChoice(profile.gender, { "남자": "Male", "여자": "Female", "선택 안 함": "Prefer not to say" }, "Prefer not to say"),
+        nationality: normalizeProfileChoice(profile.nationality, {
+          "한국": "Korea",
+          "미국": "United States",
+          "일본": "Japan",
+          "중국": "China",
+          "프랑스": "France",
+          "독일": "Germany",
+          "캐나다": "Canada",
+          "호주": "Australia",
+          "기타": "Other"
+        }, "Korea"),
+        ageGroup: normalizeProfileChoice(profile.ageGroup || profile.age_group, {
+          "10대": "10s",
+          "20대": "20s",
+          "30대": "30s",
+          "40대": "40s",
+          "50대 이상": "50s+",
+          "선택 안 함": "Prefer not to say"
+        }, "Prefer not to say"),
+        targetLanguage: normalizeProfileChoice(profile.targetLanguage || profile.target_language, {
+          "영어": "English",
+          "일본어": "Japanese",
+          "중국어": "Chinese",
+          "한국어": "Korean"
+        }, "English"),
         joinedAt: profile.joinedAt || profile.joined_at || ""
       };
     }
@@ -5424,21 +5521,22 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function profileValue(value) {
-      return value || "미입력";
+      return value || "Not entered";
     }
 
     function memberProfileLine(memberOrId) {
       const member = typeof memberOrId === "string" ? memberFromId(memberOrId) : memberOrId;
-      const parts = [member?.gender, member?.ageGroup || member?.age_group, member?.nationality]
-        .filter((value) => value && value !== "선택 안 함");
-      return parts.length ? parts.join(" · ") : "회원 정보 미입력";
+      const profile = normalizeMemberProfile(member || {});
+      const top = `${profile.myLevel} · ${profile.targetLanguage}`;
+      const bottomParts = [profile.gender, profile.nationality, profile.ageGroup].filter(Boolean);
+      return `${top}${bottomParts.length ? ` · ${bottomParts.join(" · ")}` : ""}`;
     }
 
     function anonymousSenderInfo(memberOrId) {
       const member = typeof memberOrId === "string" ? memberFromId(memberOrId) : memberOrId;
-      const parts = [member?.gender, member?.ageGroup || member?.age_group, member?.nationality]
-        .filter((value) => value && value !== "선택 안 함");
-      return parts.length ? parts.join(" / ") : "정보 미입력";
+      const profile = normalizeMemberProfile(member || {});
+      const parts = [profile.gender, profile.ageGroup, profile.nationality].filter(Boolean);
+      return parts.length ? parts.join(" · ") : "Not entered";
     }
 
     function makeMember(name, birth, profile = {}) {
@@ -5451,9 +5549,11 @@ This account will be used continuously, so please enter the information correctl
         birth: cleanBirth,
         birthdate: cleanBirth,
         englishLevel: normalizedProfile.englishLevel,
+        myLevel: normalizedProfile.myLevel,
         gender: normalizedProfile.gender,
         nationality: normalizedProfile.nationality,
         ageGroup: normalizedProfile.ageGroup,
+        targetLanguage: normalizedProfile.targetLanguage,
         joinedAt: normalizedProfile.joinedAt
       };
     }
@@ -5470,9 +5570,11 @@ This account will be used continuously, so please enter the information correctl
         name: member.name,
         birth: member.birth,
         englishLevel: mergedProfile.englishLevel,
+        myLevel: mergedProfile.myLevel,
         gender: mergedProfile.gender,
         nationality: mergedProfile.nationality,
         ageGroup: mergedProfile.ageGroup,
+        targetLanguage: mergedProfile.targetLanguage,
         joinedAt: mergedProfile.joinedAt || saved.joinedAt || new Date().toISOString()
       };
       writeJson(MEMBER_DIRECTORY_KEY, directory);
@@ -5589,7 +5691,7 @@ This account will be used continuously, so please enter the information correctl
       const name = memberNameEl.value.trim();
       if (/^[가-힣]{2,5}$/.test(name)) {
         const suggested = `${name}(${getSuggestedEnglishName(name)})`;
-        nameSuggestionEl.textContent = `추천 이름: ${suggested}`;
+        nameSuggestionEl.textContent = `Recommended nickname: ${suggested}`;
         nameSuggestionEl.dataset.suggestedName = suggested;
         nameSuggestionEl.classList.remove("hidden");
         return;
@@ -5980,11 +6082,13 @@ This account will be used continuously, so please enter the information correctl
           id: member.id,
           name: member.name,
           birth: member.birth || member.birthdate || "",
-          english_level: member.englishLevel || "",
-          gender: member.gender || "",
-          nationality: member.nationality || "",
-          age_group: member.ageGroup || "",
-          joined_at: member.joinedAt || new Date().toISOString(),
+        english_level: member.englishLevel || "",
+        my_level: member.myLevel || member.englishLevel || "",
+        gender: member.gender || "",
+        nationality: member.nationality || "",
+        age_group: member.ageGroup || "",
+        target_language: member.targetLanguage || "English",
+        joined_at: member.joinedAt || new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
         const response = await fetch(`${SUPABASE_URL}/rest/v1/members?on_conflict=id`, {
@@ -6019,9 +6123,11 @@ This account will be used continuously, so please enter the information correctl
             name: row.name,
             birth: row.birth || "",
             englishLevel: row.english_level || "",
+            myLevel: row.my_level || row.english_level || "",
             gender: row.gender || "",
             nationality: row.nationality || "",
             ageGroup: row.age_group || "",
+            targetLanguage: row.target_language || "",
             joinedAt: row.joined_at || row.created_at || ""
           };
         });
@@ -6388,7 +6494,7 @@ This account will be used continuously, so please enter the information correctl
       logMemberAction("heart_received", member, {
         event: row.study_id || "",
         option: "study",
-        detail: `오늘 모임에서 익명 좋아요를 받았습니다. +${pointRules.heart}P`
+        detail: `You received an anonymous like. +${pointRules.heart}P`
       });
       upsertNotification(buildAnonymousLikeReceivedNotification(member, row));
       messageEl.textContent = "오늘 모임에서 좋아요를 받았어요 😊";
@@ -6709,13 +6815,13 @@ This account will be used continuously, so please enter the information correctl
         ? `${formatDateLabel(event.start)} ${t(event.title)}`
         : studyId;
       const sender = row?.sender_user_id ? memberFromId(row.sender_user_id) : null;
-      const senderInfo = sender ? anonymousSenderInfo(sender) : "정보 미입력";
+      const senderInfo = sender ? anonymousSenderInfo(sender) : "Not entered";
       return {
         user_id: member.id,
         study_id: studyId,
         type: "anonymous_like_received",
-        title: "익명 좋아요를 받았습니다 💌",
-        message: `누군가 스터디 후 당신에게 익명 좋아요를 보냈어요.\n보낸 사람 정보: ${senderInfo}`,
+        title: "You received an anonymous like 💌",
+        message: `Someone sent you an anonymous like.\nSender info: ${senderInfo}`,
         target_view: "profile.receivedHearts",
         study_label: label,
         is_read: false,
@@ -7001,7 +7107,7 @@ This account will be used continuously, so please enter the information correctl
 
     function renderReceivedHeartRecord(record) {
       const event = record.event ? recordEventLabel(record.event) : "";
-      return `<article class="profile-log-card"><strong>${escapeHtml(formatRecordDate(record.timestamp))} <span class="point-plus">+${pointRules.heart}P</span></strong><small>익명 좋아요를 받았습니다.</small>${event ? `<small>스터디: ${escapeHtml(event)}</small>` : ""}</article>`;
+      return `<article class="profile-log-card"><strong>${escapeHtml(formatRecordDate(record.timestamp))} <span class="point-plus">+${pointRules.heart}P</span></strong><small>You received an anonymous like.</small>${event ? `<small>Study: ${escapeHtml(event)}</small>` : ""}</article>`;
     }
 
     function renderLikeHistory(member) {
@@ -7034,25 +7140,30 @@ This account will be used continuously, so please enter the information correctl
 
     function renderMemberEditForm(member) {
       const englishOptions = [
-        { value: "", label: "영어 레벨 선택" },
+        { value: "I'm not sure yet", label: "I'm not sure yet" },
         { value: "Beginner", label: "Beginner" },
         { value: "Intermediate", label: "Intermediate" },
-        { value: "Upper Intermediate", label: "Upper Intermediate" }
+        { value: "Upper Intermediate", label: "Upper Intermediate" },
+        { value: "Advanced", label: "Advanced" }
       ];
-      const genderOptions = ["", "남자", "여자", "선택 안 함"].map((value) => ({ value, label: value || "성별 선택" }));
-      const nationalityOptions = ["", "한국", "미국", "일본", "중국", "프랑스", "독일", "캐나다", "호주", "기타"].map((value) => ({ value, label: value || "국적 선택" }));
-      const ageOptions = ["", "10대", "20대", "30대", "40대", "50대 이상", "선택 안 함"].map((value) => ({ value, label: value || "나이대 선택" }));
+      const genderOptions = ["Male", "Female", "Prefer not to say"].map((value) => ({ value, label: value }));
+      const nationalityOptions = ["Korea", "United States", "Japan", "China", "France", "Germany", "Canada", "Australia", "Other"].map((value) => ({ value, label: value }));
+      const ageOptions = ["10s", "20s", "30s", "40s", "50s+", "Prefer not to say"].map((value) => ({ value, label: value }));
+      const languageOptions = ["English", "Japanese", "Chinese", "Korean"].map((value) => ({ value, label: value }));
+      const profile = normalizeMemberProfile(member);
       return `
         <form class="member-edit-form" id="memberEditForm">
           <div class="member-readonly">
             <strong>${escapeHtml(member.name)}</strong>
-            <small>이름과 생년월일은 변경할 수 없습니다. 생년월일: ${escapeHtml(member.birth || member.birthdate || "")}</small>
+            <small>Name and birthdate cannot be changed. Birthdate: ${escapeHtml(member.birth || member.birthdate || "")}</small>
           </div>
-          ${memberEditSelect("profileEnglishLevel", "영어 레벨", member.englishLevel || "", englishOptions)}
-          ${memberEditSelect("profileGender", "성별", member.gender || "", genderOptions)}
-          ${memberEditSelect("profileNationality", "국적", member.nationality || "", nationalityOptions)}
-          ${memberEditSelect("profileAgeGroup", "나이대", member.ageGroup || "", ageOptions)}
-          <button type="submit" class="btn primary">회원 정보 저장</button>
+          ${memberEditSelect("profileEnglishLevel", "My Level", profile.myLevel, englishOptions)}
+          <p class="field-help">You can change your level anytime.</p>
+          ${memberEditSelect("profileGender", "Gender", profile.gender, genderOptions)}
+          ${memberEditSelect("profileNationality", "Nationality", profile.nationality, nationalityOptions)}
+          ${memberEditSelect("profileAgeGroup", "Age Group", profile.ageGroup, ageOptions)}
+          ${memberEditSelect("profileTargetLanguage", "Language I Want to Learn", profile.targetLanguage, languageOptions)}
+          <button type="submit" class="btn primary">Save Changes</button>
           <p class="member-edit-status" id="memberEditStatus"></p>
         </form>
       `;
@@ -7068,16 +7179,18 @@ This account will be used continuously, so please enter the information correctl
         const updated = {
           ...current,
           englishLevel: profileDetailEl.querySelector("#profileEnglishLevel")?.value || "",
+          myLevel: profileDetailEl.querySelector("#profileEnglishLevel")?.value || "",
           gender: profileDetailEl.querySelector("#profileGender")?.value || "",
           nationality: profileDetailEl.querySelector("#profileNationality")?.value || "",
-          ageGroup: profileDetailEl.querySelector("#profileAgeGroup")?.value || ""
+          ageGroup: profileDetailEl.querySelector("#profileAgeGroup")?.value || "",
+          targetLanguage: profileDetailEl.querySelector("#profileTargetLanguage")?.value || "English"
         };
         localStorage.setItem(MEMBER_KEY, JSON.stringify(updated));
         saveDirectoryMember(updated);
         setMemberFormValues(updated);
         const synced = await saveMemberProfileToSupabase(updated);
         const status = profileDetailEl.querySelector("#memberEditStatus");
-        if (status) status.textContent = synced ? "회원 정보가 저장되었습니다." : "회원 정보가 저장되었습니다. Supabase 동기화는 확인이 필요합니다.";
+        if (status) status.textContent = synced ? "✅ Profile updated successfully." : "✅ Profile updated successfully. Supabase sync needs checking.";
         renderLevel();
         renderAdminMembers();
       });
@@ -7194,7 +7307,7 @@ This account will be used continuously, so please enter the information correctl
         title = "스터디 후 익명 좋아요";
         body = renderInlineLikeAfterStudy();
       } else if (kind === "memberEdit") {
-        title = "회원 정보 수정";
+        title = "Edit Profile";
         body = renderMemberEditForm(member);
       }
       profileView = kind;
@@ -7228,10 +7341,11 @@ This account will be used continuously, so please enter the information correctl
       activeView = "home";
       memberNameEl.value = "";
       memberBirthEl.value = "";
-      if (memberEnglishLevelEl) memberEnglishLevelEl.value = "";
-      if (memberGenderEl) memberGenderEl.value = "";
-      if (memberNationalityEl) memberNationalityEl.value = "";
-      if (memberAgeGroupEl) memberAgeGroupEl.value = "";
+      if (memberEnglishLevelEl) memberEnglishLevelEl.value = "I'm not sure yet";
+      if (memberGenderEl) memberGenderEl.value = "Male";
+      if (memberNationalityEl) memberNationalityEl.value = "Korea";
+      if (memberAgeGroupEl) memberAgeGroupEl.value = "20s";
+      if (memberTargetLanguageEl) memberTargetLanguageEl.value = "English";
       updateNameSuggestion();
       messageEl.textContent = t("selectName");
       render();
@@ -8248,7 +8362,7 @@ This account will be used continuously, so please enter the information correctl
           <section class="closed-list-group ${colorClass}">
             <h4>${label} · ${levelRows.length}명</h4>
             <table class="closed-list-table">
-              <thead><tr><th></th><th>이름</th><th>English Level</th><th>신청한 스터디명</th><th>날짜</th><th>참석 상태</th><th>Google Sheets</th></tr></thead>
+              <thead><tr><th></th><th>Name</th><th>My Level</th><th>Study</th><th>Date</th><th>Attendance</th><th>Google Sheets</th></tr></thead>
               <tbody>${tableRows}</tbody>
             </table>
             <div class="closed-list-mobile">${mobileRows}</div>
@@ -8533,26 +8647,32 @@ This account will be used continuously, so please enter the information correctl
       const nationality = adminMemberNationalityFilterEl?.value || "all";
       const ageGroup = adminMemberAgeFilterEl?.value || "all";
       const englishLevel = adminMemberLevelFilterEl?.value || "all";
+      const targetLanguage = adminMemberLanguageFilterEl?.value || "all";
       const rows = getAdminMemberRows().filter(({ member }) => {
+        const profile = normalizeMemberProfile(member);
         if (search && !normalizeName(member.name).includes(search)) return false;
-        if (gender !== "all" && profileValue(member.gender) !== gender) return false;
-        if (nationality !== "all" && profileValue(member.nationality) !== nationality) return false;
-        if (ageGroup !== "all" && profileValue(member.ageGroup) !== ageGroup) return false;
-        const levelValue = member.englishLevel || "미입력";
+        if (gender !== "all" && profileValue(profile.gender) !== gender) return false;
+        if (nationality !== "all" && profileValue(profile.nationality) !== nationality) return false;
+        if (ageGroup !== "all" && profileValue(profile.ageGroup) !== ageGroup) return false;
+        if (targetLanguage !== "all" && profileValue(profile.targetLanguage) !== targetLanguage) return false;
+        const levelValue = profile.myLevel || "Not entered";
         if (englishLevel !== "all" && levelValue !== englishLevel) return false;
         return true;
       });
-      adminMemberListEl.innerHTML = rows.length ? rows.map(({ member, stats }) => `
-        <article class="admin-member-row">
-          <span><strong>${escapeHtml(member.name)}</strong><small>가입일: ${escapeHtml(member.joinedAt ? formatRecordDate(member.joinedAt) : "-")}</small></span>
-          <span>레벨<small>${escapeHtml(member.englishLevel || "미입력")}</small></span>
-          <span>성별<small>${escapeHtml(profileValue(member.gender))}</small></span>
-          <span>국적<small>${escapeHtml(profileValue(member.nationality))}</small></span>
-          <span>나이대<small>${escapeHtml(profileValue(member.ageGroup))}</small></span>
-          <span>포인트<small>${Number(stats.points || 0).toLocaleString()}P</small></span>
-          <span>참석/좋아요<small>${Number(stats.attendance || 0)}회 · ${Number(stats.hearts || 0)}개</small></span>
-        </article>
-      `).join("") : `<p class="small-note">조건에 맞는 회원이 없습니다.</p>`;
+      adminMemberListEl.innerHTML = rows.length ? rows.map(({ member, stats }) => {
+        const profile = normalizeMemberProfile(member);
+        return `
+          <article class="admin-member-row">
+            <span><strong>${escapeHtml(member.name)}</strong><small>Joined: ${escapeHtml(member.joinedAt ? formatRecordDate(member.joinedAt) : "-")}</small></span>
+            <span>My Level<small>${escapeHtml(profile.myLevel)}</small></span>
+            <span>Language<small>${escapeHtml(profile.targetLanguage)}</small></span>
+            <span>Gender<small>${escapeHtml(profile.gender)}</small></span>
+            <span>Nationality<small>${escapeHtml(profile.nationality)}</small></span>
+            <span>Age<small>${escapeHtml(profile.ageGroup)}</small></span>
+            <span>Stats<small>${Number(stats.points || 0).toLocaleString()}P · ${Number(stats.attendance || 0)}회 · ${Number(stats.hearts || 0)}개</small></span>
+          </article>
+        `;
+      }).join("") : `<p class="small-note">No members match the selected filters.</p>`;
     }
 
     function renderAdminHeartAudit() {
@@ -9074,10 +9194,12 @@ This account will be used continuously, so please enter the information correctl
       if (!member) return;
       memberNameEl.value = member.name || "";
       memberBirthEl.value = member.birth || member.birthdate || "";
-      if (memberEnglishLevelEl) memberEnglishLevelEl.value = member.englishLevel || "";
-      if (memberGenderEl) memberGenderEl.value = member.gender || "";
-      if (memberNationalityEl) memberNationalityEl.value = member.nationality || "";
-      if (memberAgeGroupEl) memberAgeGroupEl.value = member.ageGroup || "";
+      const profile = normalizeMemberProfile(member);
+      if (memberEnglishLevelEl) memberEnglishLevelEl.value = profile.myLevel;
+      if (memberGenderEl) memberGenderEl.value = profile.gender;
+      if (memberNationalityEl) memberNationalityEl.value = profile.nationality;
+      if (memberAgeGroupEl) memberAgeGroupEl.value = profile.ageGroup;
+      if (memberTargetLanguageEl) memberTargetLanguageEl.value = profile.targetLanguage;
     }
 
     function readMemberForm({ requireProfile = false } = {}) {
@@ -9096,27 +9218,33 @@ This account will be used continuously, so please enter the information correctl
         return null;
       }
       const profile = {
-        englishLevel: memberEnglishLevelEl?.value || "",
-        gender: memberGenderEl?.value || "",
-        nationality: memberNationalityEl?.value || "",
-        ageGroup: memberAgeGroupEl?.value || ""
+        englishLevel: memberEnglishLevelEl?.value || "I'm not sure yet",
+        myLevel: memberEnglishLevelEl?.value || "I'm not sure yet",
+        gender: memberGenderEl?.value || "Prefer not to say",
+        nationality: memberNationalityEl?.value || "Korea",
+        ageGroup: memberAgeGroupEl?.value || "Prefer not to say",
+        targetLanguage: memberTargetLanguageEl?.value || "English"
       };
       if (requireProfile) {
         const missing = [
-          [profile.englishLevel, "영어 레벨을 선택해주세요."],
-          [profile.gender, "성별을 선택해주세요."],
-          [profile.nationality, "국적을 선택해주세요."],
-          [profile.ageGroup, "나이대를 선택해주세요."]
+          [profile.englishLevel, "Please select your level."],
+          [profile.gender, "Please select your gender."],
+          [profile.nationality, "Please select your nationality."],
+          [profile.ageGroup, "Please select your age group."],
+          [profile.targetLanguage, "Please select the language you want to learn."]
         ].find(([value]) => !value);
         if (missing) {
-          showLoginError(`${missing[1]}\nPlease select all required profile information.`);
+          showLoginError(missing[1]);
           return null;
         }
       }
       clearLoginError();
-      const baseMember = makeMember(name, birth, profile);
+      const baseMember = makeMember(name, birth, requireProfile ? profile : {});
       const savedMember = memberFromId(baseMember.id);
-      return { ...baseMember, ...mergeMemberProfile(savedMember, baseMember) };
+      if (!requireProfile && getDirectory()[baseMember.id]) {
+        return { ...baseMember, ...mergeMemberProfile(baseMember, savedMember) };
+      }
+      return { ...baseMember, ...mergeMemberProfile(savedMember, { ...baseMember, ...profile }) };
     }
 
     function enterMember(member, action = "login") {
@@ -9142,7 +9270,7 @@ This account will be used continuously, so please enter the information correctl
     function registerMember() {
       const member = readMemberForm({ requireProfile: true });
       if (!member) return null;
-      const ok = window.confirm("Please use the same name as your Kakao open chat nickname.\nYour name and birthdate cannot be changed after registration.\nThis account will be used continuously, so please enter the information correctly.\n\n카카오톡 오픈채팅 닉네임과 같은 이름을 사용해주세요.\n등록 후 이름과 생년월일은 변경할 수 없습니다.");
+      const ok = window.confirm("Please use the same name as your Kakao open chat nickname.\nYour name and birthdate cannot be changed after registration.\nThis account will be used continuously, so please enter the information correctly.");
       if (!ok) return null;
       const directory = getDirectory();
       const sameNameExists = Object.entries(directory).some(([id, saved]) => saved.name === member.name && id !== member.id);
@@ -9526,7 +9654,7 @@ This account will be used continuously, so please enter the information correctl
         logMemberAction("heart_received", targetMember, {
           event: selectedLikeEventId,
           option: "study",
-          detail: `익명 좋아요를 받았습니다. +${pointRules.heart}P`
+          detail: `You received an anonymous like. +${pointRules.heart}P`
         });
       });
       logMemberAction("heart_sent", member, { event: selectedLikeEventId, option: "study", detail: savedTargetIds.map((target) => memberFromId(target).name).join(", ") });
@@ -10323,7 +10451,7 @@ This account will be used continuously, so please enter the information correctl
     dailyCheckinButtonEl?.addEventListener("click", handleDailyCheckin);
     pointPillEl.addEventListener("click", () => showProfileDetail("points"));
     sentHeartPillEl.addEventListener("click", () => showProfileDetail("sentHearts"));
-    [adminMemberSearchEl, adminMemberGenderFilterEl, adminMemberNationalityFilterEl, adminMemberAgeFilterEl, adminMemberLevelFilterEl].forEach((control) => {
+    [adminMemberSearchEl, adminMemberGenderFilterEl, adminMemberNationalityFilterEl, adminMemberAgeFilterEl, adminMemberLevelFilterEl, adminMemberLanguageFilterEl].forEach((control) => {
       control?.addEventListener("input", renderAdminMembers);
       control?.addEventListener("change", renderAdminMembers);
     });

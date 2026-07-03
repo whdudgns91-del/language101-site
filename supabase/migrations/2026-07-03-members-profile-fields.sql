@@ -3,9 +3,11 @@ create table if not exists public.members (
   name text not null,
   birth text,
   english_level text,
+  my_level text,
   gender text,
   nationality text,
   age_group text,
+  target_language text,
   joined_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -13,11 +15,17 @@ create table if not exists public.members (
 alter table public.members add column if not exists name text;
 alter table public.members add column if not exists birth text;
 alter table public.members add column if not exists english_level text;
+alter table public.members add column if not exists my_level text;
 alter table public.members add column if not exists gender text;
 alter table public.members add column if not exists nationality text;
 alter table public.members add column if not exists age_group text;
+alter table public.members add column if not exists target_language text;
 alter table public.members add column if not exists joined_at timestamptz default now();
 alter table public.members add column if not exists updated_at timestamptz default now();
+
+update public.members
+set my_level = coalesce(my_level, english_level)
+where my_level is null and english_level is not null;
 
 do $$
 begin
@@ -26,6 +34,8 @@ begin
     alter table public.users add column if not exists nationality text;
     alter table public.users add column if not exists age_group text;
     alter table public.users add column if not exists english_level text;
+    alter table public.users add column if not exists my_level text;
+    alter table public.users add column if not exists target_language text;
   end if;
 end $$;
 
