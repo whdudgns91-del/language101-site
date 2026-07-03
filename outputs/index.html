@@ -293,13 +293,23 @@
 
     .notification-dot {
       position: absolute;
-      top: 4px;
-      right: 4px;
-      width: 9px;
-      height: 9px;
+      top: -5px;
+      right: -5px;
+      display: inline-flex;
+      min-width: 18px;
+      height: 18px;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
       border: 2px solid #ffffff;
       border-radius: 999px;
       background: var(--heart);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 950;
+      line-height: 1;
+      box-shadow: 0 4px 10px rgba(244, 63, 94, 0.28);
+      pointer-events: none;
     }
 
     .hero-tools {
@@ -910,6 +920,87 @@
       line-height: 1.35;
     }
 
+    .daily-checkin-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      margin-top: 12px;
+      padding: 14px;
+      border: 1px solid rgba(34, 197, 94, 0.32);
+      border-radius: 18px;
+      background: linear-gradient(135deg, #f0fdf4, #ffffff);
+      box-shadow: 0 12px 28px rgba(34, 197, 94, 0.12);
+      color: #064e3b;
+    }
+
+    .daily-checkin-icon {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border-radius: 14px;
+      background: #dcfce7;
+      color: #15803d;
+      font-size: 22px;
+      font-weight: 950;
+    }
+
+    .daily-checkin-card strong {
+      display: block;
+      color: #064e3b;
+      font-size: 14px;
+      font-weight: 950;
+      line-height: 1.25;
+    }
+
+    .daily-checkin-card small {
+      display: block;
+      margin-top: 3px;
+      color: #166534;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .daily-checkin-card .daily-checkin-points {
+      display: inline-flex;
+      margin-top: 5px;
+      color: #16a34a;
+      font-size: 13px;
+      font-weight: 950;
+    }
+
+    .daily-checkin-button {
+      min-width: 108px;
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 950;
+      box-shadow: 0 10px 22px rgba(34, 197, 94, 0.22);
+    }
+
+    .daily-checkin-button:disabled {
+      cursor: default;
+      background: #dcfce7;
+      color: #15803d;
+      box-shadow: none;
+    }
+
+    @media (max-width: 520px) {
+      .daily-checkin-card {
+        grid-template-columns: auto minmax(0, 1fr);
+      }
+
+      .daily-checkin-button {
+        grid-column: 1 / -1;
+        width: 100%;
+      }
+    }
+
     .icon-guide {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1154,6 +1245,51 @@
 
     .notification-panel {
       margin-bottom: 12px;
+    }
+
+    .notification-card {
+      display: grid;
+      width: 100%;
+      gap: 5px;
+      border: 1px solid #fecdd3;
+      border-radius: 16px;
+      padding: 13px 14px;
+      background: #fff1f2;
+      color: #1f1646;
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .notification-card strong {
+      color: #1f1646;
+      font-size: 14px;
+      font-weight: 950;
+    }
+
+    .notification-card span,
+    .notification-card small {
+      color: #3b315f;
+      font-size: 12px;
+      font-weight: 850;
+      line-height: 1.45;
+    }
+
+    .notification-card em {
+      justify-self: start;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: #ffffff;
+      color: #7c3aed;
+      font-size: 11px;
+      font-style: normal;
+      font-weight: 950;
+    }
+
+    .notification-card.read {
+      border-color: var(--paper-line);
+      background: #ffffff;
+      opacity: 0.78;
     }
 
     .ranking {
@@ -3784,13 +3920,26 @@ This account will be used continuously, so please enter the information correctl
             <strong>포인트 적립 안내</strong>
             <span>스터디 신청 +200P</span>
             <span>선착순 10명 보너스 +50P</span>
-            <span>관리자 출석 체크 +50P</span>
+            <span>매일 출석 체크 +10P</span>
             <span>받은 익명 좋아요 +100P</span>
           </div>
+          <article class="daily-checkin-card" id="dailyCheckinCard">
+            <span class="daily-checkin-icon">✅</span>
+            <span>
+              <strong id="dailyCheckinTitle">출석 체크</strong>
+              <small id="dailyCheckinHelp">매일 출석 체크하고 포인트를 받아보세요.</small>
+              <span class="daily-checkin-points" id="dailyCheckinPoints">+10P</span>
+            </span>
+            <button type="button" class="daily-checkin-button" id="dailyCheckinButton">출석 체크하기</button>
+          </article>
           <div class="profile-actions">
             <button type="button" class="profile-menu-card" id="showApplicationLog">
               <span class="profile-menu-icon">📅</span>
               <span><strong>내 신청 내역</strong><small>내가 신청한 스터디 확인</small></span>
+            </button>
+            <button type="button" class="profile-menu-card" id="showLikeAfterStudy">
+              <span class="profile-menu-icon">💌</span>
+              <span><strong>스터디 후 익명 좋아요</strong><small>함께했던 멤버에게 익명 좋아요 보내기</small></span>
             </button>
             <button type="button" class="profile-menu-card" id="showReceivedHeartLog">
               <span class="profile-menu-icon">❤️</span>
@@ -3928,6 +4077,7 @@ This account will be used continuously, so please enter the information correctl
     const SHEET_SYNC_QUEUE_KEY = "le101SheetSyncQueue";
     const ATTENDANCE_CHECK_KEY = "le101AttendanceChecks";
     const ATTENDANCE_SHEET_RESULT_KEY = "le101AttendanceSheetResults";
+    const DAILY_CHECKINS_KEY = "le101DailyCheckins";
     const SCHEDULE_OVERRIDES_KEY = "le101ScheduleOverrides";
     const CLOSED_EMAIL_KEY = "le101ClosedPollEmails";
     const NOTICE_KEY = "le101SimpleNotice";
@@ -3937,6 +4087,7 @@ This account will be used continuously, so please enter the information correctl
     const AUTO_ROSTER_KEY = "le101SimpleAutoRoster";
     const NOTIFIED_STUDY_KEY = "le101StudyBrowserNotified";
     const NOTIFIED_LIKE_KEY = "le101LikeBrowserNotified";
+    const NOTIFICATIONS_KEY = "le101Notifications";
     const LIKE_PROMPT_DISMISSED_KEY = "le101LikePromptDismissed";
     const REMOTE_LIKE_RECEIVED_KEY = "le101RemoteLikeReceived";
     const EVENTS_KEY = "le101Events";
@@ -3972,7 +4123,8 @@ This account will be used continuously, so please enter the information correctl
       attendance: 200,
       heart: 100,
       earlyBonus: 50,
-      attendanceCheck: 50
+      attendanceCheck: 50,
+      dailyCheckin: 10
     };
     const EARLY_BONUS_LIMIT = 10;
 
@@ -4046,6 +4198,11 @@ This account will be used continuously, so please enter the information correctl
     const attendPillEl = document.querySelector("#attendPill");
     const heartPillEl = document.querySelector("#heartPill");
     const sentHeartPillEl = document.querySelector("#sentHeartPill");
+    const dailyCheckinCardEl = document.querySelector("#dailyCheckinCard");
+    const dailyCheckinTitleEl = document.querySelector("#dailyCheckinTitle");
+    const dailyCheckinHelpEl = document.querySelector("#dailyCheckinHelp");
+    const dailyCheckinPointsEl = document.querySelector("#dailyCheckinPoints");
+    const dailyCheckinButtonEl = document.querySelector("#dailyCheckinButton");
     const profileAlertListEl = document.querySelector("#profileAlertList");
     const rankingListEl = document.querySelector("#rankingList");
     const toggleLikePanelEl = document.querySelector("#toggleLikePanel");
@@ -5136,7 +5293,7 @@ This account will be used continuously, so please enter the information correctl
 
     function ensureStatsEntry(stats, member) {
       if (!stats[member.id]) {
-        stats[member.id] = { name: member.name, birth: member.birth, points: 0, attendance: 0, hearts: 0, sentHearts: 0, bonusEvents: {}, attendanceCheckEvents: {} };
+        stats[member.id] = { name: member.name, birth: member.birth, points: 0, attendance: 0, hearts: 0, sentHearts: 0, bonusEvents: {}, attendanceCheckEvents: {}, dailyCheckins: {} };
       } else {
         stats[member.id].name = member.name || stats[member.id].name;
         stats[member.id].birth = member.birth || stats[member.id].birth;
@@ -5146,11 +5303,13 @@ This account will be used continuously, so please enter the information correctl
         stats[member.id].sentHearts = stats[member.id].sentHearts || 0;
         stats[member.id].bonusEvents = stats[member.id].bonusEvents || {};
         stats[member.id].attendanceCheckEvents = stats[member.id].attendanceCheckEvents || {};
+        stats[member.id].dailyCheckins = stats[member.id].dailyCheckins || {};
       }
       stats[member.id].points =
         stats[member.id].attendance * pointRules.attendance +
         Object.keys(stats[member.id].bonusEvents || {}).length * pointRules.earlyBonus +
         Object.keys(stats[member.id].attendanceCheckEvents || {}).length * pointRules.attendanceCheck +
+        Object.keys(stats[member.id].dailyCheckins || {}).length * pointRules.dailyCheckin +
         stats[member.id].hearts * pointRules.heart;
       if (isOperatorMember(member)) {
         stats[member.id].points = Math.max(stats[member.id].points, 99000);
@@ -5494,6 +5653,71 @@ This account will be used continuously, so please enter the information correctl
         Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
         ...extra
       };
+    }
+
+    function todayKey() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function getDailyCheckins() {
+      return readJson(DAILY_CHECKINS_KEY, {});
+    }
+
+    function saveDailyCheckins(checkins) {
+      writeJson(DAILY_CHECKINS_KEY, checkins);
+    }
+
+    function hasDailyCheckin(member, date = todayKey()) {
+      if (!member?.id) return false;
+      return Boolean(getDailyCheckins()[`${member.id}|${date}`]);
+    }
+
+    function getDailyCheckinCount(member) {
+      if (!member?.id) return 0;
+      return Object.keys(getDailyCheckins()).filter((key) => key.startsWith(`${member.id}|`)).length;
+    }
+
+    function getDailyCheckinStreak(member) {
+      if (!member?.id) return 0;
+      const checkins = getDailyCheckins();
+      let cursor = new Date();
+      let streak = 0;
+      while (streak < 365) {
+        const year = cursor.getFullYear();
+        const month = String(cursor.getMonth() + 1).padStart(2, "0");
+        const day = String(cursor.getDate()).padStart(2, "0");
+        if (!checkins[`${member.id}|${year}-${month}-${day}`]) break;
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
+      }
+      return streak;
+    }
+
+    async function saveDailyCheckinToSupabase(member, date, points) {
+      if (!isSupabaseConfigured() || !member?.id) return true;
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/daily_checkins?on_conflict=user_id,checkin_date`, {
+          method: "POST",
+          headers: supabaseRestHeaders({
+            "Content-Type": "application/json",
+            Prefer: "resolution=ignore-duplicates,return=representation"
+          }),
+          body: JSON.stringify({
+            user_id: member.id,
+            checkin_date: date,
+            points_awarded: points
+          })
+        });
+        if (!response.ok) throw new Error(await response.text());
+        return true;
+      } catch (error) {
+        console.warn("daily checkin sync failed", error?.message || error);
+        return false;
+      }
     }
 
     function uniqueValues(values) {
@@ -5968,6 +6192,137 @@ This account will be used continuously, so please enter the information correctl
       `;
     }
 
+    function notificationKey(userId, studyId, type) {
+      return `${userId || ""}|${studyId || ""}|${type || ""}`;
+    }
+
+    function getStoredNotifications() {
+      return readJson(NOTIFICATIONS_KEY, {});
+    }
+
+    function saveStoredNotifications(notifications) {
+      writeJson(NOTIFICATIONS_KEY, notifications);
+    }
+
+    function saveNotificationToSupabase(notification) {
+      if (!isSupabaseConfigured()) return;
+      const body = {
+        user_id: notification.user_id,
+        study_id: notification.study_id || "",
+        type: notification.type,
+        title: notification.title || "",
+        message: notification.message || "",
+        target_view: notification.target_view || "",
+        is_read: Boolean(notification.is_read),
+        read_at: notification.read_at || null,
+        expires_at: notification.expires_at || null
+      };
+      fetch(`${SUPABASE_URL}/rest/v1/notifications?on_conflict=user_id,study_id,type`, {
+        method: "POST",
+        headers: supabaseRestHeaders({
+          "Content-Type": "application/json",
+          Prefer: "resolution=merge-duplicates"
+        }),
+        body: JSON.stringify(body)
+      }).catch(() => {});
+    }
+
+    function markNotificationReadInSupabase(notification) {
+      if (!isSupabaseConfigured() || !notification?.user_id || !notification?.study_id || !notification?.type) return;
+      fetch(`${SUPABASE_URL}/rest/v1/notifications?user_id=eq.${encodeURIComponent(notification.user_id)}&study_id=eq.${encodeURIComponent(notification.study_id)}&type=eq.${encodeURIComponent(notification.type)}`, {
+        method: "PATCH",
+        headers: supabaseRestHeaders({
+          "Content-Type": "application/json"
+        }),
+        body: JSON.stringify({
+          is_read: true,
+          read_at: notification.read_at || new Date().toISOString()
+        })
+      }).catch(() => {});
+    }
+
+    function upsertNotification(notification) {
+      const notifications = getStoredNotifications();
+      const key = notificationKey(notification.user_id, notification.study_id, notification.type);
+      const existing = notifications[key] || {};
+      const isNew = !notifications[key];
+      notifications[key] = {
+        ...existing,
+        ...notification,
+        id: existing.id || key,
+        is_read: Boolean(existing.is_read),
+        read_at: existing.read_at || "",
+        created_at: existing.created_at || new Date().toISOString()
+      };
+      saveStoredNotifications(notifications);
+      if (isNew) saveNotificationToSupabase(notifications[key]);
+      return notifications[key];
+    }
+
+    function buildLikeReminderNotification(member, event) {
+      return upsertNotification({
+        user_id: member.id,
+        study_id: event.id,
+        type: "like_reminder",
+        title: "💌 좋아요 보내기",
+        message: "오늘 가장 좋았던 사람 1명 또는 2명에게 좋아요를 보내주세요!",
+        target_view: "profile.likeAfterStudy",
+        study_label: `${formatDateLabel(event.start)} ${t(event.title)}`,
+        expires_at: ""
+      });
+    }
+
+    function isNotificationVisible(notification, now = new Date()) {
+      if (!notification?.is_read) return true;
+      if (!notification.read_at) return true;
+      const readAt = new Date(notification.read_at);
+      if (Number.isNaN(readAt.getTime())) return true;
+      return now.getTime() - readAt.getTime() < 24 * 60 * 60 * 1000;
+    }
+
+    function getUserNotifications(member) {
+      if (!member?.id) return [];
+      const notifications = Object.values(getStoredNotifications())
+        .filter((item) => item.user_id === member.id)
+        .filter((item) => isNotificationVisible(item))
+        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      return notifications;
+    }
+
+    function markNotificationRead(notificationId) {
+      const notifications = getStoredNotifications();
+      const targetKey = Object.keys(notifications).find((key) => notifications[key].id === notificationId || key === notificationId);
+      if (!targetKey) return null;
+      notifications[targetKey].is_read = true;
+      notifications[targetKey].read_at = new Date().toISOString();
+      saveStoredNotifications(notifications);
+      markNotificationReadInSupabase(notifications[targetKey]);
+      return notifications[targetKey];
+    }
+
+    function openNotificationTarget(notification) {
+      if (!notification) return;
+      if (notification.type === "like_reminder" && notification.study_id) {
+        selectedLikeEventId = notification.study_id;
+        selectedLikeTargets = [];
+        setActiveView("profile");
+        showProfileDetail("likeAfterStudy");
+      }
+    }
+
+    function renderNotificationCard(notification) {
+      const status = notification.is_read ? "읽음" : "안 읽음";
+      const cls = notification.is_read ? "read" : "unread";
+      return `
+        <button type="button" class="notification-card ${cls}" data-notification-id="${escapeHtml(notification.id)}">
+          <strong>${escapeHtml(notification.title || "알림")}</strong>
+          <span>${escapeHtml(notification.message || "")}</span>
+          <small>${escapeHtml(notification.study_label || "")}</small>
+          <em>${escapeHtml(status)}</em>
+        </button>
+      `;
+    }
+
     function markBrowserNotifications(rows) {
       if (!("Notification" in window) || !rows.length) return;
       const sent = readJson(NOTIFIED_STUDY_KEY, {});
@@ -6033,6 +6388,9 @@ This account will be used continuously, so please enter the information correctl
       const alerts = getUpcomingStudyAlerts(member);
       const likeEvents = getLikeEligibleEvents(member)
         .filter((event) => getActualLikeTargetsForEvent(event.id, member).length > 0);
+      likeEvents.forEach((event) => {
+        if (member?.id) buildLikeReminderNotification(member, event);
+      });
       const receivedHearts = getMemberRecords(member)
         .filter((record) => record.action === "heart_received")
         .filter((record) => {
@@ -6040,15 +6398,25 @@ This account will be used continuously, so please enter the information correctl
           return !Number.isNaN(at.getTime()) && Date.now() - at.getTime() < 1000 * 60 * 60 * 24 * 2;
         })
         .slice(0, 5);
-      const items = [
+      const storedNotifications = getUserNotifications(member);
+      const unreadCount = storedNotifications.filter((item) => !item.is_read).length;
+      const notificationHtml = [
         ...alerts.map(renderStudyAlert),
-        ...likeEvents.map(renderLikeReminderAlert),
+        ...storedNotifications.map(renderNotificationCard),
         ...receivedHearts.map(renderReceivedHeartAlert)
       ];
-      const html = items.length
-        ? items.join("")
-        : `<article class="profile-log-card"><strong>새 알림이 없습니다.</strong><small>신청한 스터디와 수업 후 좋아요 알림이 여기에 표시됩니다.</small></article>`;
-      if (notificationListEl) notificationListEl.innerHTML = html;
+      if (notificationListEl) {
+        notificationListEl.innerHTML = notificationHtml.length
+          ? notificationHtml.join("")
+          : `<article class="profile-log-card"><strong>새 알림이 없습니다.</strong><small>신청한 스터디와 수업 후 좋아요 알림이 여기에 표시됩니다.</small></article>`;
+        notificationListEl.querySelectorAll("[data-notification-id]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const notification = markNotificationRead(button.dataset.notificationId);
+            renderStudyNotifications();
+            openNotificationTarget(notification);
+          });
+        });
+      }
       if (profileAlertListEl) {
         const showProfileReminder = activeView === "profile" && profileView === "main" && likeEvents.length > 0;
         profileAlertListEl.innerHTML = showProfileReminder
@@ -6056,7 +6424,10 @@ This account will be used continuously, so please enter the information correctl
           : "";
         profileAlertListEl.classList.toggle("hidden", !showProfileReminder);
       }
-      if (notificationDotEl) notificationDotEl.classList.toggle("hidden", !items.length);
+      if (notificationDotEl) {
+        notificationDotEl.textContent = unreadCount > 99 ? "99+" : String(unreadCount);
+        notificationDotEl.classList.toggle("hidden", unreadCount === 0);
+      }
       markBrowserNotifications(alerts);
       markLikeBrowserNotifications(likeEvents, receivedHearts);
     }
@@ -6141,6 +6512,7 @@ This account will be used continuously, so please enter the information correctl
       if (record.action === "cancel_vote") return -(pointRules.vote + pointRules.earlyBonus);
       if (record.action === "heart_received") return pointRules.heart;
       if (record.action === "attendance_checked") return pointRules.attendanceCheck;
+      if (record.action === "daily_checkin") return pointRules.dailyCheckin;
       return 0;
     }
 
@@ -6230,12 +6602,12 @@ This account will be used continuously, so please enter the information correctl
         title = "내 참석 보기";
         const rows = getAttendanceRows(member);
         body = rows.length
-          ? rows.map((row) => `<article class="profile-log-card"><strong>${escapeHtml(row.study_date)} ${escapeHtml(row.study_title)}</strong><small>${escapeHtml(row.start_time)} ~ ${escapeHtml(row.end_time)}</small><small>참석 포인트 +${pointRules.attendanceCheck}P</small><span class="status-pill">참석 완료</span></article>`).join("")
+          ? rows.map((row) => `<article class="profile-log-card"><strong>${escapeHtml(row.study_date)} ${escapeHtml(row.study_title)}</strong><small>${escapeHtml(row.start_time)} ~ ${escapeHtml(row.end_time)}</small><small>스터디 참석 확인 +${pointRules.attendanceCheck}P</small><span class="status-pill">참석 완료</span></article>`).join("")
           : `<article class="profile-log-card"><strong>${t("profileLogEmpty")}</strong></article>`;
       } else if (kind === "points") {
         title = "포인트 내역";
         const stats = getMemberStats(member);
-        const pointRecords = records.filter((record) => ["vote", "bonus", "cancel_vote", "heart_received", "attendance_checked"].includes(record.action));
+        const pointRecords = records.filter((record) => ["vote", "bonus", "cancel_vote", "heart_received", "attendance_checked", "daily_checkin"].includes(record.action));
         body = `<article class="profile-total-card"><small>보유 포인트</small><strong>${stats.points.toLocaleString()} pt</strong></article>` + (pointRecords.length
           ? pointRecords.map(renderPointRecord).join("")
           : `<article class="profile-log-card"><strong>${t("profileLogEmpty")}</strong></article>`);
@@ -6955,7 +7327,7 @@ This account will be used continuously, so please enter the information correctl
         event: eventId,
         option: "attendance",
         points: pointRules.attendanceCheck,
-        detail: `${recordEventLabel(eventId)} 관리자 참석 체크 +${pointRules.attendanceCheck}P`
+        detail: `${recordEventLabel(eventId)} 스터디 참석 확인 +${pointRules.attendanceCheck}P`
       });
     }
 
@@ -8472,6 +8844,65 @@ This account will be used continuously, so please enter the information correctl
       render();
     }
 
+    async function handleDailyCheckin() {
+      const member = getMember() || saveMember();
+      if (!member?.id) return;
+      const date = todayKey();
+      if (hasDailyCheckin(member, date)) {
+        messageEl.textContent = "오늘 출석 체크는 이미 완료했습니다.";
+        renderDailyCheckinCard(member);
+        return;
+      }
+
+      const checkins = getDailyCheckins();
+      checkins[`${member.id}|${date}`] = {
+        userId: member.id,
+        checkinDate: date,
+        pointsAwarded: pointRules.dailyCheckin,
+        createdAt: new Date().toISOString()
+      };
+      saveDailyCheckins(checkins);
+
+      const stats = ensureStats(member);
+      stats[member.id].dailyCheckins = stats[member.id].dailyCheckins || {};
+      stats[member.id].dailyCheckins[date] = true;
+      stats[member.id].points += pointRules.dailyCheckin;
+      writeJson(STATS_KEY, stats);
+
+      logMemberAction("daily_checkin", member, {
+        event: date,
+        option: "daily",
+        points: pointRules.dailyCheckin,
+        detail: `매일 출석 체크 +${pointRules.dailyCheckin}P`
+      });
+
+      const synced = await saveDailyCheckinToSupabase(member, date, pointRules.dailyCheckin);
+      messageEl.textContent = synced
+        ? `✅ 오늘 출석 체크 완료! +${pointRules.dailyCheckin}P 지급 완료`
+        : `✅ 오늘 출석 체크 완료! +${pointRules.dailyCheckin}P 지급 완료 (Supabase 동기화는 확인 필요)`;
+      render();
+    }
+
+    function renderDailyCheckinCard(member) {
+      if (!dailyCheckinCardEl) return;
+      const checked = hasDailyCheckin(member);
+      const streak = getDailyCheckinStreak(member);
+      const total = getDailyCheckinCount(member);
+      if (dailyCheckinTitleEl) dailyCheckinTitleEl.textContent = checked ? "오늘 출석 체크 완료" : "출석 체크";
+      if (dailyCheckinHelpEl) {
+        dailyCheckinHelpEl.textContent = checked
+          ? `+${pointRules.dailyCheckin}P 지급 완료 · 연속 ${streak}일 · 누적 ${total}회`
+          : "매일 출석 체크하고 포인트를 받아보세요.";
+      }
+      if (dailyCheckinPointsEl) {
+        dailyCheckinPointsEl.textContent = checked ? `+${pointRules.dailyCheckin}P 지급 완료` : `+${pointRules.dailyCheckin}P`;
+      }
+      if (dailyCheckinButtonEl) {
+        dailyCheckinButtonEl.disabled = checked;
+        dailyCheckinButtonEl.textContent = checked ? "오늘 완료" : "출석 체크하기";
+      }
+    }
+
     function renderLevel() {
       const member = getMember();
       if (member) {
@@ -8499,8 +8930,9 @@ This account will be used continuously, so please enter the information correctl
       });
       xpFillEl.style.width = `${(stats.points % 1000) / 10}%`;
       pointPillEl.textContent = t("points", { points: stats.points });
-      attendPillEl.innerHTML = `<span class="stat-icon">✅</span><span>출석 ${stats.attendance}<small>출석 체크</small></span>`;
+      attendPillEl.innerHTML = `<span class="stat-icon">✅</span><span>스터디 참석 ${stats.attendance}회<small>스터디 참석 기록</small></span>`;
       heartPillEl.innerHTML = `<span class="stat-icon">💌</span><span>좋아요 보내기<small>스터디 후 익명 좋아요</small></span>`;
+      renderDailyCheckinCard(member);
       if (showReceivedHeartLogEl) {
         showReceivedHeartLogEl.innerHTML = `<span class="profile-menu-icon">❤️</span><span><strong>받은 좋아요 ${stats.hearts}</strong><small>받은 익명 좋아요 · +${(stats.hearts * pointRules.heart).toLocaleString()}P</small></span>`;
       }
@@ -9194,6 +9626,7 @@ This account will be used continuously, so please enter the information correctl
     showReceivedHeartLogEl?.addEventListener("click", () => showProfileDetail("receivedHearts"));
     attendPillEl.addEventListener("click", () => showProfileDetail("attendance"));
     heartPillEl.addEventListener("click", () => showProfileDetail("likeAfterStudy"));
+    dailyCheckinButtonEl?.addEventListener("click", handleDailyCheckin);
     pointPillEl.addEventListener("click", () => showProfileDetail("points"));
     sentHeartPillEl.addEventListener("click", () => showProfileDetail("sentHearts"));
     logoutButtonEl.addEventListener("click", logoutMember);
