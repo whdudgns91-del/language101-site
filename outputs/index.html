@@ -477,6 +477,47 @@
     }
 
     .field { display: grid; gap: 7px; }
+
+    .member-extra-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .member-edit-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .member-readonly {
+      padding: 12px;
+      border: 1px solid var(--paper-line);
+      border-radius: 14px;
+      background: #faf7ff;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .member-info-line {
+      display: block;
+      margin-top: 2px;
+      color: #6d5f85;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.35;
+      white-space: normal;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    .member-edit-status {
+      margin: 0;
+      color: var(--purple);
+      font-size: 12px;
+      font-weight: 900;
+      min-height: 18px;
+    }
     label {
       color: var(--subtle);
       font-size: 13px;
@@ -1324,6 +1365,7 @@
       font-size: 12px;
       font-weight: 850;
       line-height: 1.45;
+      white-space: pre-line;
     }
 
     .notification-card em {
@@ -2446,6 +2488,47 @@
       gap: 5px;
     }
 
+    .admin-member-controls {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 10px 0 12px;
+    }
+
+    .admin-member-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .admin-member-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) repeat(6, minmax(74px, 0.7fr));
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--paper-line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .admin-member-row strong {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    .admin-member-row small {
+      display: block;
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 800;
+    }
+
     .admin-search-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -2926,6 +3009,16 @@
         padding-top: 0;
       }
       .login, .like-grid, .admin-lock { grid-template-columns: 1fr; }
+      .member-extra-grid,
+      .admin-member-controls {
+        grid-template-columns: 1fr;
+      }
+      .admin-member-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .admin-member-row > span:first-child {
+        grid-column: 1 / -1;
+      }
       .grid.two { grid-template-columns: 1fr; }
       .hero {
         min-height: 0;
@@ -3884,6 +3977,64 @@
           <p class="small-note" id="sheetSyncStatus"></p>
         </section>
 
+        <section class="admin-card admin-member-card">
+          <h3>회원 관리</h3>
+          <p class="helper">가입한 회원의 레벨, 성별, 국적, 나이대와 활동 통계를 확인합니다.</p>
+          <div class="admin-member-controls">
+            <div class="field">
+              <label for="adminMemberSearch">이름 검색</label>
+              <input id="adminMemberSearch" placeholder="예: deo, Yuna, 김해민">
+            </div>
+            <div class="field">
+              <label for="adminMemberGenderFilter">성별</label>
+              <select id="adminMemberGenderFilter">
+                <option value="all">전체 성별</option>
+                <option value="남자">남자</option>
+                <option value="여자">여자</option>
+                <option value="선택 안 함">선택 안 함</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="adminMemberNationalityFilter">국적</label>
+              <select id="adminMemberNationalityFilter">
+                <option value="all">전체 국적</option>
+                <option value="한국">한국</option>
+                <option value="미국">미국</option>
+                <option value="일본">일본</option>
+                <option value="중국">중국</option>
+                <option value="프랑스">프랑스</option>
+                <option value="독일">독일</option>
+                <option value="캐나다">캐나다</option>
+                <option value="호주">호주</option>
+                <option value="기타">기타</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="adminMemberAgeFilter">나이대</label>
+              <select id="adminMemberAgeFilter">
+                <option value="all">전체 나이대</option>
+                <option value="10대">10대</option>
+                <option value="20대">20대</option>
+                <option value="30대">30대</option>
+                <option value="40대">40대</option>
+                <option value="50대 이상">50대 이상</option>
+                <option value="선택 안 함">선택 안 함</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="adminMemberLevelFilter">영어 레벨</label>
+              <select id="adminMemberLevelFilter">
+                <option value="all">전체 레벨</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Upper Intermediate">Upper Intermediate</option>
+                <option value="미입력">미입력</option>
+              </select>
+            </div>
+          </div>
+          <div class="admin-member-list" id="adminMemberList"></div>
+        </section>
+
         <section class="admin-card">
           <h3 data-i18n="adminScheduleTitle">투표 일정 수정</h3>
           <div class="field">
@@ -3939,6 +4090,53 @@
         <p class="field-help" data-i18n="birthHelp">6 digits only</p>
         <input id="memberBirth" inputmode="numeric" maxlength="6" placeholder="Example: 920117">
       </div>
+      <div class="member-extra-grid" aria-label="회원 추가 정보">
+        <div class="field">
+          <label for="memberEnglishLevel">English Level</label>
+          <select id="memberEnglishLevel">
+            <option value="">영어 레벨 선택</option>
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Upper Intermediate">Upper Intermediate</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="memberGender">성별</label>
+          <select id="memberGender">
+            <option value="">성별 선택</option>
+            <option value="남자">남자</option>
+            <option value="여자">여자</option>
+            <option value="선택 안 함">선택 안 함</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="memberNationality">국적</label>
+          <select id="memberNationality">
+            <option value="">국적 선택</option>
+            <option value="한국">한국</option>
+            <option value="미국">미국</option>
+            <option value="일본">일본</option>
+            <option value="중국">중국</option>
+            <option value="프랑스">프랑스</option>
+            <option value="독일">독일</option>
+            <option value="캐나다">캐나다</option>
+            <option value="호주">호주</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="memberAgeGroup">나이대</label>
+          <select id="memberAgeGroup">
+            <option value="">나이대 선택</option>
+            <option value="10대">10대</option>
+            <option value="20대">20대</option>
+            <option value="30대">30대</option>
+            <option value="40대">40대</option>
+            <option value="50대 이상">50대 이상</option>
+            <option value="선택 안 함">선택 안 함</option>
+          </select>
+        </div>
+      </div>
       <div class="login-actions">
         <button type="button" class="btn primary" id="saveMember" data-i18n="loginButton">Already registered? → Login</button>
         <button type="button" class="btn" id="registerMember" data-i18n="registerButton">First time here? → Sign up</button>
@@ -3989,6 +4187,10 @@ This account will be used continuously, so please enter the information correctl
             <button type="button" class="profile-menu-card" id="showPointLog">
               <span class="profile-menu-icon">P</span>
               <span><strong>포인트 내역</strong><small>포인트 적립 및 사용 내역 확인</small></span>
+            </button>
+            <button type="button" class="profile-menu-card" id="showMemberEdit">
+              <span class="profile-menu-icon">🪪</span>
+              <span><strong>회원 정보 수정</strong><small>성별, 국적, 나이대, 영어 레벨 수정</small></span>
             </button>
             <button type="button" class="profile-menu-card" id="showLevelGuide">
               <span class="profile-menu-icon">🏆</span>
@@ -4176,6 +4378,10 @@ This account will be used continuously, so please enter the information correctl
     const memberNameEl = document.querySelector("#memberName");
     const nameSuggestionEl = document.querySelector("#nameSuggestion");
     const memberBirthEl = document.querySelector("#memberBirth");
+    const memberEnglishLevelEl = document.querySelector("#memberEnglishLevel");
+    const memberGenderEl = document.querySelector("#memberGender");
+    const memberNationalityEl = document.querySelector("#memberNationality");
+    const memberAgeGroupEl = document.querySelector("#memberAgeGroup");
     const saveMemberEl = document.querySelector("#saveMember");
     const registerMemberEl = document.querySelector("#registerMember");
     const headerUserNameEl = document.querySelector("#headerUserName");
@@ -4222,6 +4428,7 @@ This account will be used continuously, so please enter the information correctl
     const levelGuideToggleEl = document.querySelector("#levelGuideToggle");
     const showApplicationLogEl = document.querySelector("#showApplicationLog");
     const showLevelGuideEl = document.querySelector("#showLevelGuide");
+    const showMemberEditEl = document.querySelector("#showMemberEdit");
     const showLikeAfterStudyEl = document.querySelector("#showLikeAfterStudy");
     const showReceivedHeartLogEl = document.querySelector("#showReceivedHeartLog");
     const levelGuideEl = document.querySelector("#levelGuide");
@@ -4310,6 +4517,12 @@ This account will be used continuously, so please enter the information correctl
     const sheetSyncStatusEl = document.querySelector("#sheetSyncStatus");
     const adminVoteAuditEl = document.querySelector("#adminVoteAudit");
     const adminHeartAuditEl = document.querySelector("#adminHeartAudit");
+    const adminMemberSearchEl = document.querySelector("#adminMemberSearch");
+    const adminMemberGenderFilterEl = document.querySelector("#adminMemberGenderFilter");
+    const adminMemberNationalityFilterEl = document.querySelector("#adminMemberNationalityFilter");
+    const adminMemberAgeFilterEl = document.querySelector("#adminMemberAgeFilter");
+    const adminMemberLevelFilterEl = document.querySelector("#adminMemberLevelFilter");
+    const adminMemberListEl = document.querySelector("#adminMemberList");
 
     let activeFilter = "all";
     let activeMaterial = "english";
@@ -4336,6 +4549,8 @@ This account will be used continuously, so please enter the information correctl
     let remoteVoteMetaCache = {};
     let remoteEventsCache = [];
     let eventsLoadedFromSupabase = false;
+    let membersLoadInFlight = false;
+    let membersLoadedFromSupabase = false;
     let browserNotificationRequestStarted = false;
     const adminAuditOpenKeys = new Set();
     const adminClosedAuditFilter = {
@@ -5181,14 +5396,65 @@ This account will be used continuously, so please enter the information correctl
       localStorage.setItem(key, JSON.stringify(value));
     }
 
-    function makeMember(name, birth) {
+    const memberProfileDefaults = {
+      englishLevel: "",
+      gender: "",
+      nationality: "",
+      ageGroup: "",
+      joinedAt: ""
+    };
+
+    function normalizeMemberProfile(profile = {}) {
+      return {
+        englishLevel: profile.englishLevel || profile.english_level || "",
+        gender: profile.gender || "",
+        nationality: profile.nationality || "",
+        ageGroup: profile.ageGroup || profile.age_group || "",
+        joinedAt: profile.joinedAt || profile.joined_at || ""
+      };
+    }
+
+    function mergeMemberProfile(base = {}, profile = {}) {
+      const normalizedBase = normalizeMemberProfile(base);
+      const normalizedProfile = normalizeMemberProfile(profile);
+      return {
+        ...normalizedBase,
+        ...Object.fromEntries(Object.entries(normalizedProfile).filter(([, value]) => value !== "" && value !== undefined && value !== null))
+      };
+    }
+
+    function profileValue(value) {
+      return value || "미입력";
+    }
+
+    function memberProfileLine(memberOrId) {
+      const member = typeof memberOrId === "string" ? memberFromId(memberOrId) : memberOrId;
+      const parts = [member?.gender, member?.ageGroup || member?.age_group, member?.nationality]
+        .filter((value) => value && value !== "선택 안 함");
+      return parts.length ? parts.join(" · ") : "회원 정보 미입력";
+    }
+
+    function anonymousSenderInfo(memberOrId) {
+      const member = typeof memberOrId === "string" ? memberFromId(memberOrId) : memberOrId;
+      const parts = [member?.gender, member?.ageGroup || member?.age_group, member?.nationality]
+        .filter((value) => value && value !== "선택 안 함");
+      return parts.length ? parts.join(" / ") : "정보 미입력";
+    }
+
+    function makeMember(name, birth, profile = {}) {
       const cleanName = name.trim();
       const cleanBirth = birth.trim();
+      const normalizedProfile = normalizeMemberProfile(profile);
       return {
         id: `${cleanBirth}|${normalizeName(cleanName)}`,
         name: cleanName,
         birth: cleanBirth,
-        birthdate: cleanBirth
+        birthdate: cleanBirth,
+        englishLevel: normalizedProfile.englishLevel,
+        gender: normalizedProfile.gender,
+        nationality: normalizedProfile.nationality,
+        ageGroup: normalizedProfile.ageGroup,
+        joinedAt: normalizedProfile.joinedAt
       };
     }
 
@@ -5198,19 +5464,30 @@ This account will be used continuously, so please enter the information correctl
 
     function saveDirectoryMember(member) {
       const directory = getDirectory();
-      directory[member.id] = { name: member.name, birth: member.birth };
+      const saved = directory[member.id] || {};
+      const mergedProfile = mergeMemberProfile(saved, member);
+      directory[member.id] = {
+        name: member.name,
+        birth: member.birth,
+        englishLevel: mergedProfile.englishLevel,
+        gender: mergedProfile.gender,
+        nationality: mergedProfile.nationality,
+        ageGroup: mergedProfile.ageGroup,
+        joinedAt: mergedProfile.joinedAt || saved.joinedAt || new Date().toISOString()
+      };
       writeJson(MEMBER_DIRECTORY_KEY, directory);
     }
 
     function memberFromId(id) {
+      if (!id) return { id: "", name: "", birth: "", birthdate: "", ...memberProfileDefaults };
       const directory = getDirectory();
       const saved = directory[id];
-      if (saved) return { id, name: saved.name, birth: saved.birth };
+      if (saved) return makeMember(saved.name, saved.birth || saved.birthdate || "", saved);
       if (id.includes("|")) {
         const [birth, ...nameParts] = id.split("|");
-        return { id, birth, name: nameParts.join("|") };
+        return makeMember(nameParts.join("|"), birth);
       }
-      return { id, name: id, birth: "" };
+      return { id, name: id, birth: "", birthdate: "", ...memberProfileDefaults };
     }
 
     function normalizeName(value = "") {
@@ -5240,7 +5517,7 @@ This account will be used continuously, so please enter the information correctl
     function findDirectoryMemberByName(name) {
       const target = normalizeName(name);
       return Object.entries(getDirectory())
-        .map(([id, saved]) => ({ id, name: saved.name, birth: saved.birth }))
+        .map(([id, saved]) => ({ id, ...memberFromId(id), ...saved }))
         .find((member) => normalizeName(member.name) === target && !isSyntheticMember(member));
     }
 
@@ -5249,8 +5526,11 @@ This account will be used continuously, so please enter the information correctl
       if (!saved) return null;
       try {
         const parsed = JSON.parse(saved);
-        if (parsed?.name && (parsed?.birth || parsed?.birthdate)) return makeMember(parsed.name, parsed.birth || parsed.birthdate);
-        if (parsed?.id && parsed?.name) return parsed;
+        if (parsed?.name && (parsed?.birth || parsed?.birthdate)) {
+          const member = makeMember(parsed.name, parsed.birth || parsed.birthdate, parsed);
+          return { ...member, ...mergeMemberProfile(memberFromId(member.id), member) };
+        }
+        if (parsed?.id && parsed?.name) return { ...memberFromId(parsed.id), ...parsed, ...mergeMemberProfile(memberFromId(parsed.id), parsed) };
       } catch {}
       return memberFromId(saved);
     }
@@ -5691,6 +5971,69 @@ This account will be used continuously, so please enter the information correctl
         Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
         ...extra
       };
+    }
+
+    async function saveMemberProfileToSupabase(member) {
+      if (!isSupabaseConfigured() || !member?.id) return true;
+      try {
+        const body = {
+          id: member.id,
+          name: member.name,
+          birth: member.birth || member.birthdate || "",
+          english_level: member.englishLevel || "",
+          gender: member.gender || "",
+          nationality: member.nationality || "",
+          age_group: member.ageGroup || "",
+          joined_at: member.joinedAt || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/members?on_conflict=id`, {
+          method: "POST",
+          headers: supabaseRestHeaders({
+            "Content-Type": "application/json",
+            Prefer: "resolution=merge-duplicates,return=representation"
+          }),
+          body: JSON.stringify(body)
+        });
+        if (!response.ok) throw new Error(await response.text());
+        return true;
+      } catch (error) {
+        console.warn("member profile sync failed", error?.message || error);
+        return false;
+      }
+    }
+
+    async function loadMembersFromSupabase({ force = false } = {}) {
+      if (!isSupabaseConfigured() || membersLoadInFlight || (membersLoadedFromSupabase && !force)) return false;
+      membersLoadInFlight = true;
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/members?select=*&order=joined_at.desc.nullslast&limit=5000`, {
+          headers: supabaseRestHeaders()
+        });
+        if (!response.ok) throw new Error(await response.text());
+        const rows = await response.json();
+        const directory = getDirectory();
+        (rows || []).forEach((row) => {
+          if (!row?.id || !row?.name) return;
+          directory[row.id] = {
+            name: row.name,
+            birth: row.birth || "",
+            englishLevel: row.english_level || "",
+            gender: row.gender || "",
+            nationality: row.nationality || "",
+            ageGroup: row.age_group || "",
+            joinedAt: row.joined_at || row.created_at || ""
+          };
+        });
+        writeJson(MEMBER_DIRECTORY_KEY, directory);
+        membersLoadedFromSupabase = true;
+        return true;
+      } catch (error) {
+        console.warn("members load failed", error?.message || error);
+        return false;
+      } finally {
+        membersLoadInFlight = false;
+      }
     }
 
     function todayKey() {
@@ -6365,12 +6708,14 @@ This account will be used continuously, so please enter the information correctl
       const label = event
         ? `${formatDateLabel(event.start)} ${t(event.title)}`
         : studyId;
+      const sender = row?.sender_user_id ? memberFromId(row.sender_user_id) : null;
+      const senderInfo = sender ? anonymousSenderInfo(sender) : "정보 미입력";
       return {
         user_id: member.id,
         study_id: studyId,
         type: "anonymous_like_received",
         title: "익명 좋아요를 받았습니다 💌",
-        message: "누군가 스터디 후 당신에게 익명 좋아요를 보냈어요.",
+        message: `누군가 스터디 후 당신에게 익명 좋아요를 보냈어요.\n보낸 사람 정보: ${senderInfo}`,
         target_view: "profile.receivedHearts",
         study_label: label,
         is_read: false,
@@ -6676,6 +7021,68 @@ This account will be used continuously, so please enter the information correctl
       `;
     }
 
+    function memberEditSelect(id, label, value, options) {
+      return `
+        <div class="field">
+          <label for="${id}">${label}</label>
+          <select id="${id}">
+            ${options.map((option) => `<option value="${escapeHtml(option.value)}"${option.value === value ? " selected" : ""}>${escapeHtml(option.label)}</option>`).join("")}
+          </select>
+        </div>
+      `;
+    }
+
+    function renderMemberEditForm(member) {
+      const englishOptions = [
+        { value: "", label: "영어 레벨 선택" },
+        { value: "Beginner", label: "Beginner" },
+        { value: "Intermediate", label: "Intermediate" },
+        { value: "Upper Intermediate", label: "Upper Intermediate" }
+      ];
+      const genderOptions = ["", "남자", "여자", "선택 안 함"].map((value) => ({ value, label: value || "성별 선택" }));
+      const nationalityOptions = ["", "한국", "미국", "일본", "중국", "프랑스", "독일", "캐나다", "호주", "기타"].map((value) => ({ value, label: value || "국적 선택" }));
+      const ageOptions = ["", "10대", "20대", "30대", "40대", "50대 이상", "선택 안 함"].map((value) => ({ value, label: value || "나이대 선택" }));
+      return `
+        <form class="member-edit-form" id="memberEditForm">
+          <div class="member-readonly">
+            <strong>${escapeHtml(member.name)}</strong>
+            <small>이름과 생년월일은 변경할 수 없습니다. 생년월일: ${escapeHtml(member.birth || member.birthdate || "")}</small>
+          </div>
+          ${memberEditSelect("profileEnglishLevel", "영어 레벨", member.englishLevel || "", englishOptions)}
+          ${memberEditSelect("profileGender", "성별", member.gender || "", genderOptions)}
+          ${memberEditSelect("profileNationality", "국적", member.nationality || "", nationalityOptions)}
+          ${memberEditSelect("profileAgeGroup", "나이대", member.ageGroup || "", ageOptions)}
+          <button type="submit" class="btn primary">회원 정보 저장</button>
+          <p class="member-edit-status" id="memberEditStatus"></p>
+        </form>
+      `;
+    }
+
+    function bindMemberEditForm() {
+      const form = profileDetailEl.querySelector("#memberEditForm");
+      if (!form) return;
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const current = getMember();
+        if (!current) return;
+        const updated = {
+          ...current,
+          englishLevel: profileDetailEl.querySelector("#profileEnglishLevel")?.value || "",
+          gender: profileDetailEl.querySelector("#profileGender")?.value || "",
+          nationality: profileDetailEl.querySelector("#profileNationality")?.value || "",
+          ageGroup: profileDetailEl.querySelector("#profileAgeGroup")?.value || ""
+        };
+        localStorage.setItem(MEMBER_KEY, JSON.stringify(updated));
+        saveDirectoryMember(updated);
+        setMemberFormValues(updated);
+        const synced = await saveMemberProfileToSupabase(updated);
+        const status = profileDetailEl.querySelector("#memberEditStatus");
+        if (status) status.textContent = synced ? "회원 정보가 저장되었습니다." : "회원 정보가 저장되었습니다. Supabase 동기화는 확인이 필요합니다.";
+        renderLevel();
+        renderAdminMembers();
+      });
+    }
+
     function bindLikeHistoryTabs() {
       profileDetailEl.querySelectorAll("[data-like-history-tab]").forEach((button) => {
         button.addEventListener("click", () => {
@@ -6786,6 +7193,9 @@ This account will be used continuously, so please enter the information correctl
       } else if (kind === "likeAfterStudy") {
         title = "스터디 후 익명 좋아요";
         body = renderInlineLikeAfterStudy();
+      } else if (kind === "memberEdit") {
+        title = "회원 정보 수정";
+        body = renderMemberEditForm(member);
       }
       profileView = kind;
       activeProfileDetail = kind;
@@ -6795,6 +7205,7 @@ This account will be used continuously, so please enter the information correctl
       bindProfileBackButtons();
       if (kind === "likes" || kind === "sentHearts" || kind === "receivedHearts") bindLikeHistoryTabs();
       if (kind === "likeAfterStudy") bindInlineLikeAfterStudy();
+      if (kind === "memberEdit") bindMemberEditForm();
       renderProfileScreen();
       updateBackButton();
     }
@@ -6817,6 +7228,10 @@ This account will be used continuously, so please enter the information correctl
       activeView = "home";
       memberNameEl.value = "";
       memberBirthEl.value = "";
+      if (memberEnglishLevelEl) memberEnglishLevelEl.value = "";
+      if (memberGenderEl) memberGenderEl.value = "";
+      if (memberNationalityEl) memberNationalityEl.value = "";
+      if (memberAgeGroupEl) memberAgeGroupEl.value = "";
       updateNameSuggestion();
       messageEl.textContent = t("selectName");
       render();
@@ -6857,6 +7272,7 @@ This account will be used continuously, so please enter the information correctl
       if (view === "admin") {
         adminPanelEl.classList.remove("hidden");
         loadEventsFromSupabase({ includeHidden: true }).catch(() => {});
+        loadMembersFromSupabase({ force: true }).then(() => renderAdminMembers()).catch(() => {});
         renderAdminEventManager();
         renderAdminEventOptions();
         renderAdminRealEventOptions();
@@ -7622,7 +8038,10 @@ This account will be used continuously, so please enter the information correctl
         const lines = adminOptionOrder(base.options).map((option) => {
           const ids = (eventVotes[option] || []).filter((id) => isRealVisibleMember(id));
           if (!ids.length) return "";
-          return `<div><strong>${escapeHtml(t(option))}</strong>: ${ids.map((id) => escapeHtml(memberFromId(id).name)).join(", ")}</div>`;
+          return `<div><strong>${escapeHtml(t(option))}</strong>: ${ids.map((id) => {
+            const member = memberFromId(id);
+            return `${escapeHtml(member.name)} <small class="member-info-line">${escapeHtml(memberProfileLine(member))}</small>`;
+          }).join("")}</div>`;
         }).filter(Boolean).join("");
         return `<details data-audit-event="${escapeHtml(eventId)}"${adminAuditOpenKeys.has(eventId) ? " open" : ""}><summary>${escapeHtml(formatDateLabel(schedule.start))} ${escapeHtml(t(base.title))} · ${escapeHtml(t("totalCount", { count: total }))}</summary>${lines}</details>`;
       }).join("");
@@ -7810,7 +8229,7 @@ This account will be used continuously, so please enter the information correctl
         const tableRows = levelRows.map((row) => `
           <tr>
             <td><input type="checkbox" data-attendance-event="${escapeHtml(row.eventId)}" data-attendance-member="${escapeHtml(row.id)}"${row.checked ? " checked" : ""}></td>
-            <td class="closed-list-name">${escapeHtml(row.member.name)}</td>
+            <td class="closed-list-name">${escapeHtml(row.member.name)}<small class="member-info-line">${escapeHtml(memberProfileLine(row.member))}</small></td>
             <td>${escapeHtml(row.levelLabel)}</td>
             <td>${escapeHtml(t(row.base.title))}</td>
             <td>${escapeHtml(formatDateLabel(row.schedule.start))}</td>
@@ -7821,7 +8240,7 @@ This account will be used continuously, so please enter the information correctl
         const mobileRows = levelRows.map((row) => `
           <label class="closed-list-card">
             <input type="checkbox" data-attendance-event="${escapeHtml(row.eventId)}" data-attendance-member="${escapeHtml(row.id)}"${row.checked ? " checked" : ""}>
-            <span><strong class="closed-list-name">${escapeHtml(row.member.name)}</strong><br><small>${escapeHtml(row.levelLabel)} · ${escapeHtml(formatDateLabel(row.schedule.start))} ${escapeHtml(t(row.base.title))}</small><br><small>Google Sheets: ${row.status.cls === "synced" || row.status.cls === "duplicated" ? "반영 완료" : row.status.cls === "unmatched" ? "미분류" : "대기"}</small></span>
+            <span><strong class="closed-list-name">${escapeHtml(row.member.name)}</strong><br><small>${escapeHtml(row.levelLabel)} · ${escapeHtml(memberProfileLine(row.member))}</small><br><small>${escapeHtml(formatDateLabel(row.schedule.start))} ${escapeHtml(t(row.base.title))}</small><br><small>Google Sheets: ${row.status.cls === "synced" || row.status.cls === "duplicated" ? "반영 완료" : row.status.cls === "unmatched" ? "미분류" : "대기"}</small></span>
             <span class="attendance-status ${row.status.cls}">${escapeHtml(row.status.label)}</span>
           </label>
         `).join("");
@@ -7892,7 +8311,7 @@ This account will be used continuously, so please enter the information correctl
               ${rows.map(({ id, member, status, checked }) => `
                 <label class="attendance-row">
                   <input type="checkbox" data-attendance-event="${escapeHtml(eventId)}" data-attendance-member="${escapeHtml(id)}"${checked ? " checked" : ""}>
-                  <span><strong>${escapeHtml(member.name)}</strong><br><small>${escapeHtml(t(option))}</small></span>
+                  <span><strong>${escapeHtml(member.name)}</strong><br><small>${escapeHtml(t(option))}</small><small class="member-info-line">${escapeHtml(memberProfileLine(member))}</small></span>
                   <span class="attendance-status ${status.cls}">${escapeHtml(status.label)}</span>
                 </label>
               `).join("")}
@@ -8093,6 +8512,47 @@ This account will be used continuously, so please enter the information correctl
           renderAdminVoteAudit();
         });
       });
+    }
+
+    function getAdminMemberRows() {
+      const stats = readJson(STATS_KEY, {});
+      return Object.entries(getDirectory())
+        .map(([id]) => {
+          const member = memberFromId(id);
+          const memberStats = stats[id] || { points: 0, attendance: 0, hearts: 0, sentHearts: 0 };
+          return { id, member, stats: memberStats };
+        })
+        .filter(({ member }) => isRealVisibleMember(member))
+        .sort((a, b) => a.member.name.localeCompare(b.member.name, "ko"));
+    }
+
+    function renderAdminMembers() {
+      if (!adminMemberListEl) return;
+      const search = normalizeName(adminMemberSearchEl?.value || "");
+      const gender = adminMemberGenderFilterEl?.value || "all";
+      const nationality = adminMemberNationalityFilterEl?.value || "all";
+      const ageGroup = adminMemberAgeFilterEl?.value || "all";
+      const englishLevel = adminMemberLevelFilterEl?.value || "all";
+      const rows = getAdminMemberRows().filter(({ member }) => {
+        if (search && !normalizeName(member.name).includes(search)) return false;
+        if (gender !== "all" && profileValue(member.gender) !== gender) return false;
+        if (nationality !== "all" && profileValue(member.nationality) !== nationality) return false;
+        if (ageGroup !== "all" && profileValue(member.ageGroup) !== ageGroup) return false;
+        const levelValue = member.englishLevel || "미입력";
+        if (englishLevel !== "all" && levelValue !== englishLevel) return false;
+        return true;
+      });
+      adminMemberListEl.innerHTML = rows.length ? rows.map(({ member, stats }) => `
+        <article class="admin-member-row">
+          <span><strong>${escapeHtml(member.name)}</strong><small>가입일: ${escapeHtml(member.joinedAt ? formatRecordDate(member.joinedAt) : "-")}</small></span>
+          <span>레벨<small>${escapeHtml(member.englishLevel || "미입력")}</small></span>
+          <span>성별<small>${escapeHtml(profileValue(member.gender))}</small></span>
+          <span>국적<small>${escapeHtml(profileValue(member.nationality))}</small></span>
+          <span>나이대<small>${escapeHtml(profileValue(member.ageGroup))}</small></span>
+          <span>포인트<small>${Number(stats.points || 0).toLocaleString()}P</small></span>
+          <span>참석/좋아요<small>${Number(stats.attendance || 0)}회 · ${Number(stats.hearts || 0)}개</small></span>
+        </article>
+      `).join("") : `<p class="small-note">조건에 맞는 회원이 없습니다.</p>`;
     }
 
     function renderAdminHeartAudit() {
@@ -8610,7 +9070,17 @@ This account will be used continuously, so please enter the information correctl
       }
     }
 
-    function readMemberForm() {
+    function setMemberFormValues(member) {
+      if (!member) return;
+      memberNameEl.value = member.name || "";
+      memberBirthEl.value = member.birth || member.birthdate || "";
+      if (memberEnglishLevelEl) memberEnglishLevelEl.value = member.englishLevel || "";
+      if (memberGenderEl) memberGenderEl.value = member.gender || "";
+      if (memberNationalityEl) memberNationalityEl.value = member.nationality || "";
+      if (memberAgeGroupEl) memberAgeGroupEl.value = member.ageGroup || "";
+    }
+
+    function readMemberForm({ requireProfile = false } = {}) {
       const name = memberNameEl.value.trim();
       const birth = memberBirthEl.value.trim();
       const nameError = getNameValidationError(name);
@@ -8625,14 +9095,35 @@ This account will be used continuously, so please enter the information correctl
         memberBirthEl.focus();
         return null;
       }
+      const profile = {
+        englishLevel: memberEnglishLevelEl?.value || "",
+        gender: memberGenderEl?.value || "",
+        nationality: memberNationalityEl?.value || "",
+        ageGroup: memberAgeGroupEl?.value || ""
+      };
+      if (requireProfile) {
+        const missing = [
+          [profile.englishLevel, "영어 레벨을 선택해주세요."],
+          [profile.gender, "성별을 선택해주세요."],
+          [profile.nationality, "국적을 선택해주세요."],
+          [profile.ageGroup, "나이대를 선택해주세요."]
+        ].find(([value]) => !value);
+        if (missing) {
+          showLoginError(`${missing[1]}\nPlease select all required profile information.`);
+          return null;
+        }
+      }
       clearLoginError();
-      return makeMember(name, birth);
+      const baseMember = makeMember(name, birth, profile);
+      const savedMember = memberFromId(baseMember.id);
+      return { ...baseMember, ...mergeMemberProfile(savedMember, baseMember) };
     }
 
     function enterMember(member, action = "login") {
       clearLoginError();
       localStorage.setItem(MEMBER_KEY, JSON.stringify(member));
       saveDirectoryMember(member);
+      saveMemberProfileToSupabase(member).then(() => renderAdminMembers());
       ensureStats(member);
       messageEl.textContent = t("started", { name: member.name });
       logMemberAction(action, member, { detail: `member ${action}` });
@@ -8642,14 +9133,14 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function saveMember() {
-      const member = readMemberForm();
+      const member = readMemberForm({ requireProfile: false });
       if (!member) return null;
       enterMember(member, "login");
       return member;
     }
 
     function registerMember() {
-      const member = readMemberForm();
+      const member = readMemberForm({ requireProfile: true });
       if (!member) return null;
       const ok = window.confirm("Please use the same name as your Kakao open chat nickname.\nYour name and birthdate cannot be changed after registration.\nThis account will be used continuously, so please enter the information correctly.\n\n카카오톡 오픈채팅 닉네임과 같은 이름을 사용해주세요.\n등록 후 이름과 생년월일은 변경할 수 없습니다.");
       if (!ok) return null;
@@ -9108,8 +9599,7 @@ This account will be used continuously, so please enter the information correctl
     function renderLevel() {
       const member = getMember();
       if (member) {
-        memberNameEl.value = member.name || "";
-        memberBirthEl.value = member.birth || "";
+        setMemberFormValues(member);
         syncReceivedLikesForMember(member);
       }
       const stats = member ? ensureStats(member)[member.id] : { points: 0, attendance: 0, hearts: 0, sentHearts: 0 };
@@ -9753,6 +10243,7 @@ This account will be used continuously, so please enter the information correctl
         renderAdminVoteAudit();
         renderAdminHeartAudit();
         renderAdminEventManager();
+        renderAdminMembers();
       }
       if (activeView === "event") renderEventPage();
       renderStudyNotifications();
@@ -9824,6 +10315,7 @@ This account will be used continuously, so please enter the information correctl
     showPointLogEl.addEventListener("click", () => showProfileDetail("points"));
     showSentHeartLogEl?.addEventListener("click", () => showProfileDetail("sentHearts"));
     showLevelGuideEl.addEventListener("click", () => showProfileDetail("levels"));
+    showMemberEditEl?.addEventListener("click", () => showProfileDetail("memberEdit"));
     showLikeAfterStudyEl?.addEventListener("click", () => showProfileDetail("likeAfterStudy"));
     showReceivedHeartLogEl?.addEventListener("click", () => showProfileDetail("receivedHearts"));
     attendPillEl.addEventListener("click", () => showProfileDetail("applications"));
@@ -9831,6 +10323,10 @@ This account will be used continuously, so please enter the information correctl
     dailyCheckinButtonEl?.addEventListener("click", handleDailyCheckin);
     pointPillEl.addEventListener("click", () => showProfileDetail("points"));
     sentHeartPillEl.addEventListener("click", () => showProfileDetail("sentHearts"));
+    [adminMemberSearchEl, adminMemberGenderFilterEl, adminMemberNationalityFilterEl, adminMemberAgeFilterEl, adminMemberLevelFilterEl].forEach((control) => {
+      control?.addEventListener("input", renderAdminMembers);
+      control?.addEventListener("change", renderAdminMembers);
+    });
     logoutButtonEl.addEventListener("click", logoutMember);
     backButtonEl.addEventListener("click", handleBack);
     levelGuideToggleEl.addEventListener("click", () => {
