@@ -9723,7 +9723,6 @@ This account will be used continuously, so please enter the information correctl
       if (!member?.id) return;
       const date = todayKey();
       if (hasDailyCheckin(member, date)) {
-        messageEl.textContent = "오늘 출석 체크는 이미 완료했습니다.";
         renderDailyCheckinCard(member);
         return;
       }
@@ -9750,10 +9749,7 @@ This account will be used continuously, so please enter the information correctl
         detail: `매일 출석 체크 +${pointRules.dailyCheckin}P`
       });
 
-      const synced = await saveDailyCheckinToSupabase(member, date, pointRules.dailyCheckin);
-      messageEl.textContent = synced
-        ? `✅ 오늘 출석 체크 완료! +${pointRules.dailyCheckin}P 지급 완료`
-        : `✅ 오늘 출석 체크 완료! +${pointRules.dailyCheckin}P 지급 완료 (Supabase 동기화는 확인 필요)`;
+      await saveDailyCheckinToSupabase(member, date, pointRules.dailyCheckin);
       render();
     }
 
