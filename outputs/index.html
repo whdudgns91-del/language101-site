@@ -789,6 +789,8 @@
     }
 
     .event-table-wrap {
+      width: 100%;
+      max-width: 100%;
       overflow-x: auto;
       border: 1px solid var(--paper-line);
       border-radius: 18px;
@@ -798,10 +800,11 @@
 
     .event-admin-table {
       width: 100%;
-      min-width: 760px;
+      min-width: 700px;
       border-collapse: collapse;
       color: var(--ink);
       font-size: 13px;
+      table-layout: fixed;
     }
 
     .event-admin-table th,
@@ -821,6 +824,35 @@
 
     .event-admin-table tr:last-child td {
       border-bottom: 0;
+    }
+
+    .event-admin-table th:nth-child(1),
+    .event-admin-table td:nth-child(1) {
+      width: 88px;
+    }
+
+    .event-admin-table th:nth-child(3),
+    .event-admin-table td:nth-child(3),
+    .event-admin-table th:nth-child(5),
+    .event-admin-table td:nth-child(5),
+    .event-admin-table th:nth-child(6),
+    .event-admin-table td:nth-child(6) {
+      width: 104px;
+    }
+
+    .event-admin-table th:last-child,
+    .event-admin-table td:last-child {
+      position: sticky;
+      right: 0;
+      z-index: 2;
+      width: 92px;
+      background: #ffffff;
+      box-shadow: -8px 0 16px rgba(91, 33, 182, 0.05);
+    }
+
+    .event-admin-table th:last-child {
+      background: #faf7ff;
+      z-index: 3;
     }
 
     .event-admin-thumb {
@@ -929,9 +961,46 @@
       color: #e11d48;
     }
 
+    .event-admin-mobile-list {
+      display: none;
+      gap: 12px;
+    }
+
+    .event-admin-mobile-card {
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 12px;
+      border: 1px solid var(--paper-line);
+      border-radius: 18px;
+      padding: 12px;
+      background: #ffffff;
+      box-shadow: 0 10px 22px rgba(91, 33, 182, 0.07);
+    }
+
+    .event-admin-mobile-card .event-admin-thumb {
+      width: 96px;
+      align-self: start;
+    }
+
+    .event-admin-mobile-body {
+      display: grid;
+      min-width: 0;
+      gap: 8px;
+    }
+
+    .event-admin-mobile-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      color: var(--subtle);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
     .event-admin-workspace {
       display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+      grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
       gap: 16px;
       align-items: start;
     }
@@ -959,8 +1028,12 @@
 
     .event-admin-preview-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1fr);
       gap: 12px;
+    }
+
+    .event-admin-preview-card {
+      min-width: 320px;
     }
 
     .event-admin-preview-card .event-card,
@@ -3485,8 +3558,17 @@
       #viewSavedEvent {
         width: 100%;
       }
-      .event-admin-table {
-        min-width: 680px;
+      .event-table-wrap {
+        display: none;
+      }
+      .event-admin-mobile-list {
+        display: grid;
+      }
+      .event-admin-mobile-card {
+        grid-template-columns: 86px minmax(0, 1fr);
+      }
+      .event-admin-mobile-card .event-admin-thumb {
+        width: 86px;
       }
       .admin-search-row {
         grid-template-columns: 1fr;
@@ -4289,6 +4371,7 @@
                   <tbody id="adminEventList"></tbody>
                 </table>
               </div>
+              <div class="event-admin-mobile-list" id="adminEventCards"></div>
 
               <div class="event-admin-workspace">
                 <div class="event-admin-form-card">
@@ -4356,6 +4439,21 @@
                         <option value="마감임박">마감임박</option>
                         <option value="마감">마감</option>
                       </select>
+                    </div>
+                  </div>
+                  <div class="grid two">
+                    <div class="field">
+                      <label for="adminEventTypeSelect">이벤트 유형</label>
+                      <select id="adminEventTypeSelect">
+                        <option value="party">파티</option>
+                        <option value="study">스터디</option>
+                        <option value="trip">여행</option>
+                        <option value="meetup">모임</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="adminEventMaxInput">최대 신청 인원</label>
+                      <input id="adminEventMaxInput" type="number" min="0" placeholder="예: 40">
                     </div>
                   </div>
                   <div class="field">
@@ -4993,6 +5091,8 @@ This account will be used continuously, so please enter the information correctl
     const adminEventDetailInputEl = document.querySelector("#adminEventDetailInput");
     const adminEventPriceInputEl = document.querySelector("#adminEventPriceInput");
     const adminEventStatusSelectEl = document.querySelector("#adminEventStatusSelect");
+    const adminEventTypeSelectEl = document.querySelector("#adminEventTypeSelect");
+    const adminEventMaxInputEl = document.querySelector("#adminEventMaxInput");
     const adminEventApplyInputEl = document.querySelector("#adminEventApplyInput");
     const adminEventDetailUrlInputEl = document.querySelector("#adminEventDetailUrlInput");
     const adminEventVisibleInputEl = document.querySelector("#adminEventVisibleInput");
@@ -5001,6 +5101,7 @@ This account will be used continuously, so please enter the information correctl
     const viewSavedEventEl = document.querySelector("#viewSavedEvent");
     const newAdminEventEl = document.querySelector("#newAdminEvent");
     const adminEventListEl = document.querySelector("#adminEventList");
+    const adminEventCardsEl = document.querySelector("#adminEventCards");
     const adminEventSearchInputEl = document.querySelector("#adminEventSearchInput");
     const adminEventStatusFilterEl = document.querySelector("#adminEventStatusFilter");
     const adminEventTypeFilterEl = document.querySelector("#adminEventTypeFilter");
@@ -5042,6 +5143,7 @@ This account will be used continuously, so please enter the information correctl
     let selectedLikeTargets = [];
     let selectedLikeEventId = "";
     let selectedEventDetailId = "";
+    let selectedAdminEventId = "";
     let activeProfileDetail = "";
     let profileView = "main";
     let likeHistoryTab = "received";
@@ -6964,14 +7066,15 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function receivedLikeProcessKey(row, memberId) {
-      return `${row?.study_id || ""}|${row?.sender_user_id || row?.sender_id || ""}|${memberId || row?.receiver_user_id || ""}`;
+      return `${String(row?.study_id || "")}|${String(row?.sender_user_id || row?.sender_id || "")}|${String(memberId || row?.receiver_user_id || "")}`;
     }
 
     function processIncomingLikeRow(row, options = {}) {
       const member = getMember();
-      const receiverId = row?.receiver_user_id || "";
+      const receiverId = String(row?.receiver_user_id || "");
       const legacyReceiverIds = Array.isArray(row?.receiver_ids) ? row.receiver_ids : [];
-      if (!member?.id || (receiverId !== member.id && !legacyReceiverIds.includes(member.id))) return;
+      const currentMemberId = String(member?.id || "");
+      if (!currentMemberId || (receiverId !== currentMemberId && !legacyReceiverIds.map(String).includes(currentMemberId))) return;
       const processed = readJson(REMOTE_LIKE_RECEIVED_KEY, {});
       const key = receivedLikeProcessKey(row, member.id);
       if (processed[key]) return;
@@ -6998,7 +7101,7 @@ This account will be used continuously, so please enter the information correctl
         const { data, error } = await supabaseClient
           .from("study_likes")
           .select("id,study_id,sender_user_id,receiver_user_id,created_at")
-          .eq("receiver_user_id", member.id)
+          .eq("receiver_user_id", String(member.id))
           .order("created_at", { ascending: false })
           .limit(50);
         if (error) throw error;
@@ -7040,7 +7143,7 @@ This account will be used continuously, so please enter the information correctl
         const { data, error } = await supabaseClient
           .from("notifications")
           .select("id,user_id,study_id,type,title,message,target_view,is_read,read_at,expires_at,created_at")
-          .eq("user_id", member.id)
+          .eq("user_id", String(member.id))
           .order("created_at", { ascending: false })
           .limit(30);
         if (error) throw error;
@@ -7081,7 +7184,7 @@ This account will be used continuously, so please enter the information correctl
         })
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, (payload) => {
           const member = getMember();
-          if (member?.id && payload.new?.user_id === member.id) {
+          if (member?.id && String(payload.new?.user_id || "") === String(member.id)) {
             upsertNotification(payload.new, { sync: false });
             renderStudyNotifications({ full: !notificationPanelEl.classList.contains("hidden") });
           }
@@ -7286,8 +7389,8 @@ This account will be used continuously, so please enter the information correctl
     async function saveNotificationToSupabase(notification) {
       if (!isSupabaseConfigured()) return { ok: false, error: "Supabase 설정이 필요합니다." };
       const body = {
-        user_id: notification.user_id,
-        study_id: notification.study_id || "",
+        user_id: String(notification.user_id || ""),
+        study_id: String(notification.study_id || ""),
         type: notification.type,
         title: notification.title || "",
         message: notification.message || "",
@@ -7371,7 +7474,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function buildAnonymousLikeReceivedNotification(member, row) {
-      const studyId = row?.study_id || "";
+      const studyId = String(row?.study_id || "");
       const internalStudyId = eventInternalIdsFromPublicId(studyId)[0] || studyId;
       const event = resolveEventById(internalStudyId);
       const label = event
@@ -7380,7 +7483,7 @@ This account will be used continuously, so please enter the information correctl
       const sender = row?.sender_user_id ? memberFromId(row.sender_user_id) : null;
       const senderInfo = sender ? anonymousSenderInfo(sender) : "Not entered";
       return {
-        user_id: member.id,
+        user_id: String(member.id),
         study_id: studyId,
         type: "anonymous_like_received",
         title: "익명 좋아요를 받았습니다 💌",
@@ -7394,8 +7497,8 @@ This account will be used continuously, so please enter the information correctl
 
     function buildLikeReminderNotification(member, event) {
       return upsertNotification({
-        user_id: member.id,
-        study_id: event.id,
+        user_id: String(member.id),
+        study_id: String(event.id),
         type: "like_reminder",
         title: "💌 좋아요 보내기",
         message: "오늘 가장 좋았던 사람 1명 또는 2명에게 좋아요를 보내주세요!",
@@ -9327,6 +9430,8 @@ This account will be used continuously, so please enter the information correctl
         apply_url: event.apply_url || (isJulyParty ? "https://forms.gle/y239zmAiwcNMvTXg6" : ""),
         detail_url: event.detail_url || (isJulyParty ? "https://blog.naver.com/bonsin11/224334559759" : ""),
         image_fit: event.image_fit === "contain" ? "contain" : "cover",
+        event_type: event.event_type || event.type || "",
+        max_participants: Number.isFinite(Number(event.max_participants)) ? Number(event.max_participants) : 0,
         is_visible: event.is_visible !== false,
         deleted_at: event.deleted_at || null,
         created_at: event.created_at || new Date().toISOString(),
@@ -9560,10 +9665,14 @@ This account will be used continuously, so please enter the information correctl
         apply_url: "",
         detail_url: "",
         image_fit: "cover",
+        event_type: "party",
+        max_participants: 0,
         is_visible: true
       });
+      selectedAdminEventId = "";
       fillAdminEventForm(sample);
       if (adminEventManagerSelectEl) adminEventManagerSelectEl.value = "__new__";
+      if (saveAdminEventEl) saveAdminEventEl.textContent = "이벤트 저장";
       viewSavedEventEl?.classList.add("hidden");
     }
 
@@ -9580,6 +9689,8 @@ This account will be used continuously, so please enter the information correctl
       if (adminEventDetailInputEl) adminEventDetailInputEl.value = item.detail_content;
       if (adminEventPriceInputEl) adminEventPriceInputEl.value = item.price;
       if (adminEventStatusSelectEl) adminEventStatusSelectEl.value = item.status;
+      if (adminEventTypeSelectEl) adminEventTypeSelectEl.value = item.event_type || eventAdminType(item);
+      if (adminEventMaxInputEl) adminEventMaxInputEl.value = item.max_participants || "";
       if (adminEventApplyInputEl) adminEventApplyInputEl.value = item.apply_url;
       if (adminEventDetailUrlInputEl) adminEventDetailUrlInputEl.value = item.detail_url;
       if (adminEventImageFitSelectEl) adminEventImageFitSelectEl.value = item.image_fit || "cover";
@@ -9613,9 +9724,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function readAdminEventForm() {
-      const selectedId = adminEventManagerSelectEl?.value && adminEventManagerSelectEl.value !== "__new__"
-        ? adminEventManagerSelectEl.value
-        : "";
+      const selectedId = selectedAdminEventId || "";
       const status = ["모집중", "마감임박", "마감"].includes(adminEventStatusSelectEl?.value)
         ? adminEventStatusSelectEl.value
         : "모집중";
@@ -9634,6 +9743,8 @@ This account will be used continuously, so please enter the information correctl
         apply_url: adminEventApplyInputEl?.value.trim() || "",
         detail_url: adminEventDetailUrlInputEl?.value.trim() || "",
         image_fit: adminEventImageFitSelectEl?.value === "contain" ? "contain" : "cover",
+        event_type: adminEventTypeSelectEl?.value || "party",
+        max_participants: Number(adminEventMaxInputEl?.value || 0),
         is_visible: Boolean(adminEventVisibleInputEl?.checked),
         updated_at: new Date().toISOString()
       });
@@ -9643,7 +9754,7 @@ This account will be used continuously, so please enter the information correctl
 
     function readAdminEventPreviewForm() {
       return normalizeEventItem({
-        id: adminEventManagerSelectEl?.value && adminEventManagerSelectEl.value !== "__new__" ? adminEventManagerSelectEl.value : "",
+        id: selectedAdminEventId || "",
         title: adminEventTitleInputEl?.value.trim(),
         event_date: adminEventDateInputEl?.value,
         start_time: adminEventStartInputEl?.value,
@@ -9657,11 +9768,14 @@ This account will be used continuously, so please enter the information correctl
         status: adminEventStatusSelectEl?.value || "모집중",
         apply_url: adminEventApplyInputEl?.value.trim() || "",
         detail_url: adminEventDetailUrlInputEl?.value.trim() || "",
+        event_type: adminEventTypeSelectEl?.value || "party",
+        max_participants: Number(adminEventMaxInputEl?.value || 0),
         is_visible: Boolean(adminEventVisibleInputEl?.checked)
       });
     }
 
     function eventAdminType(event) {
+      if (event.event_type) return event.event_type;
       const text = `${event.title || ""} ${event.short_description || ""} ${event.detail_content || ""}`.toLowerCase();
       if (/술|파티|party|beer|drink|맥주|모임/.test(text)) return "party";
       if (/여행|trip|서핑|beach|travel/.test(text)) return "trip";
@@ -9688,6 +9802,19 @@ This account will be used continuously, so please enter the information correctl
         return `<img class="${fitClass}" src="${escapeHtml(event.image_url)}" alt="${escapeHtml(event.title)}" loading="lazy" decoding="async" onerror="this.parentElement.innerHTML='🎁';">`;
       }
       return "🎁";
+    }
+
+    function selectAdminEventForEdit(eventId) {
+      const event = getAllEvents().find((item) => item.id === eventId);
+      if (!event) return;
+      selectedAdminEventId = event.id;
+      console.log("edit event selected", event);
+      console.log("selectedEventId", selectedAdminEventId);
+      if (adminEventManagerSelectEl) adminEventManagerSelectEl.value = event.id;
+      if (saveAdminEventEl) saveAdminEventEl.textContent = "이벤트 수정 저장";
+      fillAdminEventForm(event);
+      renderAdminEventPreview(event);
+      document.querySelector(".event-admin-form-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function renderAdminEventPreview(event) {
@@ -9733,9 +9860,10 @@ This account will be used continuously, so please enter the information correctl
     function renderAdminEventManager() {
       if (!adminEventManagerSelectEl || !adminEventListEl) return;
       const events = getAllEvents();
-      const currentValue = adminEventManagerSelectEl.value || "__new__";
+      const currentValue = selectedAdminEventId || "__new__";
       adminEventManagerSelectEl.innerHTML = `<option value="__new__">새 이벤트 작성</option>${events.map((event) => `<option value="${escapeHtml(event.id)}">${escapeHtml(event.title)} · ${escapeHtml(formatEventDate(event.event_date))}</option>`).join("")}`;
-      adminEventManagerSelectEl.value = events.some((event) => event.id === currentValue) ? currentValue : "__new__";
+      if (!events.some((event) => event.id === currentValue)) selectedAdminEventId = "";
+      adminEventManagerSelectEl.value = selectedAdminEventId || "__new__";
       const rows = filteredAdminEvents();
       adminEventListEl.innerHTML = rows.length ? rows.map((event) => `
         <tr>
@@ -9752,24 +9880,43 @@ This account will be used continuously, so please enter the information correctl
           <td><span class="event-link-state ${event.apply_url ? "yes" : "no"}">${event.apply_url ? "링크 있음" : "링크 없음"}</span></td>
           <td>
             <div class="event-admin-actions">
-              <button type="button" class="event-action-btn" data-admin-edit-event="${escapeHtml(event.id)}" aria-label="수정">✎</button>
+              <button type="button" class="event-action-btn" data-admin-edit-event="${escapeHtml(event.id)}" aria-label="수정">수정</button>
               <button type="button" class="event-action-btn danger" data-admin-delete-event="${escapeHtml(event.id)}" aria-label="삭제">🗑</button>
             </div>
           </td>
         </tr>
       `).join("") : `<tr><td colspan="7"><p class="helper">조건에 맞는 이벤트가 없습니다.</p></td></tr>`;
-      const selectedForPreview = getAllEvents().find((item) => item.id === adminEventManagerSelectEl.value) || rows[0] || events[0];
+      if (adminEventCardsEl) {
+        adminEventCardsEl.innerHTML = rows.length ? rows.map((event) => `
+          <article class="event-admin-mobile-card">
+            <div class="event-admin-thumb">${renderEventAdminThumb(event)}</div>
+            <div class="event-admin-mobile-body">
+              <div class="event-admin-title-cell">
+                <strong>${escapeHtml(event.title || "제목 없음")}</strong>
+                <small>${escapeHtml(event.short_description || "간단 소개 없음")}</small>
+              </div>
+              <div class="event-admin-mobile-meta">
+                <span>${escapeHtml(formatEventDate(event.event_date))}</span>
+                <span>${escapeHtml(event.location || "추후 공지")}</span>
+                <span class="event-admin-badge ${eventAdminStatusClass(event)}">${event.is_visible === false ? "숨김" : escapeHtml(eventStatusText(event.status))}</span>
+                <span class="event-link-state ${event.apply_url ? "yes" : "no"}">${event.apply_url ? "링크 있음" : "링크 없음"}</span>
+              </div>
+              <div class="event-admin-actions">
+                <button type="button" class="event-action-btn" data-admin-edit-event="${escapeHtml(event.id)}">수정</button>
+                <button type="button" class="event-action-btn danger" data-admin-delete-event="${escapeHtml(event.id)}">삭제</button>
+              </div>
+            </div>
+          </article>
+        `).join("") : `<p class="helper">조건에 맞는 이벤트가 없습니다.</p>`;
+      }
+      const selectedForPreview = getAllEvents().find((item) => item.id === selectedAdminEventId) || rows[0] || events[0];
       renderAdminEventPreview(selectedForPreview);
-      adminEventListEl.querySelectorAll("[data-admin-edit-event]").forEach((button) => {
+      document.querySelectorAll("[data-admin-edit-event]").forEach((button) => {
         button.addEventListener("click", () => {
-          const event = getAllEvents().find((item) => item.id === button.dataset.adminEditEvent);
-          if (!event) return;
-          adminEventManagerSelectEl.value = event.id;
-          fillAdminEventForm(event);
-          renderAdminEventPreview(event);
+          selectAdminEventForEdit(button.dataset.adminEditEvent);
         });
       });
-      adminEventListEl.querySelectorAll("[data-admin-delete-event]").forEach((button) => {
+      document.querySelectorAll("[data-admin-delete-event]").forEach((button) => {
         button.addEventListener("click", () => deleteAdminEvent(button.dataset.adminDeleteEvent));
       });
     }
@@ -9791,7 +9938,7 @@ This account will be used continuously, so please enter the information correctl
 
     async function saveEventToSupabase(event) {
       if (!isSupabaseConfigured()) throw new Error("Supabase 설정이 필요합니다.");
-      const columns = "id,title,event_date,start_time,end_time,location,image_url,short_description,detail_content,price,status,apply_url,detail_url,image_fit,is_visible,deleted_at,created_at,updated_at";
+      const columns = "id,title,event_date,start_time,end_time,location,image_url,short_description,detail_content,price,status,apply_url,detail_url,image_fit,event_type,max_participants,is_visible,deleted_at,created_at,updated_at";
       const body = {
         title: event.title,
         event_date: event.event_date || null,
@@ -9806,6 +9953,8 @@ This account will be used continuously, so please enter the information correctl
         apply_url: event.apply_url,
         detail_url: event.detail_url,
         image_fit: event.image_fit || "cover",
+        event_type: event.event_type || eventAdminType(event),
+        max_participants: Number(event.max_participants || 0),
         is_visible: event.is_visible,
         deleted_at: null,
         updated_at: new Date().toISOString()
@@ -9815,6 +9964,7 @@ This account will be used continuously, so please enter the information correctl
         let data = null;
         let error = null;
         const isUpdate = Boolean(event.id);
+        console.log("event save mode", isUpdate ? "update" : "insert");
         const url = isUpdate
           ? `${SUPABASE_URL}/rest/v1/events?id=eq.${encodeURIComponent(event.id)}&select=${columns}`
           : `${SUPABASE_URL}/rest/v1/events?select=${columns}`;
@@ -9828,7 +9978,7 @@ This account will be used continuously, so please enter the information correctl
         });
         if (!response.ok) error = new Error(await response.text());
         else data = await response.json();
-        if (error) console.warn("event save result", data, error);
+        console.log("event save result", data, error);
         if (error) throw error;
         if (isUpdate && Array.isArray(data) && !data.length) {
           throw new Error("수정할 이벤트를 Supabase에서 찾지 못했습니다. 새 이벤트 작성으로 다시 저장해주세요.");
@@ -9844,7 +9994,7 @@ This account will be used continuously, so please enter the information correctl
     async function loadEventsFromSupabase(options = {}) {
       if (!isSupabaseConfigured()) return false;
       try {
-        const columns = "id,title,event_date,start_time,end_time,location,image_url,short_description,detail_content,price,status,apply_url,detail_url,image_fit,is_visible,deleted_at,created_at,updated_at";
+        const columns = "id,title,event_date,start_time,end_time,location,image_url,short_description,detail_content,price,status,apply_url,detail_url,image_fit,event_type,max_participants,is_visible,deleted_at,created_at,updated_at";
         const visibleFilter = options.includeHidden ? "" : "&is_visible=eq.true";
         const response = await fetch(`${SUPABASE_URL}/rest/v1/events?select=${columns}${visibleFilter}&deleted_at=is.null&order=event_date.asc.nullslast&order=created_at.desc&limit=100`, {
           headers: supabaseRestHeaders()
@@ -9872,6 +10022,8 @@ This account will be used continuously, so please enter the information correctl
       if (!event) return;
       if (!window.confirm("정말 이 이벤트를 삭제하시겠습니까?")) return;
       try {
+        let data = null;
+        let error = null;
         const response = await fetch(`${SUPABASE_URL}/rest/v1/events?id=eq.${encodeURIComponent(eventId)}`, {
           method: "PATCH",
           headers: supabaseRestHeaders({
@@ -9884,9 +10036,13 @@ This account will be used continuously, so please enter the information correctl
             updated_at: new Date().toISOString()
           })
         });
-        if (!response.ok) throw new Error(await response.text());
+        if (!response.ok) error = new Error(await response.text());
+        else data = true;
+        console.log("event delete result", data, error);
+        if (error) throw error;
         saveLocalEvents(getLocalEvents().filter((item) => item.id !== eventId));
         await loadEventsFromSupabase({ includeHidden: true });
+        selectedAdminEventId = "";
         resetAdminEventForm();
         renderAdminEventManager();
         showAdminEventStatus("success", "✅ 이벤트가 삭제되었습니다.");
@@ -9901,10 +10057,10 @@ This account will be used continuously, so please enter the information correctl
 
     async function saveAdminEvent() {
       if (!adminUnlocked) return;
-      const selectedEventId = adminEventManagerSelectEl?.value && adminEventManagerSelectEl.value !== "__new__"
-        ? adminEventManagerSelectEl.value
-        : "";
+      const selectedEventId = selectedAdminEventId || "";
       const event = await readAdminEventForm();
+      console.log("event formData before save", event);
+      console.log("selectedEventId", selectedEventId);
       const validationMessage = validateAdminEventForm(event);
       if (validationMessage) {
         showAdminEventStatus("error", validationMessage);
@@ -9913,6 +10069,7 @@ This account will be used continuously, so please enter the information correctl
       }
       try {
         saveAdminEventEl.disabled = true;
+        if (selectedEventId) event.id = selectedEventId;
         const savedEvent = await saveEventToSupabase(event);
         const events = getLocalEvents().filter((item) => item.id !== savedEvent.id);
         events.push(savedEvent);
@@ -9922,8 +10079,10 @@ This account will be used continuously, so please enter the information correctl
         const successText = selectedEventId ? "✅ 이벤트가 수정되었습니다." : "✅ 이벤트가 저장되었습니다. 이벤트 페이지에 반영되었습니다.";
         showAdminEventStatus("success", successText);
         messageEl.textContent = successText;
+        selectedAdminEventId = savedEvent.id;
         renderAdminEventManager();
         if (adminEventManagerSelectEl) adminEventManagerSelectEl.value = savedEvent.id;
+        if (saveAdminEventEl) saveAdminEventEl.textContent = "이벤트 수정 저장";
         fillAdminEventForm(savedEvent);
         viewSavedEventEl.dataset.eventId = savedEvent.id;
       } catch (error) {
@@ -10226,19 +10385,19 @@ This account will be used continuously, so please enter the information correctl
       if (!safeTargets.length) {
         return { ok: false, savedTargets: [], error: "좋아요를 보낼 수 있는 실제 계정 멤버가 없습니다." };
       }
-      const studyId = eventPublicIdFromInternalId(eventId);
+      const studyId = String(eventPublicIdFromInternalId(eventId) || eventId);
       const rows = safeTargets.map((member) => ({
         study_id: studyId,
-        sender_user_id: sender.id,
-        receiver_user_id: member.id,
+        sender_user_id: String(sender.id),
+        receiver_user_id: String(member.id),
         created_at: new Date().toISOString()
       }));
       const sendReceiverNotifications = async (likeRows, receivers) => {
         const results = await Promise.all(receivers.map((receiver) => {
-          const row = likeRows.find((item) => item.receiver_user_id === receiver.id) || {
+          const row = likeRows.find((item) => String(item.receiver_user_id || "") === String(receiver.id)) || {
             study_id: studyId,
-            sender_user_id: sender.id,
-            receiver_user_id: receiver.id,
+            sender_user_id: String(sender.id),
+            receiver_user_id: String(receiver.id),
             created_at: new Date().toISOString()
           };
           return saveNotificationToSupabase(buildAnonymousLikeReceivedNotification(receiver, row));
@@ -10253,7 +10412,7 @@ This account will be used continuously, so please enter the information correctl
           .from("study_likes")
           .select("receiver_user_id")
           .eq("study_id", studyId)
-          .eq("sender_user_id", sender.id);
+          .eq("sender_user_id", String(sender.id));
         if (existingError) {
           if (isMissingSupabaseTableError(existingError, "study_likes")) {
             return {
@@ -10265,8 +10424,8 @@ This account will be used continuously, so please enter the information correctl
           throw existingError;
         }
 
-        const existingTargets = new Set((existingRows || []).map((row) => row.receiver_user_id));
-        const newTargets = safeTargets.filter((member) => !existingTargets.has(member.id));
+        const existingTargets = new Set((existingRows || []).map((row) => String(row.receiver_user_id || "")));
+        const newTargets = safeTargets.filter((member) => !existingTargets.has(String(member.id)));
         if (!newTargets.length) {
           return { ok: false, savedTargets: [], error: "이미 이 스터디에 익명 좋아요를 보냈습니다." };
         }
@@ -10276,8 +10435,8 @@ This account will be used continuously, so please enter the information correctl
 
         const rowsToInsert = newTargets.map((member) => ({
           study_id: studyId,
-          sender_user_id: sender.id,
-          receiver_user_id: member.id
+          sender_user_id: String(sender.id),
+          receiver_user_id: String(member.id)
         }));
         const { data, error } = await supabaseClient
           .from("study_likes")
@@ -10299,9 +10458,9 @@ This account will be used continuously, so please enter the information correctl
         try {
           await supabaseClient.from("post_study_likes").insert({
             study_id: studyId,
-            sender_id: sender.id,
+            sender_id: String(sender.id),
             sender_name: sender.name,
-            receiver_ids: newTargets.map((member) => member.id),
+            receiver_ids: newTargets.map((member) => String(member.id)),
             receiver_names: newTargets.map((member) => member.name)
           });
         } catch {}
@@ -11293,10 +11452,8 @@ This account will be used continuously, so please enter the information correctl
     });
     saveNoticeEl.addEventListener("click", saveNotice);
     adminEventManagerSelectEl?.addEventListener("change", () => {
-      const event = getAllEvents().find((item) => item.id === adminEventManagerSelectEl.value);
-      if (event) {
-        fillAdminEventForm(event);
-        renderAdminEventPreview(event);
+      if (adminEventManagerSelectEl.value && adminEventManagerSelectEl.value !== "__new__") {
+        selectAdminEventForEdit(adminEventManagerSelectEl.value);
       } else {
         resetAdminEventForm();
       }
@@ -11322,6 +11479,8 @@ This account will be used continuously, so please enter the information correctl
       adminEventDetailInputEl,
       adminEventPriceInputEl,
       adminEventStatusSelectEl,
+      adminEventTypeSelectEl,
+      adminEventMaxInputEl,
       adminEventApplyInputEl,
       adminEventDetailUrlInputEl,
       adminEventImageFitSelectEl,
@@ -11358,6 +11517,8 @@ This account will be used continuously, so please enter the information correctl
           detail_content: adminEventDetailInputEl?.value.trim(),
           price: adminEventPriceInputEl?.value.trim(),
           status: adminEventStatusSelectEl?.value || "모집중",
+          event_type: adminEventTypeSelectEl?.value || "party",
+          max_participants: Number(adminEventMaxInputEl?.value || 0),
           apply_url: adminEventApplyInputEl?.value.trim(),
           detail_url: adminEventDetailUrlInputEl?.value.trim(),
           is_visible: Boolean(adminEventVisibleInputEl?.checked)
