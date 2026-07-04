@@ -1667,6 +1667,8 @@ This account will be used continuously, so please enter the information correctl
     let votesPollTimer = null;
     let votesLoadSerial = 0;
     let latestAppliedVotesSerial = 0;
+    let votesLastLoadedAt = 0;
+    const VOTES_CACHE_TTL_MS = 12000;
     let remoteVoteMetaCache = {};
     const adminAuditOpenKeys = new Set();
     const pendingVoteActions = new Set();
@@ -3110,7 +3112,8 @@ This account will be used continuously, so please enter the information correctl
 
     async function fetchVotesByColumn(column, values) {
       if (!values.length) return [];
-      const url = `${SUPABASE_URL}/rest/v1/votes?select=*&${column}=in.${encodeURIComponent(encodeInList(values))}&order=created_at.desc`;
+      const columns = "id,name,birth,level,event_id,vote_option,created_at,attended,synced_to_sheet,sheet_sync_status,sheet_synced_at";
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=${columns}&${column}=in.${encodeURIComponent(encodeInList(values))}&order=created_at.desc&limit=2000`;
       const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
@@ -3174,7 +3177,8 @@ This account will be used continuously, so please enter the information correctl
       const publicEventId = eventPublicIdFromInternalId(eventId);
       const eventColumn = useEventIdColumn ? "event_id" : "level";
       const eventValue = useEventIdColumn ? publicEventId : eventId;
-      const url = `${SUPABASE_URL}/rest/v1/votes?select=*&${eventColumn}=eq.${encodeURIComponent(eventValue)}&name=eq.${encodeURIComponent(member.name)}&birth=eq.${encodeURIComponent(member.birth)}&order=created_at.desc&limit=1`;
+      const columns = "id,name,birth,level,event_id,vote_option,created_at";
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=${columns}&${eventColumn}=eq.${encodeURIComponent(eventValue)}&name=eq.${encodeURIComponent(member.name)}&birth=eq.${encodeURIComponent(member.birth)}&order=created_at.desc&limit=1`;
       const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
@@ -3192,6 +3196,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function updateVoteViaRest(rowId, eventId, option, member, useEventIdColumn = true) {
+      const savedAt = new Date().toISOString();
       const body = {
         name: member.name,
         birth: member.birth,
@@ -3203,7 +3208,7 @@ This account will be used continuously, so please enter the information correctl
         method: "PATCH",
         headers: supabaseRestHeaders({
           "Content-Type": "application/json",
-          Prefer: "return=representation"
+          Prefer: "return=minimal"
         }),
         body: JSON.stringify(body)
       });
@@ -3211,25 +3216,24 @@ This account will be used continuously, so please enter the information correctl
         const text = await response.text();
         throw new Error(text || `HTTP ${response.status}`);
       }
-      const rows = await response.json();
-      const savedRow = Array.isArray(rows) ? rows[0] : null;
-      if (!savedRow) throw new Error("투표 수정 응답을 확인하지 못했습니다.");
-      return savedRow;
+      return { id: rowId, ...body, created_at: savedAt };
     }
 
     async function postVoteViaRest(eventId, option, member, useEventIdColumn = true) {
+      const savedAt = new Date().toISOString();
       const body = {
         name: member.name,
         birth: member.birth,
         level: eventId,
-        vote_option: option
+        vote_option: option,
+        created_at: savedAt
       };
       if (useEventIdColumn) body.event_id = eventPublicIdFromInternalId(eventId);
       const response = await fetch(`${SUPABASE_URL}/rest/v1/votes`, {
         method: "POST",
         headers: supabaseRestHeaders({
           "Content-Type": "application/json",
-          Prefer: "return=representation"
+          Prefer: "return=minimal"
         }),
         body: JSON.stringify(body)
       });
@@ -3237,10 +3241,7 @@ This account will be used continuously, so please enter the information correctl
         const text = await response.text();
         throw new Error(text || `HTTP ${response.status}`);
       }
-      const rows = await response.json();
-      const savedRow = Array.isArray(rows) ? rows[0] : null;
-      if (!savedRow) throw new Error("투표 저장 응답을 확인하지 못했습니다.");
-      return savedRow;
+      return body;
     }
 
     async function insertVoteViaRest(eventId, option, member, useEventIdColumn = true) {
@@ -3254,6 +3255,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function loadVotesFromSupabase(options = {}) {
+      if (!options.force && votesLastLoadedAt && Date.now() - votesLastLoadedAt < VOTES_CACHE_TTL_MS) return true;
       if (pendingVoteActions.size && !options.force) return;
       if (votesLoadInFlight && !options.force) return;
       const loadSerial = ++votesLoadSerial;
@@ -3265,6 +3267,7 @@ This account will be used continuously, so please enter the information correctl
         if (loadSerial < latestAppliedVotesSerial) return;
         latestAppliedVotesSerial = loadSerial;
         remoteVotesCache = buildVotesFromRows(data || []);
+        votesLastLoadedAt = Date.now();
         render();
         return true;
       } catch (error) {
@@ -3292,18 +3295,18 @@ This account will be used continuously, so please enter the information correctl
           return false;
         }
       }
-      const { data, error } = await supabaseClient.from("votes").insert({
+      const fallbackRow = {
         name: member.name,
         birth: member.birth,
         level: eventId,
-        event_id: eventPublicIdFromInternalId(eventId),
         vote_option: option
-      }).select("*").single();
+      };
+      const { error } = await supabaseClient.from("votes").insert(fallbackRow);
       if (error) {
         messageEl.textContent = `${errorPrefix}: ${error.message}`;
         return false;
       }
-      return data;
+      return { ...fallbackRow, created_at: new Date().toISOString() };
     }
 
     async function insertSupabaseVote(eventId, option, member) {
@@ -3356,10 +3359,8 @@ This account will be used continuously, so please enter the information correctl
       }
       if (window.supabase?.createClient) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-        subscribeVotesRealtime();
       }
       await loadVotesFromSupabase();
-      startVotesPolling();
     }
 
     function logMemberAction(type, memberOrId, details = {}) {
@@ -3960,7 +3961,7 @@ This account will be used continuously, so please enter the information correctl
         method: "PATCH",
         headers: supabaseRestHeaders({
           "Content-Type": "application/json",
-          Prefer: "return=representation"
+          Prefer: "return=minimal"
         }),
         body: JSON.stringify(fields)
       });
@@ -3968,7 +3969,7 @@ This account will be used continuously, so please enter the information correctl
         const text = await response.text();
         throw new Error(text || `HTTP ${response.status}`);
       }
-      return response.json();
+      return true;
     }
 
     function awardAttendanceCheckPoints(member, eventId) {
