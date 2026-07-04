@@ -6403,7 +6403,7 @@ This account will be used continuously, so please enter the information correctl
         renderPolls();
         if (activeFilter === "materials") renderMaterials();
       }
-      if (activeView === "admin" && adminUnlocked) {
+      if (activeView === "admin" && adminUnlocked && isOperatorMember(getMember())) {
         renderAdminVoteAudit();
       }
       if (activeView === "profile") {
@@ -8067,6 +8067,16 @@ This account will be used continuously, so please enter the information correctl
         adminPanelEl.classList.add("hidden");
       }
       if (view === "admin") {
+        const member = getMember();
+        if (!isOperatorMember(member)) {
+          adminUnlocked = false;
+          adminPanelEl.classList.remove("hidden");
+          adminLockEl.classList.remove("hidden");
+          adminToolsEl.classList.add("hidden");
+          messageEl.textContent = "관리자 계정 데오(deo)로 로그인한 경우에만 관리자 페이지를 열 수 있습니다.";
+          updateContentMode();
+          return;
+        }
         adminPanelEl.classList.remove("hidden");
         if (!eventsLoadedFromSupabase) loadEventsFromSupabase({ includeHidden: true }).catch(() => {});
         loadMembersFromSupabase().then(() => renderAdminMembers()).catch(() => {});
@@ -10812,7 +10822,7 @@ This account will be used continuously, so please enter the information correctl
     function renderPolls() {
       const votes = getVotes();
       const member = getMember();
-      const canSeeVoterNames = adminUnlocked || isOperatorMember(member);
+      const canSeeVoterNames = isOperatorMember(member);
       let visibleTemplates = templates;
       if (activeFilter === "closed") {
         visibleTemplates = closedTemplates;
@@ -11054,6 +11064,14 @@ This account will be used continuously, so please enter the information correctl
       adminPanelEl.classList.toggle("hidden");
       if (!adminPanelEl.classList.contains("hidden")) {
         activeView = "admin";
+        if (!isOperatorMember(getMember())) {
+          adminUnlocked = false;
+          adminLockEl.classList.remove("hidden");
+          adminToolsEl.classList.add("hidden");
+          messageEl.textContent = "관리자 계정 데오(deo)로 로그인한 경우에만 관리자 페이지를 열 수 있습니다.";
+          updateBackButton();
+          return;
+        }
         renderAdminEventOptions();
         renderAdminRealEventOptions();
         renderAdminStatus();
@@ -11072,6 +11090,11 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function unlockAdmin() {
+      const member = getMember();
+      if (!isOperatorMember(member)) {
+        messageEl.textContent = "관리자 계정 데오(deo)로 로그인한 경우에만 관리자 페이지를 열 수 있습니다.";
+        return;
+      }
       if (adminPasswordEl.value !== ADMIN_PASSWORD) {
         messageEl.textContent = t("adminWrongPassword");
         adminPasswordEl.focus();
@@ -11242,7 +11265,7 @@ This account will be used continuously, so please enter the information correctl
       }
       loginPanelEl.classList.toggle("hidden", isLoggedIn);
       const showProfile = isLoggedIn && activeView === "profile";
-      const showAdmin = isLoggedIn && activeView === "admin" && adminUnlocked;
+      const showAdmin = isLoggedIn && activeView === "admin" && adminUnlocked && isOperatorMember(member);
       const showEventPage = isLoggedIn && activeView === "event";
       heroEl?.classList.toggle("hidden", Boolean(showProfile || showAdmin || showEventPage));
       heroToolsEl?.classList.toggle("hidden", !isLoggedIn || Boolean(showProfile || showAdmin || showEventPage));
@@ -11255,7 +11278,7 @@ This account will be used continuously, so please enter the information correctl
       profileOpenEl?.classList.toggle("hidden", !isLoggedIn);
       notificationOpenEl.classList.toggle("hidden", !isLoggedIn);
       bottomNavEl.classList.toggle("hidden", !isLoggedIn);
-      adminShortcutEl?.classList.toggle("hidden", !adminUnlocked);
+      adminShortcutEl?.classList.toggle("hidden", !adminUnlocked || !isOperatorMember(member));
       bottomHomeEl.classList.toggle("active", activeView === "vote" && activeFilter === "materials");
       bottomVoteEl.classList.toggle("active", (activeView === "vote" || activeView === "home") && activeFilter !== "materials");
       bottomProfileEl.classList.toggle("active", activeView === "profile");
@@ -11344,7 +11367,7 @@ This account will be used continuously, so please enter the information correctl
         renderLikeEvents();
         renderLikeTargets();
       }
-      if (activeView === "admin" && adminUnlocked) {
+      if (activeView === "admin" && adminUnlocked && isOperatorMember(getMember())) {
         renderAdminEventOptions();
         renderAdminRealEventOptions();
         renderAdminScheduleOptions();
@@ -11359,7 +11382,7 @@ This account will be used continuously, so please enter the information correctl
         full: !notificationPanelEl.classList.contains("hidden"),
         profileReminder: activeView === "profile" && profileView === "main"
       });
-      if (activeView === "admin" && adminUnlocked) setSheetStatus();
+      if (activeView === "admin" && adminUnlocked && isOperatorMember(getMember())) setSheetStatus();
       updateContentMode();
       maybeShowLikePrompt();
     }
