@@ -4934,6 +4934,7 @@ This account will be used continuously, so please enter the information correctl
     const ADMIN_PASSWORD = "101language";
     const SUPABASE_URL = "https://wcbfjyejnhbijqwkajnl.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_e5axVxRAtZA1cj9Y5ul1wA_WRYZeUG2";
+    const DEBUG_SUPABASE = false;
     const GOOGLE_SHEETS_ATTENDANCE_URL = "https://script.google.com/macros/s/AKfycbxipWjF_LXqu1orlV1Tz3HJdkCp00nXQgoAsXnDv_yIvc5s4uuWoLgHmohMJnu9PZ33eg/exec";
     const JONGGAK_PLACE = "서울 종로구 종로 80 (종각 드람브르 5층)";
     const NONHYEON_PLACE = "서울 서초구 신반포로 332 1층 (오켈리논현점 1층)";
@@ -5155,6 +5156,8 @@ This account will be used continuously, so please enter the information correctl
     let votesPollTimer = null;
     let votesLoadSerial = 0;
     let latestAppliedVotesSerial = 0;
+    let votesLastLoadedAt = 0;
+    const VOTES_CACHE_TTL_MS = 12000;
     let autoVoteBatchInProgress = false;
     let receivedLikesSyncInFlight = false;
     const receivedLikesSyncedMembers = new Set();
@@ -6364,7 +6367,7 @@ This account will be used continuously, so please enter the information correctl
       return votes;
     }
 
-    function applyRealtimeVoteRow(row) {
+    function applyRealtimeVoteRow(row, options = {}) {
       if (!row?.name || !row?.birth || !row?.vote_option) return;
       const eventId = rowInternalEventId(row);
       if (!eventId) return;
@@ -6395,7 +6398,7 @@ This account will be used continuously, so please enter the information correctl
       }
       templates = buildWeeklyTemplates();
       closedTemplates = buildClosedTemplates();
-      renderVoteDependentSections();
+      if (options.render !== false) renderVoteDependentSections();
     }
 
     function renderVoteDependentSections() {
@@ -6686,6 +6689,10 @@ This account will be used continuously, so please enter the information correctl
       };
     }
 
+    function debugLog(...args) {
+      if (DEBUG_SUPABASE) console.log(...args);
+    }
+
     async function saveMemberProfileToSupabase(member) {
       if (!isSupabaseConfigured() || !member?.id) return true;
       try {
@@ -6706,7 +6713,7 @@ This account will be used continuously, so please enter the information correctl
           method: "POST",
           headers: supabaseRestHeaders({
             "Content-Type": "application/json",
-            Prefer: "resolution=merge-duplicates,return=representation"
+            Prefer: "resolution=merge-duplicates,return=minimal"
           }),
           body: JSON.stringify(body)
         });
@@ -6803,7 +6810,7 @@ This account will be used continuously, so please enter the information correctl
           method: "POST",
           headers: supabaseRestHeaders({
             "Content-Type": "application/json",
-            Prefer: "resolution=ignore-duplicates,return=representation"
+            Prefer: "resolution=ignore-duplicates,return=minimal"
           }),
           body: JSON.stringify({
             user_id: member.id,
@@ -6917,13 +6924,14 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function updateVoteViaRest(rowId, eventId, option, member) {
+      const columns = "id,name,birth,level,vote_option,created_at,attended,synced_to_sheet,sheet_sync_status";
       const body = {
         name: member.name,
         birth: member.birth,
         level: eventId,
         vote_option: option
       };
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?id=eq.${encodeURIComponent(rowId)}`, {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?id=eq.${encodeURIComponent(rowId)}&select=${columns}`, {
         method: "PATCH",
         headers: supabaseRestHeaders({
           "Content-Type": "application/json",
@@ -6942,13 +6950,14 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function postVoteViaRest(eventId, option, member) {
+      const columns = "id,name,birth,level,vote_option,created_at,attended,synced_to_sheet,sheet_sync_status";
       const body = {
         name: member.name,
         birth: member.birth,
         level: eventId,
         vote_option: option
       };
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/votes`, {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?select=${columns}`, {
         method: "POST",
         headers: supabaseRestHeaders({
           "Content-Type": "application/json",
@@ -6977,6 +6986,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function loadVotesFromSupabase(options = {}) {
+      if (!options.force && votesLastLoadedAt && Date.now() - votesLastLoadedAt < VOTES_CACHE_TTL_MS) return true;
       if (pendingVoteActions.size && !options.force) return;
       if (votesLoadInFlight && !options.force) return;
       const loadSerial = ++votesLoadSerial;
@@ -6988,6 +6998,7 @@ This account will be used continuously, so please enter the information correctl
         if (loadSerial < latestAppliedVotesSerial) return;
         latestAppliedVotesSerial = loadSerial;
         remoteVotesCache = buildVotesFromRows(data || []);
+        votesLastLoadedAt = Date.now();
         render();
         return true;
       } catch (error) {
@@ -7060,9 +7071,7 @@ This account will be used continuously, so please enter the information correctl
           if (autoVoteBatchInProgress) return;
           loadVotesFromSupabase({ silent: true, force: true }).catch(() => {});
         })
-        .subscribe((status) => {
-          if (status === "SUBSCRIBED") loadVotesFromSupabase({ silent: true });
-        });
+        .subscribe();
     }
 
     function receivedLikeProcessKey(row, memberId) {
@@ -7373,7 +7382,7 @@ This account will be used continuously, so please enter the information correctl
 
     async function postNotificationBody(body, { prefer = "" } = {}) {
       const headers = supabaseRestHeaders({ "Content-Type": "application/json" });
-      if (prefer) headers.Prefer = prefer;
+      headers.Prefer = prefer || "return=minimal";
       const response = await fetch(`${SUPABASE_URL}/rest/v1/notifications`, {
         method: "POST",
         headers,
@@ -7404,7 +7413,7 @@ This account will be used continuously, so please enter the information correctl
           method: "POST",
           headers: supabaseRestHeaders({
             "Content-Type": "application/json",
-            Prefer: "resolution=merge-duplicates"
+            Prefer: "resolution=merge-duplicates,return=minimal"
           }),
           body: JSON.stringify(body)
         });
@@ -7445,7 +7454,8 @@ This account will be used continuously, so please enter the information correctl
       fetch(`${SUPABASE_URL}/rest/v1/notifications?user_id=eq.${encodeURIComponent(notification.user_id)}&study_id=eq.${encodeURIComponent(notification.study_id)}&type=eq.${encodeURIComponent(notification.type)}`, {
         method: "PATCH",
         headers: supabaseRestHeaders({
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
         }),
         body: JSON.stringify({
           is_read: true,
@@ -8297,11 +8307,7 @@ This account will be used continuously, so please enter the information correctl
       const getsEarlyBonus = !previous && totalBefore < EARLY_BONUS_LIMIT;
       const saved = await insertSupabaseVote(eventId, option, member);
       if (!saved) return false;
-      try {
-        await loadVotesFromSupabase({ silent: false, force: true, requiredRow: saved });
-      } catch {
-        return false;
-      }
+      applyRealtimeVoteRow(saved, { render: false });
 
       if (!previous && !isSyntheticMember(member)) {
         const stats = ensureStats(member);
@@ -8333,6 +8339,7 @@ This account will be used continuously, so please enter the information correctl
       saveDirectoryMember(member);
       const saved = await insertSupabaseVote(eventId, option, member);
       if (!saved) return false;
+      applyRealtimeVoteRow(saved, { render: false });
       return true;
     }
 
@@ -8359,7 +8366,9 @@ This account will be used continuously, so please enter the information correctl
       const member = makeAutoMember(event, option, slot, runId);
       if (!member?.id) return false;
       saveDirectoryMember(member);
-      if (await insertSupabaseVote(event.id, option, member)) {
+      const saved = await insertSupabaseVote(event.id, option, member);
+      if (saved) {
+        applyRealtimeVoteRow(saved, { render: false });
         roster.push(`${formatDateLabel(event.start)} ${t(event.title)} / ${t(option)}: ${member.name}`);
         return true;
       }
@@ -8433,7 +8442,7 @@ This account will be used continuously, so please enter the information correctl
       writeJson(AUTO_DONE_KEY, done);
       saveAutoRoster(roster);
       applyAutoVotes.lastResult = result;
-      if (result.added > 0) await loadVotesFromSupabase({ silent: true, force: true });
+      if (result.added > 0) renderVoteDependentSections();
       return result.added > 0 || result.failed === 0;
     }
 
@@ -8672,7 +8681,7 @@ This account will be used continuously, so please enter the information correctl
         method: "PATCH",
         headers: supabaseRestHeaders({
           "Content-Type": "application/json",
-          Prefer: "return=representation"
+          Prefer: "return=minimal"
         }),
         body: JSON.stringify(fields)
       });
@@ -8680,7 +8689,15 @@ This account will be used continuously, so please enter the information correctl
         const text = await response.text();
         throw new Error(text || `HTTP ${response.status}`);
       }
-      return response.json();
+      return true;
+    }
+
+    function patchLocalVoteMeta(eventId, memberId, fields = {}) {
+      if (!eventId || !memberId || !remoteVoteMetaCache[eventId]?.[memberId]) return;
+      const meta = remoteVoteMetaCache[eventId][memberId];
+      if (Object.prototype.hasOwnProperty.call(fields, "attended")) meta.attended = Boolean(fields.attended);
+      if (Object.prototype.hasOwnProperty.call(fields, "synced_to_sheet")) meta.syncedToSheet = Boolean(fields.synced_to_sheet);
+      if (Object.prototype.hasOwnProperty.call(fields, "sheet_sync_status")) meta.sheetSyncStatus = fields.sheet_sync_status || "";
     }
 
     function friendlySheetStatusError(error) {
@@ -8767,19 +8784,23 @@ This account will be used continuously, so please enter the information correctl
         try {
           const nameKey = normalizeName(member.name);
           if (syncedNames.has(nameKey)) {
-            await patchVoteSheetStatus(meta.rowId, {
+            const fields = {
               attended: true,
               synced_to_sheet: true,
               sheet_sync_status: "synced",
               sheet_synced_at: new Date().toISOString()
-            });
+            };
+            await patchVoteSheetStatus(meta.rowId, fields);
+            patchLocalVoteMeta(eventId, id, fields);
             awardAttendanceCheckPoints(member, eventId);
           } else if (unmatchedNames.has(nameKey)) {
-            await patchVoteSheetStatus(meta.rowId, {
+            const fields = {
               attended: false,
               synced_to_sheet: false,
               sheet_sync_status: "unmatched"
-            });
+            };
+            await patchVoteSheetStatus(meta.rowId, fields);
+            patchLocalVoteMeta(eventId, id, fields);
           }
         } catch (error) {
           siteStatusErrors.push({
@@ -8792,13 +8813,6 @@ This account will be used continuously, so please enter the information correctl
       result.site_status_errors = siteStatusErrors;
       selectedMembers.forEach(({ id }) => setAttendanceChecked(eventId, id, false));
       setAttendanceSheetResult(eventId, result);
-      await loadVotesFromSupabase({ silent: true, force: true }).catch((error) => {
-        result.site_status_errors = [
-          ...(result.site_status_errors || []),
-          { name: "Supabase", message: friendlySheetStatusError(error) }
-        ];
-        setAttendanceSheetResult(eventId, result);
-      });
       renderAdminVoteAudit();
     }
 
@@ -9818,8 +9832,8 @@ This account will be used continuously, so please enter the information correctl
       const event = getAllEvents().find((item) => item.id === eventId);
       if (!event) return;
       selectedAdminEventId = event.id;
-      console.log("edit event selected", event);
-      console.log("selectedEventId", selectedAdminEventId);
+      debugLog("edit event selected", event);
+      debugLog("selectedEventId", selectedAdminEventId);
       if (adminEventManagerSelectEl) adminEventManagerSelectEl.value = event.id;
       if (saveAdminEventEl) saveAdminEventEl.textContent = "이벤트 수정 저장";
       fillAdminEventForm(event);
@@ -9974,7 +9988,7 @@ This account will be used continuously, so please enter the information correctl
         let data = null;
         let error = null;
         const isUpdate = Boolean(event.id);
-        console.log("event save mode", isUpdate ? "update" : "insert");
+        debugLog("event save mode", isUpdate ? "update" : "insert");
         const url = isUpdate
           ? `${SUPABASE_URL}/rest/v1/events?id=eq.${encodeURIComponent(event.id)}&select=${columns}`
           : `${SUPABASE_URL}/rest/v1/events?select=${columns}`;
@@ -9988,7 +10002,7 @@ This account will be used continuously, so please enter the information correctl
         });
         if (!response.ok) error = new Error(await response.text());
         else data = await response.json();
-        console.log("event save result", data, error);
+        debugLog("event save result", data, error);
         if (error) throw error;
         if (isUpdate && Array.isArray(data) && !data.length) {
           throw new Error("수정할 이벤트를 Supabase에서 찾지 못했습니다. 새 이벤트 작성으로 다시 저장해주세요.");
@@ -10048,7 +10062,7 @@ This account will be used continuously, so please enter the information correctl
         });
         if (!response.ok) error = new Error(await response.text());
         else data = true;
-        console.log("event delete result", data, error);
+        debugLog("event delete result", data, error);
         if (error) throw error;
         saveLocalEvents(getLocalEvents().filter((item) => item.id !== eventId));
         await loadEventsFromSupabase({ includeHidden: true });
@@ -10069,8 +10083,8 @@ This account will be used continuously, so please enter the information correctl
       if (!adminUnlocked) return;
       const selectedEventId = selectedAdminEventId || "";
       const event = await readAdminEventForm();
-      console.log("event formData before save", event);
-      console.log("selectedEventId", selectedEventId);
+      debugLog("event formData before save", event);
+      debugLog("selectedEventId", selectedEventId);
       const validationMessage = validateAdminEventForm(event);
       if (validationMessage) {
         showAdminEventStatus("error", validationMessage);
@@ -10266,11 +10280,7 @@ This account will be used continuously, so please enter the information correctl
         if (!saved) return;
         const votes = getVotes();
         const hadVote = memberVotedInEvent(votes[eventId], member.id);
-        try {
-          await loadVotesFromSupabase({ silent: false, force: true, requiredRow: saved });
-        } catch {
-          return;
-        }
+        applyRealtimeVoteRow(saved, { render: false });
         if (hadVote) {
           const stats = ensureStats(member);
           let removedPoints = pointRules.attendance;
@@ -10589,12 +10599,12 @@ This account will be used continuously, so please enter the information correctl
       }
 
       const requestedTargetMembers = newTargets.map((target) => memberFromId(target));
-      console.log("selectedStudyId", selectedLikeEventId);
-      console.log("senderUserId", member?.id);
-      console.log("selectedReceivers", requestedTargetMembers);
-      console.log("receiver ids", requestedTargetMembers.map((target) => target.id));
+      debugLog("selectedStudyId", selectedLikeEventId);
+      debugLog("senderUserId", member?.id);
+      debugLog("selectedReceivers", requestedTargetMembers);
+      debugLog("receiver ids", requestedTargetMembers.map((target) => target.id));
       const savedRemote = await savePostStudyLikesToSupabase(selectedLikeEventId, member, requestedTargetMembers);
-      console.log("like insert result", savedRemote.rows || null, savedRemote.ok ? null : savedRemote.error);
+      debugLog("like insert result", savedRemote.rows || null, savedRemote.ok ? null : savedRemote.error);
       if (!savedRemote.ok) {
         const errorText = friendlyHeartError(savedRemote.error);
         messageEl.textContent = errorText;
@@ -11148,11 +11158,6 @@ This account will be used continuously, so please enter the information correctl
         }
         if (!names.length) {
           messageEl.textContent = "투표 인원을 추가하지 못했습니다. Supabase 저장 권한을 확인해주세요.";
-          return;
-        }
-        const loaded = await loadVotesFromSupabase({ silent: false, force: true });
-        if (!loaded) {
-          messageEl.textContent = "투표 인원은 저장됐지만 화면 갱신에 실패했습니다. 새로고침을 눌러 확인해주세요.";
           return;
         }
         messageEl.textContent = t("adminAddedVote", { name: `${names.length}명`, option: t(option) });
