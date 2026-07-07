@@ -6860,10 +6860,26 @@ This account will be used continuously, so please enter the information correctl
       return `(${values.map((value) => `"${String(value).replaceAll('"', '\\"')}"`).join(",")})`;
     }
 
+    const VOTE_SELECT_COLUMNS = "id,study_id,user_id,name,level,attended,synced_to_sheet,cancelled,created_at,updated_at";
+
+    function buildVotePayload(eventId, option, member, extra = {}) {
+      const now = extra.now || new Date().toISOString();
+      return {
+        study_id: String(eventId || ""),
+        user_id: String(member?.id || ""),
+        name: String(member?.name || ""),
+        level: String(option || ""),
+        attended: false,
+        synced_to_sheet: false,
+        cancelled: false,
+        updated_at: now,
+        ...extra.fields
+      };
+    }
+
     async function fetchVotesByColumn(column, values) {
       if (!values.length) return [];
-      const columns = "id,study_id,user_id,name,level,attended,synced_to_sheet,cancelled,created_at,updated_at";
-      const url = `${SUPABASE_URL}/rest/v1/votes?select=${columns}&${column}=in.${encodeURIComponent(encodeInList(values))}&order=created_at.desc&limit=2000`;
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=${VOTE_SELECT_COLUMNS}&${column}=in.${encodeURIComponent(encodeInList(values))}&order=created_at.desc&limit=2000`;
       const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
@@ -6913,8 +6929,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function selectExistingVoteViaRest(eventId, member) {
-      const columns = "id,study_id,user_id,name,level,attended,synced_to_sheet,cancelled,created_at,updated_at";
-      const url = `${SUPABASE_URL}/rest/v1/votes?select=${columns}&study_id=eq.${encodeURIComponent(eventId)}&user_id=eq.${encodeURIComponent(member.id)}&order=updated_at.desc.nullslast&order=created_at.desc&limit=1`;
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=${VOTE_SELECT_COLUMNS}&study_id=eq.${encodeURIComponent(eventId)}&user_id=eq.${encodeURIComponent(member.id)}&order=updated_at.desc.nullslast&order=created_at.desc&limit=1`;
       const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
@@ -6933,16 +6948,8 @@ This account will be used continuously, so please enter the information correctl
 
     async function updateVoteViaRest(rowId, eventId, option, member) {
       const now = new Date().toISOString();
-      const body = {
-        study_id: eventId,
-        user_id: member.id,
-        name: member.name,
-        level: option,
-        attended: false,
-        synced_to_sheet: false,
-        cancelled: false,
-        updated_at: now
-      };
+      const body = buildVotePayload(eventId, option, member, { now });
+      console.log("vote payload", body);
       const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?id=eq.${encodeURIComponent(rowId)}`, {
         method: "PATCH",
         headers: supabaseRestHeaders({
@@ -6953,8 +6960,10 @@ This account will be used continuously, so please enter the information correctl
       });
       if (!response.ok) {
         const text = await response.text();
+        console.log("vote save result", null, text);
         throw new Error(text || `HTTP ${response.status}`);
       }
+      console.log("vote save result", { id: rowId, ...body }, null);
       return { id: rowId, ...body, created_at: now };
     }
 
@@ -6962,16 +6971,10 @@ This account will be used continuously, so please enter the information correctl
       const now = new Date().toISOString();
       const body = {
         id: createUuid(),
-        study_id: eventId,
-        user_id: member.id,
-        name: member.name,
-        level: option,
-        attended: false,
-        synced_to_sheet: false,
-        cancelled: false,
+        ...buildVotePayload(eventId, option, member, { now }),
         created_at: now,
-        updated_at: now
       };
+      console.log("vote payload", body);
       const response = await fetch(`${SUPABASE_URL}/rest/v1/votes`, {
         method: "POST",
         headers: supabaseRestHeaders({
@@ -6982,8 +6985,10 @@ This account will be used continuously, so please enter the information correctl
       });
       if (!response.ok) {
         const text = await response.text();
+        console.log("vote save result", null, text);
         throw new Error(text || `HTTP ${response.status}`);
       }
+      console.log("vote save result", body, null);
       return body;
     }
 
@@ -7055,23 +7060,18 @@ This account will be used continuously, so please enter the information correctl
       }
       const fallbackRow = {
         id: createUuid(),
-        study_id: eventId,
-        user_id: member.id,
-        name: member.name,
-        level: option,
-        attended: false,
-        synced_to_sheet: false,
-        cancelled: false,
+        ...buildVotePayload(eventId, option, member, { now: new Date().toISOString() }),
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
       };
-      const { error } = await supabaseClient.from("votes").insert(fallbackRow);
+      console.log("vote payload", fallbackRow);
+      const { data, error } = await supabaseClient.from("votes").insert(fallbackRow).select(VOTE_SELECT_COLUMNS).maybeSingle();
+      console.log("vote save result", data, error);
       if (error) {
         console.error(errorPrefix, error);
         messageEl.textContent = "투표 저장에 실패했습니다. 잠시 후 다시 시도해주세요.";
         return false;
       }
-      return fallbackRow;
+      return data || fallbackRow;
     }
 
     async function insertSupabaseVote(eventId, option, member) {
