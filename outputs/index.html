@@ -6340,30 +6340,30 @@ This account will be used continuously, so please enter the information correctl
     function buildVotesFromRows(rows) {
       const latestByMember = new Map();
       [...rows]
-        .filter((row) => row.name && row.birth && row.vote_option && rowInternalEventId(row))
+        .filter((row) => row.name && row.user_id && row.level && rowInternalEventId(row))
         .sort((a, b) => {
-          const timeDiff = new Date(a.created_at || 0) - new Date(b.created_at || 0);
+          const timeDiff = new Date(a.updated_at || a.created_at || 0) - new Date(b.updated_at || b.created_at || 0);
           if (timeDiff) return timeDiff;
           return String(a.id || "").localeCompare(String(b.id || ""));
         })
         .forEach((row) => {
-          const member = makeMember(row.name, row.birth);
+          const member = { ...memberFromId(row.user_id), id: row.user_id, name: row.name };
           saveDirectoryMember(member);
           latestByMember.set(`${rowInternalEventId(row)}|${member.id}`, { row, member, eventId: rowInternalEventId(row) });
       });
       const votes = {};
       const meta = {};
       latestByMember.forEach(({ row, member, eventId }) => {
-        if (row.vote_option === "__cancelled__") return;
-        applyVoteToVotes(votes, eventId, row.vote_option, member);
+        if (row.cancelled) return;
+        applyVoteToVotes(votes, eventId, row.level, member);
         if (!meta[eventId]) meta[eventId] = {};
         meta[eventId][member.id] = {
           rowId: row.id || "",
-          option: row.vote_option,
+          option: row.level,
           createdAt: row.created_at || "",
           attended: Boolean(row.attended),
           syncedToSheet: Boolean(row.synced_to_sheet),
-          sheetSyncStatus: row.sheet_sync_status || ""
+          sheetSyncStatus: ""
         };
       });
       remoteVoteMetaCache = meta;
@@ -6371,32 +6371,30 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function applyRealtimeVoteRow(row, options = {}) {
-      if (!row?.name || !row?.birth || !row?.vote_option) return;
+      if (!row?.name || !row?.user_id || !row?.level) return;
       const eventId = rowInternalEventId(row);
       if (!eventId) return;
-      const member = makeMember(row.name, row.birth);
+      const member = { ...memberFromId(row.user_id), id: row.user_id, name: row.name };
       saveDirectoryMember(member);
-      const currentMeta = remoteVoteMetaCache[eventId]?.[member.id];
-      if (currentMeta?.createdAt && row.created_at && new Date(currentMeta.createdAt) > new Date(row.created_at)) return;
       if (!remoteVotesCache[eventId]) remoteVotesCache[eventId] = {};
       Object.keys(remoteVotesCache[eventId]).forEach((option) => {
         remoteVotesCache[eventId][option] = remoteVotesCache[eventId][option].filter((id) => id !== member.id);
       });
       if (!remoteVoteMetaCache[eventId]) remoteVoteMetaCache[eventId] = {};
-      if (row.vote_option === "__cancelled__") {
+      if (row.cancelled) {
         delete remoteVoteMetaCache[eventId][member.id];
       } else {
-        if (!remoteVotesCache[eventId][row.vote_option]) remoteVotesCache[eventId][row.vote_option] = [];
-        if (!remoteVotesCache[eventId][row.vote_option].includes(member.id)) {
-          remoteVotesCache[eventId][row.vote_option].push(member.id);
+        if (!remoteVotesCache[eventId][row.level]) remoteVotesCache[eventId][row.level] = [];
+        if (!remoteVotesCache[eventId][row.level].includes(member.id)) {
+          remoteVotesCache[eventId][row.level].push(member.id);
         }
         remoteVoteMetaCache[eventId][member.id] = {
           rowId: row.id || "",
-          option: row.vote_option,
+          option: row.level,
           createdAt: row.created_at || "",
           attended: Boolean(row.attended),
           syncedToSheet: Boolean(row.synced_to_sheet),
-          sheetSyncStatus: row.sheet_sync_status || ""
+          sheetSyncStatus: ""
         };
       }
       templates = buildWeeklyTemplates();
@@ -6515,8 +6513,9 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function rowInternalEventId(row) {
+      if (row?.study_id) return row.study_id;
       if (row?.level && eventFromStoredId(row.level)) return row.level;
-      return row?.level || "";
+      return "";
     }
 
     function buildWeeklyTemplates() {
@@ -6863,7 +6862,7 @@ This account will be used continuously, so please enter the information correctl
 
     async function fetchVotesByColumn(column, values) {
       if (!values.length) return [];
-      const columns = "id,name,birth,level,vote_option,created_at,attended,synced_to_sheet,sheet_sync_status,sheet_synced_at";
+      const columns = "id,study_id,user_id,name,level,attended,synced_to_sheet,cancelled,created_at,updated_at";
       const url = `${SUPABASE_URL}/rest/v1/votes?select=${columns}&${column}=in.${encodeURIComponent(encodeInList(values))}&order=created_at.desc&limit=2000`;
       const response = await fetch(url, {
         method: "GET",
@@ -6882,16 +6881,15 @@ This account will be used continuously, so please enter the information correctl
 
     async function selectVotesViaRest(extraRow = null) {
       const { internalIds } = getVoteQueryIds(extraRow);
-      return fetchVotesByColumn("level", internalIds);
+      return fetchVotesByColumn("study_id", internalIds);
     }
 
     function voteRowMatches(row, expectedRow) {
       if (!row || !expectedRow) return false;
       if (expectedRow.id && row.id === expectedRow.id) return true;
-      return row.name === expectedRow.name &&
-        row.birth === expectedRow.birth &&
+      return row.user_id === expectedRow.user_id &&
         rowInternalEventId(row) === rowInternalEventId(expectedRow) &&
-        row.vote_option === expectedRow.vote_option &&
+        row.level === expectedRow.level &&
         (!expectedRow.created_at || row.created_at === expectedRow.created_at);
     }
 
@@ -6915,8 +6913,8 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function selectExistingVoteViaRest(eventId, member) {
-      const columns = "id,name,birth,level,vote_option,created_at";
-      const url = `${SUPABASE_URL}/rest/v1/votes?select=${columns}&level=eq.${encodeURIComponent(eventId)}&name=eq.${encodeURIComponent(member.name)}&birth=eq.${encodeURIComponent(member.birth)}&order=created_at.desc&limit=1`;
+      const columns = "id,study_id,user_id,name,level,attended,synced_to_sheet,cancelled,created_at,updated_at";
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=${columns}&study_id=eq.${encodeURIComponent(eventId)}&user_id=eq.${encodeURIComponent(member.id)}&order=updated_at.desc.nullslast&order=created_at.desc&limit=1`;
       const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
@@ -6934,12 +6932,16 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function updateVoteViaRest(rowId, eventId, option, member) {
-      const savedAt = new Date().toISOString();
+      const now = new Date().toISOString();
       const body = {
+        study_id: eventId,
+        user_id: member.id,
         name: member.name,
-        birth: member.birth,
-        level: eventId,
-        vote_option: option
+        level: option,
+        attended: false,
+        synced_to_sheet: false,
+        cancelled: false,
+        updated_at: now
       };
       const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?id=eq.${encodeURIComponent(rowId)}`, {
         method: "PATCH",
@@ -6953,18 +6955,22 @@ This account will be used continuously, so please enter the information correctl
         const text = await response.text();
         throw new Error(text || `HTTP ${response.status}`);
       }
-      return { id: rowId, ...body, created_at: savedAt };
+      return { id: rowId, ...body, created_at: now };
     }
 
     async function postVoteViaRest(eventId, option, member) {
-      const savedAt = new Date().toISOString();
+      const now = new Date().toISOString();
       const body = {
         id: createUuid(),
+        study_id: eventId,
+        user_id: member.id,
         name: member.name,
-        birth: member.birth,
-        level: eventId,
-        vote_option: option,
-        created_at: savedAt
+        level: option,
+        attended: false,
+        synced_to_sheet: false,
+        cancelled: false,
+        created_at: now,
+        updated_at: now
       };
       const response = await fetch(`${SUPABASE_URL}/rest/v1/votes`, {
         method: "POST",
@@ -6983,12 +6989,28 @@ This account will be used continuously, so please enter the information correctl
 
     async function insertVoteViaRest(eventId, option, member) {
       const existing = await selectExistingVoteViaRest(eventId, member);
-      if (existing?.id && existing.vote_option !== "__cancelled__") {
-        try {
-          return await updateVoteViaRest(existing.id, eventId, option, member);
-        } catch {}
-      }
+      if (existing?.id) return updateVoteViaRest(existing.id, eventId, option, member);
       return postVoteViaRest(eventId, option, member);
+    }
+
+    async function cancelVoteViaRest(eventId, member) {
+      const existing = await selectExistingVoteViaRest(eventId, member);
+      if (!existing?.id || existing.cancelled) return false;
+      const now = new Date().toISOString();
+      const body = { cancelled: true, updated_at: now };
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?id=eq.${encodeURIComponent(existing.id)}`, {
+        method: "PATCH",
+        headers: supabaseRestHeaders({
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        }),
+        body: JSON.stringify(body)
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `HTTP ${response.status}`);
+      }
+      return { ...existing, ...body };
     }
 
     async function loadVotesFromSupabase(options = {}) {
@@ -7008,7 +7030,8 @@ This account will be used continuously, so please enter the information correctl
         render();
         return true;
       } catch (error) {
-        if (!options.silent) messageEl.textContent = `Supabase 투표 목록을 불러오지 못했습니다: ${error.message}`;
+        console.error("load votes failed", error);
+        if (!options.silent) messageEl.textContent = "투표 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.";
         if (options.requiredRow) throw error;
         return false;
       } finally {
@@ -7032,11 +7055,15 @@ This account will be used continuously, so please enter the information correctl
       }
       const fallbackRow = {
         id: createUuid(),
+        study_id: eventId,
+        user_id: member.id,
         name: member.name,
-        birth: member.birth,
-        level: eventId,
-        vote_option: option,
-        created_at: new Date().toISOString()
+        level: option,
+        attended: false,
+        synced_to_sheet: false,
+        cancelled: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
       const { error } = await supabaseClient.from("votes").insert(fallbackRow);
       if (error) {
@@ -7060,7 +7087,13 @@ This account will be used continuously, so please enter the information correctl
         messageEl.textContent = "Supabase 연결이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.";
         return false;
       }
-      return insertSupabaseRow(eventId, "__cancelled__", member, "Supabase 투표 취소 실패");
+      try {
+        return await cancelVoteViaRest(eventId, member);
+      } catch (error) {
+        console.error("Supabase 투표 취소 실패", error);
+        messageEl.textContent = "투표 취소에 실패했습니다. 잠시 후 다시 시도해주세요.";
+        return false;
+      }
     }
 
     function subscribeVotesRealtime() {
@@ -8709,7 +8742,7 @@ This account will be used continuously, so please enter the information correctl
     function friendlySheetStatusError(error) {
       const message = String(error?.message || error || "");
       if (message.includes("attended") || message.includes("schema cache")) {
-        return "Supabase votes.attended 컬럼이 없습니다. 관리자 확인 필요";
+        return "Supabase votes 운영 컬럼이 준비되지 않았습니다. migrations/2026-07-08-votes-operational-schema.sql 적용이 필요합니다.";
       }
       return message || "사이트 상태 저장 중 오류가 발생했습니다. 관리자 확인 필요";
     }
@@ -8786,27 +8819,26 @@ This account will be used continuously, so please enter the information correctl
       const unmatchedNames = new Set(unmatched.map(normalizeName));
       const siteStatusErrors = [];
 
-      await Promise.all(selectedMembers.map(async ({ member, meta }) => {
+      await Promise.all(selectedMembers.map(async ({ id, member, meta }) => {
         try {
           const nameKey = normalizeName(member.name);
           if (syncedNames.has(nameKey)) {
             const fields = {
               attended: true,
               synced_to_sheet: true,
-              sheet_sync_status: "synced",
-              sheet_synced_at: new Date().toISOString()
+              updated_at: new Date().toISOString()
             };
             await patchVoteSheetStatus(meta.rowId, fields);
-            patchLocalVoteMeta(eventId, id, fields);
+            patchLocalVoteMeta(eventId, id, { ...fields, sheet_sync_status: "synced" });
             awardAttendanceCheckPoints(member, eventId);
           } else if (unmatchedNames.has(nameKey)) {
             const fields = {
               attended: false,
               synced_to_sheet: false,
-              sheet_sync_status: "unmatched"
+              updated_at: new Date().toISOString()
             };
             await patchVoteSheetStatus(meta.rowId, fields);
-            patchLocalVoteMeta(eventId, id, fields);
+            patchLocalVoteMeta(eventId, id, { ...fields, sheet_sync_status: "unmatched" });
           }
         } catch (error) {
           siteStatusErrors.push({
