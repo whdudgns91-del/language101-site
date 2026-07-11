@@ -6104,7 +6104,7 @@ This account will be used continuously, so please enter the information correctl
 
     function makeMember(name, birth, profile = {}) {
       const cleanName = name.trim();
-      const cleanBirth = birth.trim();
+      const cleanBirth = normalizeBirth(birth);
       const normalizedProfile = normalizeMemberProfile(profile);
       return {
         id: `${cleanBirth}|${normalizeName(cleanName)}`,
@@ -6157,6 +6157,13 @@ This account will be used continuously, so please enter the information correctl
 
     function normalizeName(value = "") {
       return value.trim().toLowerCase();
+    }
+
+    function normalizeBirth(value = "") {
+      const digits = String(value || "").replace(/\D/g, "");
+      if (digits.length === 8) return digits.slice(2);
+      if (digits.length >= 6) return digits.slice(-6);
+      return digits;
     }
 
     function isOperatorMember(member) {
@@ -6222,7 +6229,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function getBirthValidationError(birth) {
-      const value = birth.trim();
+      const value = normalizeBirth(birth);
       if (!value) return "Please enter your birthdate.\n생년월일 6자리를 입력해주세요.";
       if (!/^\d{6}$/.test(value)) {
         return "Birthdate must be 6 digits. Example: 920117\n생년월일은 6자리 숫자로 입력해주세요. 예: 920117";
@@ -6347,7 +6354,7 @@ This account will be used continuously, so please enter the information correctl
           return String(a.id || "").localeCompare(String(b.id || ""));
         })
         .forEach((row) => {
-          const member = { ...memberFromId(row.user_id), id: row.user_id, name: row.name };
+          const member = { ...memberFromId(row.user_id), id: row.user_id, name: row.name, birth: normalizeBirth(row.birth || memberFromId(row.user_id).birth || ""), birthdate: normalizeBirth(row.birth || memberFromId(row.user_id).birthdate || "") };
           saveDirectoryMember(member);
           latestByMember.set(`${rowInternalEventId(row)}|${member.id}`, { row, member, eventId: rowInternalEventId(row) });
       });
@@ -6374,7 +6381,9 @@ This account will be used continuously, so please enter the information correctl
       if (!row?.name || !row?.user_id || !row?.level) return;
       const eventId = rowInternalEventId(row);
       if (!eventId) return;
-      const member = { ...memberFromId(row.user_id), id: row.user_id, name: row.name };
+      const savedMember = memberFromId(row.user_id);
+      const birth = normalizeBirth(row.birth || savedMember.birth || savedMember.birthdate || "");
+      const member = { ...savedMember, id: row.user_id, name: row.name, birth, birthdate: birth };
       saveDirectoryMember(member);
       if (!remoteVotesCache[eventId]) remoteVotesCache[eventId] = {};
       Object.keys(remoteVotesCache[eventId]).forEach((option) => {
@@ -6860,21 +6869,85 @@ This account will be used continuously, so please enter the information correctl
       return `(${values.map((value) => `"${String(value).replaceAll('"', '\\"')}"`).join(",")})`;
     }
 
-    const VOTE_SELECT_COLUMNS = "id,study_id,user_id,name,level,attended,synced_to_sheet,cancelled,created_at,updated_at";
+    const VOTE_SELECT_COLUMNS = "id,study_id,user_id,name,birth,level,attended,synced_to_sheet,cancelled,created_at,updated_at";
 
     function buildVotePayload(eventId, option, member, extra = {}) {
       const now = extra.now || new Date().toISOString();
+      const studyId = String(eventId || "").trim();
+      const userId = String(member?.id || "").trim();
+      const name = String(member?.name || "").trim();
+      const level = String(option || "").trim();
+      const birth = normalizeBirth(member?.birth || member?.birthdate || "");
+      if (!birth) {
+        const error = new Error("회원 생년월일 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
+        error.code = "MISSING_BIRTH";
+        throw error;
+      }
+      if (!studyId || !userId || !name || !level) {
+        const error = new Error("회원정보 또는 투표 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
+        error.code = "INVALID_VOTE_PAYLOAD";
+        throw error;
+      }
       return {
-        study_id: String(eventId || ""),
-        user_id: String(member?.id || ""),
-        name: String(member?.name || ""),
-        level: String(option || ""),
+        study_id: studyId,
+        user_id: userId,
+        name,
+        birth,
+        level,
         attended: false,
         synced_to_sheet: false,
         cancelled: false,
-        updated_at: now,
-        ...extra.fields
+        updated_at: now
       };
+    }
+
+    function normalizeSupabaseError(error) {
+      if (!error) return { code: "UNKNOWN", message: "알 수 없는 오류" };
+      if (typeof error === "string") {
+        try {
+          const parsed = JSON.parse(error);
+          return {
+            code: parsed.code || parsed.status || "SUPABASE_ERROR",
+            message: parsed.message || parsed.msg || error,
+            raw: parsed
+          };
+        } catch {
+          return { code: "SUPABASE_ERROR", message: error };
+        }
+      }
+      return {
+        code: error.code || error.status || error.name || "SUPABASE_ERROR",
+        message: error.message || String(error),
+        raw: error
+      };
+    }
+
+    function makeSupabaseRestError(text, status) {
+      const normalized = normalizeSupabaseError(text);
+      const error = new Error(normalized.message || `HTTP ${status}`);
+      error.code = normalized.code || `HTTP_${status}`;
+      error.status = status;
+      error.raw = normalized.raw || text;
+      return error;
+    }
+
+    function showVoteSaveError(error) {
+      const normalized = normalizeSupabaseError(error);
+      if (normalized.code === "MISSING_BIRTH") {
+        messageEl.textContent = "회원 생년월일 정보를 확인할 수 없습니다. 다시 로그인해주세요.";
+        return;
+      }
+      messageEl.textContent = "투표 저장에 실패했습니다. 회원정보를 확인한 후 다시 시도해주세요.";
+    }
+
+    async function readSupabaseRows(response) {
+      const text = await response.text();
+      if (!text) return [];
+      try {
+        return JSON.parse(text);
+      } catch {
+        return [];
+      }
     }
 
     async function fetchVotesByColumn(column, values) {
@@ -6929,21 +7002,31 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function selectExistingVoteViaRest(eventId, member) {
-      const url = `${SUPABASE_URL}/rest/v1/votes?select=${VOTE_SELECT_COLUMNS}&study_id=eq.${encodeURIComponent(eventId)}&user_id=eq.${encodeURIComponent(member.id)}&order=updated_at.desc.nullslast&order=created_at.desc&limit=1`;
-      const response = await fetch(url, {
+      const birth = normalizeBirth(member?.birth || member?.birthdate || "");
+      const urls = [
+        `${SUPABASE_URL}/rest/v1/votes?select=${VOTE_SELECT_COLUMNS}&study_id=eq.${encodeURIComponent(eventId)}&user_id=eq.${encodeURIComponent(member.id)}&order=updated_at.desc.nullslast&order=created_at.desc&limit=1`
+      ];
+      if (birth && member?.name) {
+        urls.push(`${SUPABASE_URL}/rest/v1/votes?select=${VOTE_SELECT_COLUMNS}&study_id=eq.${encodeURIComponent(eventId)}&name=eq.${encodeURIComponent(member.name)}&birth=eq.${encodeURIComponent(birth)}&order=updated_at.desc.nullslast&order=created_at.desc&limit=1`);
+      }
+      for (const url of urls) {
+        const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
         headers: supabaseRestHeaders({
           Accept: "application/json",
           "Cache-Control": "no-store"
         })
-      });
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || `HTTP ${response.status}`);
+        });
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text || `HTTP ${response.status}`);
+        }
+        const rows = await response.json();
+        const row = Array.isArray(rows) ? rows[0] : null;
+        if (row) return row;
       }
-      const rows = await response.json();
-      return Array.isArray(rows) ? rows[0] : null;
+      return null;
     }
 
     async function updateVoteViaRest(rowId, eventId, option, member) {
@@ -6954,23 +7037,26 @@ This account will be used continuously, so please enter the information correctl
         method: "PATCH",
         headers: supabaseRestHeaders({
           "Content-Type": "application/json",
-          Prefer: "return=minimal"
+          Prefer: "return=representation"
         }),
         body: JSON.stringify(body)
       });
       if (!response.ok) {
         const text = await response.text();
-        console.log("vote save result", null, text);
-        throw new Error(text || `HTTP ${response.status}`);
+        const error = makeSupabaseRestError(text, response.status);
+        console.error("vote payload", body);
+        console.error("vote save error", error);
+        throw error;
       }
-      console.log("vote save result", { id: rowId, ...body }, null);
-      return { id: rowId, ...body, created_at: now };
+      const rows = await readSupabaseRows(response);
+      const saved = Array.isArray(rows) ? rows[0] : rows;
+      console.log("vote save result", saved || { id: rowId, ...body }, null);
+      return saved || { id: rowId, ...body, created_at: now };
     }
 
     async function postVoteViaRest(eventId, option, member) {
       const now = new Date().toISOString();
       const body = {
-        id: createUuid(),
         ...buildVotePayload(eventId, option, member, { now }),
         created_at: now,
       };
@@ -6979,21 +7065,26 @@ This account will be used continuously, so please enter the information correctl
         method: "POST",
         headers: supabaseRestHeaders({
           "Content-Type": "application/json",
-          Prefer: "return=minimal"
+          Prefer: "return=representation"
         }),
         body: JSON.stringify(body)
       });
       if (!response.ok) {
         const text = await response.text();
-        console.log("vote save result", null, text);
-        throw new Error(text || `HTTP ${response.status}`);
+        const error = makeSupabaseRestError(text, response.status);
+        console.error("vote payload", body);
+        console.error("vote save error", error);
+        throw error;
       }
-      console.log("vote save result", body, null);
-      return body;
+      const rows = await readSupabaseRows(response);
+      const saved = Array.isArray(rows) ? rows[0] : rows;
+      console.log("vote save result", saved || body, null);
+      return saved || body;
     }
 
     async function insertVoteViaRest(eventId, option, member) {
       const existing = await selectExistingVoteViaRest(eventId, member);
+      if (existing?.id && !existing.cancelled) return { ...existing, duplicateActive: true };
       if (existing?.id) return updateVoteViaRest(existing.id, eventId, option, member);
       return postVoteViaRest(eventId, option, member);
     }
@@ -7053,25 +7144,21 @@ This account will be used continuously, so please enter the information correctl
         return await insertVoteViaRest(eventId, option, member);
       } catch (restError) {
         console.error(errorPrefix, restError);
-        if (!supabaseClient) {
-          messageEl.textContent = "투표 저장에 실패했습니다. 잠시 후 다시 시도해주세요.";
-          return false;
+        let payload = null;
+        try {
+          const now = new Date().toISOString();
+          payload = {
+            ...buildVotePayload(eventId, option, member, { now }),
+            created_at: now
+          };
+        } catch {
+          payload = { study_id: String(eventId || ""), user_id: String(member?.id || ""), name: String(member?.name || ""), birth: normalizeBirth(member?.birth || member?.birthdate || ""), level: String(option || "") };
         }
-      }
-      const fallbackRow = {
-        id: createUuid(),
-        ...buildVotePayload(eventId, option, member, { now: new Date().toISOString() }),
-        created_at: new Date().toISOString(),
-      };
-      console.log("vote payload", fallbackRow);
-      const { data, error } = await supabaseClient.from("votes").insert(fallbackRow).select(VOTE_SELECT_COLUMNS).maybeSingle();
-      console.log("vote save result", data, error);
-      if (error) {
-        console.error(errorPrefix, error);
-        messageEl.textContent = "투표 저장에 실패했습니다. 잠시 후 다시 시도해주세요.";
+        console.error("vote payload", payload);
+        console.error("vote save error", restError);
+        showVoteSaveError(restError);
         return false;
       }
-      return data || fallbackRow;
     }
 
     async function insertSupabaseVote(eventId, option, member) {
@@ -8346,6 +8433,7 @@ This account will be used continuously, so please enter the information correctl
       const getsEarlyBonus = !previous && totalBefore < EARLY_BONUS_LIMIT;
       const saved = await insertSupabaseVote(eventId, option, member);
       if (!saved) return false;
+      if (saved.duplicateActive) return saved;
       applyRealtimeVoteRow(saved, { render: false });
 
       if (!previous && !isSyntheticMember(member)) {
@@ -10274,6 +10362,7 @@ This account will be used continuously, so please enter the information correctl
     async function vote(eventId, option) {
       const member = getMember() || saveMember();
       if (!member) return;
+      messageEl.textContent = "";
       const event = templates.find((item) => item.id === eventId);
       if (event && isPollClosed(getEvent(event))) {
         messageEl.textContent = t("voteClosed");
@@ -10299,9 +10388,16 @@ This account will be used continuously, so please enter the information correctl
         const awardedPoints = previous ? 0 : pointRules.attendance + (totalBefore < EARLY_BONUS_LIMIT ? pointRules.earlyBonus : 0);
         const saved = await addVoteForMember(eventId, option, member);
         if (!saved) return;
+        if (saved.duplicateActive) {
+          messageEl.textContent = t("alreadySelected");
+          await loadVotesFromSupabase({ silent: true, force: true });
+          render();
+          return;
+        }
 
         expandedPollId = "";
         messageEl.textContent = t("voted", { option: t(option), points: awardedPoints });
+        await loadVotesFromSupabase({ silent: true, force: true });
         render();
       } finally {
         pendingVoteActions.delete(actionKey);
