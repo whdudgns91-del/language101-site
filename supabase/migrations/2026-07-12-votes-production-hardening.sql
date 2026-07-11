@@ -13,6 +13,7 @@ alter table public.votes add column if not exists user_id text;
 alter table public.votes add column if not exists name text;
 alter table public.votes add column if not exists birth text;
 alter table public.votes add column if not exists level text;
+alter table public.votes add column if not exists vote_option text;
 alter table public.votes add column if not exists attended boolean default false;
 alter table public.votes add column if not exists synced_to_sheet boolean default false;
 alter table public.votes add column if not exists cancelled boolean default false;
@@ -23,6 +24,8 @@ update public.votes
 set
   id = coalesce(id, gen_random_uuid()),
   birth = coalesce(birth, nullif(split_part(user_id, '|', 1), '')),
+  level = coalesce(level, vote_option),
+  vote_option = coalesce(vote_option, level),
   attended = coalesce(attended, false),
   synced_to_sheet = coalesce(synced_to_sheet, false),
   cancelled = coalesce(cancelled, false),
@@ -39,6 +42,8 @@ begin
     alter table public.votes alter column birth set not null;
   end if;
 end $$;
+
+alter table public.votes alter column vote_option drop not null;
 
 create index if not exists votes_study_user_idx
   on public.votes (study_id, user_id);

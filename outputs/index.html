@@ -6931,6 +6931,12 @@ This account will be used continuously, so please enter the information correctl
       return error;
     }
 
+    function isLegacyVoteOptionRequiredError(error) {
+      const normalized = normalizeSupabaseError(error);
+      const text = `${normalized.code || ""} ${normalized.message || ""} ${JSON.stringify(normalized.raw || "")}`.toLowerCase();
+      return text.includes("23502") && text.includes("vote_option");
+    }
+
     function showVoteSaveError(error) {
       const normalized = normalizeSupabaseError(error);
       if (normalized.code === "MISSING_BIRTH") {
@@ -7057,21 +7063,39 @@ This account will be used continuously, so please enter the information correctl
     async function postVoteViaRest(eventId, option, member) {
       const now = new Date().toISOString();
       const body = {
+        id: createUuid(),
         ...buildVotePayload(eventId, option, member, { now }),
         created_at: now,
       };
       console.log("vote payload", body);
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/votes`, {
+      const postBody = async (payload) => fetch(`${SUPABASE_URL}/rest/v1/votes`, {
         method: "POST",
         headers: supabaseRestHeaders({
           "Content-Type": "application/json",
           Prefer: "return=representation"
         }),
-        body: JSON.stringify(body)
+        body: JSON.stringify(payload)
       });
+      let response = await postBody(body);
       if (!response.ok) {
         const text = await response.text();
         const error = makeSupabaseRestError(text, response.status);
+        if (isLegacyVoteOptionRequiredError(error)) {
+          const legacyBody = { ...body, vote_option: body.level };
+          console.log("vote payload", legacyBody);
+          response = await postBody(legacyBody);
+          if (response.ok) {
+            const rows = await readSupabaseRows(response);
+            const saved = Array.isArray(rows) ? rows[0] : rows;
+            console.log("vote save result", saved || body, null);
+            return saved || body;
+          }
+          const retryText = await response.text();
+          const retryError = makeSupabaseRestError(retryText, response.status);
+          console.error("vote payload", legacyBody);
+          console.error("vote save error", retryError);
+          throw retryError;
+        }
         console.error("vote payload", body);
         console.error("vote save error", error);
         throw error;
