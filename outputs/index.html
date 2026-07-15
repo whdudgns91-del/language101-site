@@ -6468,10 +6468,11 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function normalizeBirth(value = "") {
-      const digits = String(value || "").replace(/\D/g, "");
+      const digits = String(value ?? "").replace(/\D/g, "");
+      if (digits.length === 6) return digits;
       if (digits.length === 8) return digits.slice(2);
-      if (digits.length >= 6) return digits.slice(-6);
-      return digits;
+      if (digits.length > 8) return digits.slice(-6);
+      return "";
     }
 
     function isOperatorMember(member) {
@@ -6654,10 +6655,14 @@ This account will be used continuously, so please enter the information correctl
       return votes;
     }
 
+    function voteRowLevel(row = {}) {
+      return String(row.level || row.vote_option || "").trim();
+    }
+
     function buildVotesFromRows(rows) {
       const latestByMember = new Map();
       [...rows]
-        .filter((row) => row.name && row.user_id && row.level && rowInternalEventId(row))
+        .filter((row) => row.name && row.user_id && voteRowLevel(row) && rowInternalEventId(row))
         .sort((a, b) => {
           const timeDiff = new Date(a.updated_at || a.created_at || 0) - new Date(b.updated_at || b.created_at || 0);
           if (timeDiff) return timeDiff;
@@ -6674,12 +6679,13 @@ This account will be used continuously, so please enter the information correctl
       const meta = {};
       latestByMember.forEach(({ row, member, eventId }) => {
         if (row.cancelled) return;
-        applyVoteToVotes(votes, eventId, row.level, member);
+        const level = voteRowLevel(row);
+        applyVoteToVotes(votes, eventId, level, member);
         if (!meta[eventId]) meta[eventId] = {};
         meta[eventId][member.id] = {
           rowId: row.id || "",
           name: member.name,
-          option: row.level,
+          option: level,
           createdAt: row.created_at || "",
           attended: Boolean(row.attended),
           syncedToSheet: Boolean(row.synced_to_sheet),
@@ -6694,7 +6700,8 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function applyRealtimeVoteRow(row, options = {}) {
-      if (!row?.name || !row?.user_id || !row?.level) return;
+      const level = voteRowLevel(row);
+      if (!row?.name || !row?.user_id || !level) return;
       const eventId = rowInternalEventId(row);
       if (!eventId) return;
       const savedMember = memberFromId(row.user_id);
@@ -6711,14 +6718,14 @@ This account will be used continuously, so please enter the information correctl
       if (row.cancelled) {
         delete remoteVoteMetaCache[eventId][member.id];
       } else {
-        if (!remoteVotesCache[eventId][row.level]) remoteVotesCache[eventId][row.level] = [];
-        if (!remoteVotesCache[eventId][row.level].includes(member.id)) {
-          remoteVotesCache[eventId][row.level].push(member.id);
+        if (!remoteVotesCache[eventId][level]) remoteVotesCache[eventId][level] = [];
+        if (!remoteVotesCache[eventId][level].includes(member.id)) {
+          remoteVotesCache[eventId][level].push(member.id);
         }
         remoteVoteMetaCache[eventId][member.id] = {
           rowId: row.id || "",
           name: member.name,
-          option: row.level,
+          option: level,
           createdAt: row.created_at || "",
           attended: Boolean(row.attended),
           syncedToSheet: Boolean(row.synced_to_sheet),
@@ -7203,9 +7210,24 @@ This account will be used continuously, so please enter the information correctl
       return `(${values.map((value) => `"${String(value).replaceAll('"', '\\"')}"`).join(",")})`;
     }
 
-    const VOTE_SELECT_COLUMNS = "id,study_id,user_id,name,birth,level,attended,synced_to_sheet,cancelled,is_ghost,ghost_batch_id,ghost_display_name,created_at,updated_at";
+    const VOTE_BASE_SELECT_COLUMNS = "id,study_id,user_id,name,birth,level,vote_option,attended,synced_to_sheet,cancelled,created_at,updated_at";
+    const VOTE_OPTIONAL_SELECT_COLUMNS = "is_ghost,ghost_batch_id,ghost_display_name";
+    let voteOptionalColumnsAvailable = true;
     const GHOST_LEVEL_TARGETS = { beginner: 2, intermediate: 2, upperIntermediate: 1 };
     const GHOST_NAME_POOL = ["민준", "서준", "지훈", "현우", "도윤", "유진", "수민", "지우", "하윤", "소연", "Daniel", "Alex", "Chris", "Jamie", "Taylor", "Emma", "Sophia", "Olivia"];
+
+    function voteSelectColumns() {
+      return voteOptionalColumnsAvailable
+        ? `${VOTE_BASE_SELECT_COLUMNS},${VOTE_OPTIONAL_SELECT_COLUMNS}`
+        : VOTE_BASE_SELECT_COLUMNS;
+    }
+
+    function isMissingOptionalVoteColumnError(error) {
+      const normalized = normalizeSupabaseError(error);
+      const text = `${normalized.code || ""} ${normalized.message || ""} ${JSON.stringify(normalized.raw || "")}`.toLowerCase();
+      return text.includes("schema cache") &&
+        (text.includes("is_ghost") || text.includes("ghost_batch_id") || text.includes("ghost_display_name"));
+    }
 
     function isGhostId(id = "") {
       return String(id || "").startsWith("ghost:");
@@ -7238,6 +7260,35 @@ This account will be used continuously, so please enter the information correctl
       return memberProfileLine(memberId);
     }
 
+    function normalizeCurrentMember(rawUser = {}, profile = {}, storedUser = {}) {
+      const source = { ...(storedUser || {}), ...(rawUser || {}), ...(profile || {}) };
+      const name = String(source.name || source.nickname || source.display_name || source.username || "").trim();
+      const birth = normalizeBirth(source.birth || source.birthdate || source.birth_date || source.birthday || "");
+      const userId = String(source.user_id || source.auth_user_id || source.id || source.userKey || (name && birth ? `${birth}|${normalizeName(name)}` : "")).trim();
+      const level = String(source.level || source.myLevel || source.my_level || source.englishLevel || source.english_level || "I'm not sure yet").trim();
+      return {
+        ...source,
+        id: userId,
+        user_id: userId,
+        name,
+        birth,
+        birthdate: birth,
+        level,
+        myLevel: source.myLevel || source.my_level || level
+      };
+    }
+
+    function normalizeVoteMember(member = {}) {
+      const stored = (() => {
+        try {
+          return JSON.parse(localStorage.getItem(MEMBER_KEY) || "{}");
+        } catch {
+          return {};
+        }
+      })();
+      return normalizeCurrentMember(member, memberFromId(member?.id || ""), stored);
+    }
+
     function adminVisibleVoteIds(eventVotes, eventId) {
       return uniqueValues(Object.values(eventVotes || {}).flat()).filter((id) => isGhostVoteMeta(eventId, id) || isRealVisibleMember(id));
     }
@@ -7249,21 +7300,28 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function buildVotePayload(eventId, option, member, extra = {}) {
+      const normalizedMember = extra.isGhost ? member : normalizeVoteMember(member || {});
       const now = extra.now || new Date().toISOString();
       const studyId = String(eventId || "").trim();
-      const userId = String(member?.id || "").trim();
-      const name = String(member?.name || "").trim();
+      const userId = String(normalizedMember?.id || normalizedMember?.user_id || "").trim();
+      const name = String(normalizedMember?.name || "").trim();
       const level = String(option || "").trim();
-      const isGhost = Boolean(extra.isGhost || member?.isGhost || isGhostId(userId));
-      const birth = isGhost ? "000000" : normalizeBirth(member?.birth || member?.birthdate || "");
+      const isGhost = Boolean(extra.isGhost || normalizedMember?.isGhost || isGhostId(userId));
+      const birth = isGhost ? "000000" : normalizeBirth(normalizedMember?.birth || normalizedMember?.birthdate || "");
       if (!birth) {
-        const error = new Error("회원 생년월일 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
+        const error = new Error("생년월일 정보가 없습니다.");
         error.code = "MISSING_BIRTH";
         throw error;
       }
-      if (!studyId || !userId || !name || !level) {
-        const error = new Error("회원정보 또는 투표 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
+      const missing = [];
+      if (!studyId) missing.push("스터디 ID");
+      if (!userId) missing.push("사용자 ID");
+      if (!name) missing.push("이름");
+      if (!level) missing.push("레벨");
+      if (missing.length) {
+        const error = new Error(`${missing.join(", ")} 정보가 없습니다.`);
         error.code = "INVALID_VOTE_PAYLOAD";
+        error.missing = missing;
         throw error;
       }
       const payload = {
@@ -7272,6 +7330,7 @@ This account will be used continuously, so please enter the information correctl
         name,
         birth,
         level,
+        vote_option: level,
         attended: false,
         synced_to_sheet: false,
         cancelled: false,
@@ -7327,7 +7386,11 @@ This account will be used continuously, so please enter the information correctl
         messageEl.textContent = "회원 생년월일 정보를 확인할 수 없습니다. 다시 로그인해주세요.";
         return;
       }
-      messageEl.textContent = "투표 저장에 실패했습니다. 회원정보를 확인한 후 다시 시도해주세요.";
+      if (normalized.code === "INVALID_VOTE_PAYLOAD") {
+        messageEl.textContent = `투표 저장 실패: ${normalized.code} / ${normalized.message}`;
+        return;
+      }
+      messageEl.textContent = `투표 저장 실패: ${normalized.code || "UNKNOWN"} / ${normalized.message || "회원정보를 확인한 후 다시 시도해주세요."}`;
     }
 
     async function readSupabaseRows(response) {
@@ -7340,9 +7403,7 @@ This account will be used continuously, so please enter the information correctl
       }
     }
 
-    async function fetchVotesByColumn(column, values) {
-      if (!values.length) return [];
-      const url = `${SUPABASE_URL}/rest/v1/votes?select=${VOTE_SELECT_COLUMNS}&${column}=in.${encodeURIComponent(encodeInList(values))}&order=created_at.desc&limit=2000`;
+    async function fetchVoteRowsUrl(url, options = {}) {
       const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
@@ -7353,9 +7414,22 @@ This account will be used continuously, so please enter the information correctl
       });
       if (!response.ok) {
         const text = await response.text();
-        throw new Error(text || `HTTP ${response.status}`);
+        const error = makeSupabaseRestError(text, response.status);
+        if (options.retryWithoutOptional !== false && voteOptionalColumnsAvailable && isMissingOptionalVoteColumnError(error)) {
+          voteOptionalColumnsAvailable = false;
+          const retryUrl = url.replace(`select=${encodeURIComponent(`${VOTE_BASE_SELECT_COLUMNS},${VOTE_OPTIONAL_SELECT_COLUMNS}`)}`, `select=${encodeURIComponent(VOTE_BASE_SELECT_COLUMNS)}`)
+            .replace(`select=${VOTE_BASE_SELECT_COLUMNS},${VOTE_OPTIONAL_SELECT_COLUMNS}`, `select=${VOTE_BASE_SELECT_COLUMNS}`);
+          return fetchVoteRowsUrl(retryUrl, { retryWithoutOptional: false });
+        }
+        throw error;
       }
       return response.json();
+    }
+
+    async function fetchVotesByColumn(column, values) {
+      if (!values.length) return [];
+      const url = `${SUPABASE_URL}/rest/v1/votes?select=${encodeURIComponent(voteSelectColumns())}&${column}=in.${encodeURIComponent(encodeInList(values))}&order=created_at.desc&limit=2000`;
+      return fetchVoteRowsUrl(url);
     }
 
     async function selectVotesViaRest(extraRow = null) {
@@ -7419,27 +7493,16 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function selectExistingVoteViaRest(eventId, member) {
-      const birth = normalizeBirth(member?.birth || member?.birthdate || "");
+      const normalizedMember = normalizeVoteMember(member || {});
+      const birth = normalizeBirth(normalizedMember?.birth || normalizedMember?.birthdate || "");
       const urls = [
-        `${SUPABASE_URL}/rest/v1/votes?select=${VOTE_SELECT_COLUMNS}&study_id=eq.${encodeURIComponent(eventId)}&user_id=eq.${encodeURIComponent(member.id)}&order=updated_at.desc.nullslast&order=created_at.desc&limit=1`
+        `${SUPABASE_URL}/rest/v1/votes?select=${encodeURIComponent(voteSelectColumns())}&study_id=eq.${encodeURIComponent(eventId)}&user_id=eq.${encodeURIComponent(normalizedMember.id)}&order=updated_at.desc.nullslast&order=created_at.desc&limit=1`
       ];
-      if (birth && member?.name) {
-        urls.push(`${SUPABASE_URL}/rest/v1/votes?select=${VOTE_SELECT_COLUMNS}&study_id=eq.${encodeURIComponent(eventId)}&name=eq.${encodeURIComponent(member.name)}&birth=eq.${encodeURIComponent(birth)}&order=updated_at.desc.nullslast&order=created_at.desc&limit=1`);
+      if (birth && normalizedMember?.name) {
+        urls.push(`${SUPABASE_URL}/rest/v1/votes?select=${encodeURIComponent(voteSelectColumns())}&study_id=eq.${encodeURIComponent(eventId)}&name=eq.${encodeURIComponent(normalizedMember.name)}&birth=eq.${encodeURIComponent(birth)}&order=updated_at.desc.nullslast&order=created_at.desc&limit=1`);
       }
       for (const url of urls) {
-        const response = await fetch(url, {
-        method: "GET",
-        cache: "no-store",
-        headers: supabaseRestHeaders({
-          Accept: "application/json",
-          "Cache-Control": "no-store"
-        })
-        });
-        if (!response.ok) {
-          const text = await response.text();
-          throw new Error(text || `HTTP ${response.status}`);
-        }
-        const rows = await response.json();
+        const rows = await fetchVoteRowsUrl(url);
         const row = Array.isArray(rows) ? rows[0] : null;
         if (row) return row;
       }
@@ -7587,8 +7650,23 @@ This account will be used continuously, so please enter the information correctl
             created_at: now
           };
         } catch {
-          payload = { study_id: String(eventId || ""), user_id: String(member?.id || ""), name: String(member?.name || ""), birth: normalizeBirth(member?.birth || member?.birthdate || ""), level: String(option || "") };
+          payload = {
+            study_id: String(eventId || ""),
+            user_id: String(member?.id || ""),
+            name: String(member?.name || ""),
+            birth: normalizeBirth(member?.birth || member?.birthdate || ""),
+            level: String(option || ""),
+            vote_option: String(option || "")
+          };
         }
+        const normalized = normalizeSupabaseError(restError);
+        console.error("VOTE_SAVE_ERROR", {
+          code: normalized.code,
+          message: normalized.message,
+          details: restError?.details || normalized.raw?.details || null,
+          hint: restError?.hint || normalized.raw?.hint || null,
+          payload
+        });
         console.error("vote payload", payload);
         console.error("vote save error", restError);
         showVoteSaveError(restError);
