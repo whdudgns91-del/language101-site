@@ -3191,6 +3191,25 @@
       font-size: 12px;
     }
 
+    .sheet-sync-card {
+      max-width: 620px;
+      min-height: 0;
+      align-content: start;
+      padding: 20px;
+    }
+
+    .sheet-sync-card .field,
+    .sheet-sync-card .small-note {
+      margin: 0;
+    }
+
+    .sheet-sync-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
     .audit-view-toggle {
       display: flex;
       flex-wrap: wrap;
@@ -4785,14 +4804,17 @@
           <button type="button" class="btn primary" id="adminAddRealVote" data-i18n="adminAddReal">실제 회원 추가</button>
         </section>
 
-        <section class="admin-card" data-admin-section="votes">
+        <section class="admin-card sheet-sync-card" data-admin-section="votes">
           <h3 data-i18n="sheetSyncTitle">구글시트 연결</h3>
           <p class="helper" data-i18n="sheetSyncHelp">Apps Script 웹앱 URL을 넣으면 로그인, 투표, 좋아요 기록이 로그인 로그 탭으로 전송됩니다.</p>
           <div class="field">
             <label for="sheetWebhookInput" data-i18n="sheetWebhookLabel">Apps Script URL</label>
             <input id="sheetWebhookInput" placeholder="https://script.google.com/macros/s/.../exec">
           </div>
-          <button type="button" class="btn primary" id="saveSheetWebhook" data-i18n="saveSheetWebhook">연결 URL 저장</button>
+          <div class="sheet-sync-actions">
+            <button type="button" class="btn primary" id="saveSheetWebhook" data-i18n="saveSheetWebhook">연결 URL 저장</button>
+            <button type="button" class="btn" id="testSheetWebhook">연결 테스트</button>
+          </div>
           <p class="small-note" id="sheetSyncStatus"></p>
         </section>
 
@@ -5174,6 +5196,7 @@ This account will be used continuously, so please enter the information correctl
     const HEARTS_KEY = "le101SimpleHearts";
     const MEMBER_DIRECTORY_KEY = "le101SimpleMemberDirectory";
     const SHEET_WEBHOOK_KEY = "le101SheetWebhookUrl";
+    const SHEET_WEBHOOK_SAVED_AT_KEY = "le101SheetWebhookSavedAt";
     const SHEET_SYNC_QUEUE_KEY = "le101SheetSyncQueue";
     const ATTENDANCE_CHECK_KEY = "le101AttendanceChecks";
     const ATTENDANCE_SHEET_RESULT_KEY = "le101AttendanceSheetResults";
@@ -5385,6 +5408,7 @@ This account will be used continuously, so please enter the information correctl
     const adminAutoStatusEl = document.querySelector("#adminAutoStatus");
     const sheetWebhookInputEl = document.querySelector("#sheetWebhookInput");
     const saveSheetWebhookEl = document.querySelector("#saveSheetWebhook");
+    const testSheetWebhookEl = document.querySelector("#testSheetWebhook");
     const sheetSyncStatusEl = document.querySelector("#sheetSyncStatus");
     const adminVoteAuditEl = document.querySelector("#adminVoteAudit");
     const adminHeartAuditEl = document.querySelector("#adminHeartAudit");
@@ -5452,6 +5476,9 @@ This account will be used continuously, so please enter the information correctl
     let adminVoteTab = ["active", "closed", "all"].includes(localStorage.getItem(ADMIN_VOTE_TAB_KEY)) ? localStorage.getItem(ADMIN_VOTE_TAB_KEY) : "active";
     const adminVoteStudyRefreshInFlight = new Set();
     const adminVoteStudyRefreshedAt = {};
+    const adminClosedInitialDate = new Date();
+    let adminClosedYear = adminClosedInitialDate.getFullYear();
+    let adminClosedMonth = adminClosedInitialDate.getMonth() + 1;
     let adminExpandedMemberId = "";
     let adminMemberSearchTimer = null;
     let adminStatisticsRange = "today";
@@ -6452,7 +6479,9 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function isSyntheticMember(memberOrId) {
+      if (typeof memberOrId === "string" && isGhostId(memberOrId)) return true;
       const member = typeof memberOrId === "string" ? memberFromId(memberOrId) : memberOrId;
+      if (member?.isGhost || isGhostId(member?.id)) return true;
       const name = normalizeName(member?.name);
       return name.startsWith("자동참여") || name.startsWith("관리추가") || name.includes("(auto") || name.includes("(admin");
     }
@@ -6635,8 +6664,10 @@ This account will be used continuously, so please enter the information correctl
           return String(a.id || "").localeCompare(String(b.id || ""));
         })
         .forEach((row) => {
-          const member = { ...memberFromId(row.user_id), id: row.user_id, name: row.name, birth: normalizeBirth(row.birth || memberFromId(row.user_id).birth || ""), birthdate: normalizeBirth(row.birth || memberFromId(row.user_id).birthdate || "") };
-          saveDirectoryMember(member);
+          const member = isGhostVoteRow(row)
+            ? makeGhostMemberFromRow(row)
+            : { ...memberFromId(row.user_id), id: row.user_id, name: row.name, birth: normalizeBirth(row.birth || memberFromId(row.user_id).birth || ""), birthdate: normalizeBirth(row.birth || memberFromId(row.user_id).birthdate || "") };
+          if (!member.isGhost) saveDirectoryMember(member);
           latestByMember.set(`${rowInternalEventId(row)}|${member.id}`, { row, member, eventId: rowInternalEventId(row) });
       });
       const votes = {};
@@ -6647,10 +6678,14 @@ This account will be used continuously, so please enter the information correctl
         if (!meta[eventId]) meta[eventId] = {};
         meta[eventId][member.id] = {
           rowId: row.id || "",
+          name: member.name,
           option: row.level,
           createdAt: row.created_at || "",
           attended: Boolean(row.attended),
           syncedToSheet: Boolean(row.synced_to_sheet),
+          isGhost: Boolean(member.isGhost),
+          ghostBatchId: row.ghost_batch_id || "",
+          ghostDisplayName: row.ghost_display_name || member.name,
           sheetSyncStatus: ""
         };
       });
@@ -6664,8 +6699,10 @@ This account will be used continuously, so please enter the information correctl
       if (!eventId) return;
       const savedMember = memberFromId(row.user_id);
       const birth = normalizeBirth(row.birth || savedMember.birth || savedMember.birthdate || "");
-      const member = { ...savedMember, id: row.user_id, name: row.name, birth, birthdate: birth };
-      saveDirectoryMember(member);
+      const member = isGhostVoteRow(row)
+        ? makeGhostMemberFromRow(row)
+        : { ...savedMember, id: row.user_id, name: row.name, birth, birthdate: birth };
+      if (!member.isGhost) saveDirectoryMember(member);
       if (!remoteVotesCache[eventId]) remoteVotesCache[eventId] = {};
       Object.keys(remoteVotesCache[eventId]).forEach((option) => {
         remoteVotesCache[eventId][option] = remoteVotesCache[eventId][option].filter((id) => id !== member.id);
@@ -6680,10 +6717,14 @@ This account will be used continuously, so please enter the information correctl
         }
         remoteVoteMetaCache[eventId][member.id] = {
           rowId: row.id || "",
+          name: member.name,
           option: row.level,
           createdAt: row.created_at || "",
           attended: Boolean(row.attended),
           syncedToSheet: Boolean(row.synced_to_sheet),
+          isGhost: Boolean(member.isGhost),
+          ghostBatchId: row.ghost_batch_id || "",
+          ghostDisplayName: row.ghost_display_name || member.name,
           sheetSyncStatus: ""
         };
       }
@@ -6947,7 +6988,9 @@ This account will be used continuously, so please enter the information correctl
       if (!sheetSyncStatusEl) return;
       sheetWebhookInputEl.value = getSheetWebhookUrl();
       sheetSyncStatusEl.classList.toggle("warning", !getSheetWebhookUrl());
-      sheetSyncStatusEl.textContent = getSheetWebhookUrl() ? t("sheetSyncReady") : t("sheetSyncWaiting");
+      const savedAt = localStorage.getItem(SHEET_WEBHOOK_SAVED_AT_KEY) || "";
+      const savedText = savedAt ? `\n마지막 저장: ${formatAppliedDate(savedAt)}` : "";
+      sheetSyncStatusEl.textContent = getSheetWebhookUrl() ? `${t("sheetSyncReady")}${savedText}` : t("sheetSyncWaiting");
     }
 
     function getMemberStats(member) {
@@ -7160,7 +7203,50 @@ This account will be used continuously, so please enter the information correctl
       return `(${values.map((value) => `"${String(value).replaceAll('"', '\\"')}"`).join(",")})`;
     }
 
-    const VOTE_SELECT_COLUMNS = "id,study_id,user_id,name,birth,level,attended,synced_to_sheet,cancelled,created_at,updated_at";
+    const VOTE_SELECT_COLUMNS = "id,study_id,user_id,name,birth,level,attended,synced_to_sheet,cancelled,is_ghost,ghost_batch_id,ghost_display_name,created_at,updated_at";
+    const GHOST_LEVEL_TARGETS = { beginner: 2, intermediate: 2, upperIntermediate: 1 };
+    const GHOST_NAME_POOL = ["민준", "서준", "지훈", "현우", "도윤", "유진", "수민", "지우", "하윤", "소연", "Daniel", "Alex", "Chris", "Jamie", "Taylor", "Emma", "Sophia", "Olivia"];
+
+    function isGhostId(id = "") {
+      return String(id || "").startsWith("ghost:");
+    }
+
+    function isGhostVoteRow(row = {}) {
+      return Boolean(row.is_ghost) || isGhostId(row.user_id);
+    }
+
+    function isGhostVoteMeta(eventId, memberId) {
+      return Boolean(getVoteMeta()[eventId]?.[memberId]?.isGhost) || isGhostId(memberId);
+    }
+
+    function makeGhostMemberFromRow(row = {}) {
+      const name = row.ghost_display_name || row.name || "유령 인원";
+      return { id: row.user_id || "", name, birth: "000000", birthdate: "000000", isGhost: true, ...memberProfileDefaults };
+    }
+
+    function ghostMemberFromMeta(eventId, memberId) {
+      const meta = getVoteMeta()[eventId]?.[memberId] || {};
+      return { id: memberId, name: meta.ghostDisplayName || meta.name || "유령 인원", birth: "000000", birthdate: "000000", isGhost: true, ...memberProfileDefaults };
+    }
+
+    function voteMemberForAdmin(eventId, memberId) {
+      return isGhostVoteMeta(eventId, memberId) ? ghostMemberFromMeta(eventId, memberId) : memberFromId(memberId);
+    }
+
+    function adminMemberProfileLine(eventId, memberId) {
+      if (isGhostVoteMeta(eventId, memberId)) return "👻 운영용 유령 인원";
+      return memberProfileLine(memberId);
+    }
+
+    function adminVisibleVoteIds(eventVotes, eventId) {
+      return uniqueValues(Object.values(eventVotes || {}).flat()).filter((id) => isGhostVoteMeta(eventId, id) || isRealVisibleMember(id));
+    }
+
+    function adminVoteCounts(eventVotes, eventId) {
+      const ids = adminVisibleVoteIds(eventVotes, eventId);
+      const ghost = ids.filter((id) => isGhostVoteMeta(eventId, id)).length;
+      return { total: ids.length, ghost, real: ids.length - ghost };
+    }
 
     function buildVotePayload(eventId, option, member, extra = {}) {
       const now = extra.now || new Date().toISOString();
@@ -7168,7 +7254,8 @@ This account will be used continuously, so please enter the information correctl
       const userId = String(member?.id || "").trim();
       const name = String(member?.name || "").trim();
       const level = String(option || "").trim();
-      const birth = normalizeBirth(member?.birth || member?.birthdate || "");
+      const isGhost = Boolean(extra.isGhost || member?.isGhost || isGhostId(userId));
+      const birth = isGhost ? "000000" : normalizeBirth(member?.birth || member?.birthdate || "");
       if (!birth) {
         const error = new Error("회원 생년월일 정보를 확인할 수 없습니다. 다시 로그인해주세요.");
         error.code = "MISSING_BIRTH";
@@ -7179,7 +7266,7 @@ This account will be used continuously, so please enter the information correctl
         error.code = "INVALID_VOTE_PAYLOAD";
         throw error;
       }
-      return {
+      const payload = {
         study_id: studyId,
         user_id: userId,
         name,
@@ -7190,6 +7277,12 @@ This account will be used continuously, so please enter the information correctl
         cancelled: false,
         updated_at: now
       };
+      if (isGhost) {
+        payload.is_ghost = true;
+        payload.ghost_batch_id = extra.ghostBatchId || member?.ghostBatchId || "";
+        payload.ghost_display_name = extra.ghostDisplayName || member?.ghostDisplayName || name;
+      }
+      return payload;
     }
 
     function normalizeSupabaseError(error) {
@@ -8863,6 +8956,152 @@ This account will be used continuously, so please enter the information correctl
       return makeMember(name, birth);
     }
 
+    function ghostOptionPlanForEvent(event) {
+      const entries = [];
+      if (event.options.includes("beginner")) entries.push(["beginner", GHOST_LEVEL_TARGETS.beginner]);
+      if (event.options.includes("intermediate")) entries.push(["intermediate", GHOST_LEVEL_TARGETS.intermediate]);
+      if (event.options.includes("upperIntermediate")) entries.push(["upperIntermediate", GHOST_LEVEL_TARGETS.upperIntermediate]);
+      const beginnerOption = ["jpBeginner", "cnBeginner"].find((option) => event.options.includes(option));
+      const intermediateOption = ["jpIntermediate", "cnIntermediate"].find((option) => event.options.includes(option));
+      if (beginnerOption) entries.push([beginnerOption, GHOST_LEVEL_TARGETS.beginner]);
+      if (intermediateOption) entries.push([intermediateOption, GHOST_LEVEL_TARGETS.intermediate]);
+      return entries;
+    }
+
+    function currentGhostCount(eventId, option) {
+      const ids = getVotes()[eventId]?.[option] || [];
+      return ids.filter((id) => isGhostVoteMeta(eventId, id)).length;
+    }
+
+    function makeGhostDisplayName(eventId, usedNames = new Set()) {
+      const existingNames = new Set([
+        ...Object.values(getVotes()[eventId] || {}).flat().map((id) => voteMemberForAdmin(eventId, id).name),
+        ...usedNames
+      ].map(normalizeName));
+      for (const base of GHOST_NAME_POOL) {
+        if (!existingNames.has(normalizeName(base))) {
+          usedNames.add(base);
+          return base;
+        }
+      }
+      let index = 2;
+      while (existingNames.has(normalizeName(`게스트${index}`))) index += 1;
+      const name = `게스트${index}`;
+      usedNames.add(name);
+      return name;
+    }
+
+    function makeGhostVoteMember(event, option, slot, batchId, usedNames) {
+      const displayName = makeGhostDisplayName(event.id, usedNames);
+      return {
+        id: `ghost:${event.id}:${option}:${slot}`,
+        name: displayName,
+        birth: "000000",
+        birthdate: "000000",
+        isGhost: true,
+        ghostBatchId: batchId,
+        ghostDisplayName: displayName
+      };
+    }
+
+    async function postGhostVoteViaRest(event, option, slot, batchId, usedNames) {
+      const now = new Date().toISOString();
+      const member = makeGhostVoteMember(event, option, slot, batchId, usedNames);
+      const body = {
+        id: createUuid(),
+        ...buildVotePayload(event.id, option, member, {
+          now,
+          isGhost: true,
+          ghostBatchId: batchId,
+          ghostDisplayName: member.name
+        }),
+        created_at: now
+      };
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/votes`, {
+        method: "POST",
+        headers: supabaseRestHeaders({
+          "Content-Type": "application/json",
+          Prefer: "return=representation"
+        }),
+        body: JSON.stringify(body)
+      });
+      if (!response.ok) throw makeSupabaseRestError(await response.text(), response.status);
+      const rows = await readSupabaseRows(response);
+      const saved = Array.isArray(rows) ? rows[0] : rows;
+      return saved || body;
+    }
+
+    async function addGhostVotesToActivePolls() {
+      if (!adminUnlocked) return { added: 0, skipped: 0 };
+      if (!window.confirm("현재 진행 중인 모든 투표에 유령회원 5명을 추가하시겠습니까?")) return { added: 0, skipped: 0, cancelled: true };
+      const batchId = `ghost-${todayKey().replaceAll("-", "")}-${Date.now().toString(36).slice(-6)}`;
+      const activeEvents = templates.filter((event) => !isPollClosed(getEvent(event)));
+      const result = { added: 0, skipped: 0 };
+      for (const event of activeEvents) {
+        const usedNames = new Set();
+        for (const [option, target] of ghostOptionPlanForEvent(event)) {
+          const current = currentGhostCount(event.id, option);
+          if (current >= target) {
+            result.skipped += 1;
+            continue;
+          }
+          for (let slot = current + 1; slot <= target; slot += 1) {
+            const saved = await postGhostVoteViaRest(event, option, slot, batchId, usedNames);
+            applyRealtimeVoteRow(saved, { render: false });
+            result.added += 1;
+          }
+        }
+      }
+      if (result.added > 0) renderVoteDependentSections();
+      return result;
+    }
+
+    async function cancelGhostVoteRows(eventIds) {
+      const ids = uniqueValues(eventIds || []).filter(Boolean);
+      if (!ids.length) return { removed: 0 };
+      const rows = ids.flatMap((eventId) => {
+        const eventVotes = getVotes()[eventId] || {};
+        const meta = getVoteMeta()[eventId] || {};
+        return Object.values(eventVotes).flat()
+          .filter((id) => meta[id]?.isGhost && meta[id]?.rowId)
+          .map((id) => ({ eventId, id, rowId: meta[id].rowId }));
+      });
+      if (!rows.length) return { removed: 0 };
+      const now = new Date().toISOString();
+      let removed = 0;
+      for (const row of rows) {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?id=eq.${encodeURIComponent(row.rowId)}`, {
+          method: "PATCH",
+          headers: supabaseRestHeaders({
+            "Content-Type": "application/json",
+            Prefer: "return=minimal"
+          }),
+          body: JSON.stringify({ cancelled: true, updated_at: now })
+        });
+        if (!response.ok) throw makeSupabaseRestError(await response.text(), response.status);
+        applyRealtimeVoteRow({ id: row.rowId, study_id: row.eventId, user_id: row.id, name: ghostMemberFromMeta(row.eventId, row.id).name, birth: "000000", level: getVoteMeta()[row.eventId]?.[row.id]?.option || "", is_ghost: true, cancelled: true, updated_at: now }, { render: false });
+        removed += 1;
+      }
+      renderVoteDependentSections();
+      return { removed };
+    }
+
+    async function removeGhostVotesFromActivePolls() {
+      if (!adminUnlocked) return { removed: 0 };
+      const mode = window.prompt("유령회원 제거 범위를 입력해주세요.\ncurrent = 현재 펼친 투표\nall = 모든 진행 중 투표", "all");
+      if (!mode) return { removed: 0, cancelled: true };
+      const activeIds = templates.filter((event) => !isPollClosed(getEvent(event))).map((event) => event.id);
+      const eventIds = mode.trim().toLowerCase() === "current" && adminAuditOpenKeys.size
+        ? [...adminAuditOpenKeys].filter((id) => activeIds.includes(id))
+        : activeIds;
+      if (!eventIds.length) {
+        messageEl.textContent = "제거할 진행 중 투표를 찾지 못했습니다.";
+        return { removed: 0 };
+      }
+      if (!window.confirm(`${eventIds.length}개 진행 중 투표의 유령회원만 취소 처리할까요?`)) return { removed: 0, cancelled: true };
+      return cancelGhostVoteRows(eventIds);
+    }
+
     async function addAutoVote(event, option, slot, phase, roster, runId) {
       const member = makeAutoMember(event, option, slot, runId);
       if (!member?.id) return false;
@@ -9075,6 +9314,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function statusForAttendance(eventId, memberId, meta) {
+      if (isGhostVoteMeta(eventId, memberId)) return { label: "👻 유령 인원", cls: "" };
       const result = getAttendanceSheetResults()[eventId] || {};
       const memberName = memberFromId(memberId).name;
       const duplicated = namesFromScriptResult(result.duplicated).map(normalizeName).includes(normalizeName(memberName));
@@ -9159,12 +9399,13 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function selectedAttendanceCount(eventId, ids) {
-      return ids.filter((id) => isAttendanceChecked(eventId, id)).length;
+      return ids.filter((id) => !isGhostVoteMeta(eventId, id) && isAttendanceChecked(eventId, id)).length;
     }
 
     function setAttendanceSelection(eventId, ids, predicate) {
       const checks = getAttendanceChecks();
       ids.forEach((id) => {
+        if (isGhostVoteMeta(eventId, id)) return;
         const key = attendanceKey(eventId, id);
         if (predicate(id)) {
           checks[key] = true;
@@ -9356,26 +9597,71 @@ This account will be used continuously, so please enter the information correctl
       return times.length ? Math.max(...times) : adminEventSortTime(item);
     }
 
+    function getStudyDateKey(itemOrSchedule) {
+      const value = itemOrSchedule?.schedule?.start || itemOrSchedule?.start || itemOrSchedule?.vote_deadline || itemOrSchedule?.deadline || itemOrSchedule?.created_at;
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return `${date.getFullYear()}-${padNumber(date.getMonth() + 1)}-${padNumber(date.getDate())}`;
+    }
+
+    function matchesClosedMonth(item) {
+      const key = getStudyDateKey(item);
+      if (!key) return false;
+      const [year, month] = key.split("-").map(Number);
+      if (Number(adminClosedYear) && year !== Number(adminClosedYear)) return false;
+      if (Number(adminClosedMonth) && month !== Number(adminClosedMonth)) return false;
+      return true;
+    }
+
+    function moveClosedMonth(delta) {
+      const base = new Date(Number(adminClosedYear) || new Date().getFullYear(), (Number(adminClosedMonth) || 1) - 1, 1);
+      base.setMonth(base.getMonth() + delta);
+      adminClosedYear = base.getFullYear();
+      adminClosedMonth = base.getMonth() + 1;
+    }
+
     function renderAdminActiveVoteSection(activeItems) {
       if (!activeItems.length) return `<div>${escapeHtml(t("adminNoVotes"))}</div>`;
       return activeItems.map(({ eventId, eventVotes, base, schedule, total }) => {
+        const counts = adminVoteCounts(eventVotes, eventId);
         const lines = adminOptionOrder(base.options).map((option) => {
-          const ids = (eventVotes[option] || []).filter((id) => isRealVisibleMember(id));
+          const ids = (eventVotes[option] || []).filter((id) => isGhostVoteMeta(eventId, id) || isRealVisibleMember(id));
           if (!ids.length) return "";
           return `<div><strong>${escapeHtml(t(option))}</strong>: ${ids.map((id) => {
-            const member = memberFromId(id);
-            return `${escapeHtml(member.name)} <small class="member-info-line">${escapeHtml(memberProfileLine(member))}</small>`;
+            const member = voteMemberForAdmin(eventId, id);
+            const ghostBadge = isGhostVoteMeta(eventId, id) ? ` <span class="attendance-status">👻 유령 인원</span>` : "";
+            return `${escapeHtml(member.name)}${ghostBadge} <small class="member-info-line">${escapeHtml(adminMemberProfileLine(eventId, id))}</small>`;
           }).join("")}</div>`;
         }).filter(Boolean).join("");
-        return `<details data-audit-event="${escapeHtml(eventId)}"${adminAuditOpenKeys.has(eventId) ? " open" : ""}><summary>${escapeHtml(formatDateLabel(schedule.start))} ${escapeHtml(t(base.title))} · ${escapeHtml(t("totalCount", { count: total }))}</summary>${lines}</details>`;
+        return `<details data-audit-event="${escapeHtml(eventId)}"${adminAuditOpenKeys.has(eventId) ? " open" : ""}><summary>${escapeHtml(formatDateLabel(schedule.start))} ${escapeHtml(t(base.title))} · 전체 ${counts.total}명 · 실제 ${counts.real}명 · 유령 ${counts.ghost}명</summary>${lines || `<div class="small-note">아직 신청자가 없습니다.</div>`}</details>`;
       }).join("");
     }
 
     function renderClosedAuditControls() {
+      const currentYear = new Date().getFullYear();
+      const years = Array.from(new Set([currentYear, currentYear - 1, currentYear - 2, adminClosedYear])).sort((a, b) => b - a);
       return `
         <div class="audit-view-toggle" role="group" aria-label="종료된 투표 보기 모드">
           <button type="button" class="btn ${adminClosedAuditFilter.view === "group" ? "active" : ""}" data-closed-view="group">▦ 그룹별 보기</button>
           <button type="button" class="btn ${adminClosedAuditFilter.view === "list" ? "active" : ""}" data-closed-view="list">☷ 리스트만 보기</button>
+        </div>
+        <div class="admin-audit-controls">
+          <div class="field">
+            <label for="adminClosedYearFilter">연도</label>
+            <select id="adminClosedYearFilter" data-closed-month-filter="year">
+              ${years.map((year) => `<option value="${year}"${Number(adminClosedYear) === Number(year) ? " selected" : ""}>${year}년</option>`).join("")}
+            </select>
+          </div>
+          <div class="field">
+            <label for="adminClosedMonthFilter">월</label>
+            <select id="adminClosedMonthFilter" data-closed-month-filter="month">
+              <option value="0"${Number(adminClosedMonth) === 0 ? " selected" : ""}>전체</option>
+              ${Array.from({ length: 12 }, (_, index) => index + 1).map((month) => `<option value="${month}"${Number(adminClosedMonth) === month ? " selected" : ""}>${month}월</option>`).join("")}
+            </select>
+          </div>
+          <button type="button" class="btn" data-closed-month-nav="prev">이전 달</button>
+          <button type="button" class="btn" data-closed-month-nav="this">이번 달</button>
+          <button type="button" class="btn" data-closed-month-nav="next">다음 달</button>
         </div>
         <div class="admin-audit-controls">
           <div class="field">
@@ -9422,8 +9708,8 @@ This account will be used continuously, so please enter the information correctl
       return items.flatMap((item) => {
         const { eventId, eventVotes, voteMeta, base, schedule } = item;
         return adminOptionOrder(base.options).flatMap((option) => {
-          return (eventVotes[option] || []).filter((id) => isRealVisibleMember(id)).map((id) => {
-            const member = memberFromId(id);
+          return (eventVotes[option] || []).filter((id) => isGhostVoteMeta(eventId, id) || isRealVisibleMember(id)).map((id) => {
+            const member = voteMemberForAdmin(eventId, id);
             const meta = voteMeta[id] || {};
             const status = statusForAttendance(eventId, id, meta);
             return {
@@ -9483,8 +9769,8 @@ This account will be used continuously, so please enter the information correctl
       return items.flatMap((item) => {
         const { eventId, eventVotes, voteMeta, base, schedule } = item;
         return adminOptionOrder(base.options).flatMap((option) => {
-          return (eventVotes[option] || []).filter((id) => isRealVisibleMember(id)).map((id) => {
-            const member = memberFromId(id);
+          return (eventVotes[option] || []).filter((id) => isGhostVoteMeta(eventId, id) || isRealVisibleMember(id)).map((id) => {
+            const member = voteMemberForAdmin(eventId, id);
             const meta = voteMeta[id] || {};
             const status = statusForAttendance(eventId, id, meta);
             return {
@@ -9497,6 +9783,7 @@ This account will be used continuously, so please enter the information correctl
               base,
               schedule,
               createdAt: meta.createdAt || meta.created_at || "",
+              isGhost: Boolean(meta.isGhost),
               level: adminLevelFilterValue(option),
               levelLabel: optionDisplayLabel(option),
               colorClass: optionColorClass(option),
@@ -9522,14 +9809,18 @@ This account will be used continuously, so please enter the information correctl
     function renderAuditSummary(rows) {
       const counts = rows.reduce((acc, row) => {
         acc.total += 1;
+        if (row.isGhost) acc.ghost += 1;
+        else acc.real += 1;
         acc[row.level] = (acc[row.level] || 0) + 1;
         const statusKey = adminStatusFilterValue(row.status);
         acc[statusKey] = (acc[statusKey] || 0) + 1;
         return acc;
-      }, { total: 0, beginner: 0, intermediate: 0, upperIntermediate: 0, attended: 0, unattended: 0, unmatched: 0 });
+      }, { total: 0, real: 0, ghost: 0, beginner: 0, intermediate: 0, upperIntermediate: 0, attended: 0, unattended: 0, unmatched: 0 });
       return `
         <div class="audit-summary-grid">
           <span class="audit-summary-pill">총 ${counts.total}명</span>
+          <span class="audit-summary-pill">실제 회원 ${counts.real}명</span>
+          <span class="audit-summary-pill">유령회원 ${counts.ghost}명</span>
           <span class="audit-summary-pill">Beginner ${counts.beginner}명</span>
           <span class="audit-summary-pill">Intermediate ${counts.intermediate}명</span>
           <span class="audit-summary-pill">Upper Intermediate ${counts.upperIntermediate}명</span>
@@ -9554,7 +9845,7 @@ This account will be used continuously, so please enter the information correctl
         const tableRows = levelRows.map((row) => `
           <tr>
             <td><input type="checkbox" data-attendance-event="${escapeHtml(row.eventId)}" data-attendance-member="${escapeHtml(row.id)}"${row.checked ? " checked" : ""}></td>
-            <td class="closed-list-name">${escapeHtml(row.member.name)}<small class="member-info-line">${escapeHtml(memberProfileLine(row.member))}</small><small class="member-info-line">신청일: ${escapeHtml(formatAppliedDate(row.createdAt) || "-")}</small></td>
+            <td class="closed-list-name">${escapeHtml(row.member.name)}${row.isGhost ? ` <span class="attendance-status">👻 유령 인원</span>` : ""}<small class="member-info-line">${escapeHtml(row.isGhost ? "운영용 유령 인원" : memberProfileLine(row.member))}</small><small class="member-info-line">신청일: ${escapeHtml(formatAppliedDate(row.createdAt) || "-")}</small></td>
             <td>${escapeHtml(row.levelLabel)}</td>
             <td>${escapeHtml(t(row.base.title))}</td>
             <td>${escapeHtml(formatDateLabel(row.schedule.start))}</td>
@@ -9564,8 +9855,8 @@ This account will be used continuously, so please enter the information correctl
         `).join("");
         const mobileRows = levelRows.map((row) => `
           <label class="closed-list-card">
-            <input type="checkbox" data-attendance-event="${escapeHtml(row.eventId)}" data-attendance-member="${escapeHtml(row.id)}"${row.checked ? " checked" : ""}>
-            <span><strong class="closed-list-name">${escapeHtml(row.member.name)}</strong><br><small>${escapeHtml(row.levelLabel)} · ${escapeHtml(memberProfileLine(row.member))}</small><br><small>${escapeHtml(formatDateLabel(row.schedule.start))} ${escapeHtml(t(row.base.title))}</small><br><small>신청일: ${escapeHtml(formatAppliedDate(row.createdAt) || "-")}</small><br><small>Google Sheets: ${row.status.cls === "synced" || row.status.cls === "duplicated" ? "반영 완료" : row.status.cls === "unmatched" ? "미분류" : "대기"}</small></span>
+            <input type="checkbox" data-attendance-event="${escapeHtml(row.eventId)}" data-attendance-member="${escapeHtml(row.id)}"${row.checked ? " checked" : ""}${row.isGhost ? " disabled" : ""}>
+            <span><strong class="closed-list-name">${escapeHtml(row.member.name)}${row.isGhost ? " 👻" : ""}</strong><br><small>${escapeHtml(row.levelLabel)} · ${escapeHtml(row.isGhost ? "운영용 유령 인원" : memberProfileLine(row.member))}</small><br><small>${escapeHtml(formatDateLabel(row.schedule.start))} ${escapeHtml(t(row.base.title))}</small><br><small>신청일: ${escapeHtml(formatAppliedDate(row.createdAt) || "-")}</small><br><small>Google Sheets: ${row.isGhost ? "제외" : row.status.cls === "synced" || row.status.cls === "duplicated" ? "반영 완료" : row.status.cls === "unmatched" ? "미분류" : "대기"}</small></span>
             <span class="attendance-status ${row.status.cls}">${escapeHtml(row.status.label)}</span>
           </label>
         `).join("");
@@ -9615,12 +9906,12 @@ This account will be used continuously, so please enter the information correctl
         </div>
       `;
       const groups = adminOptionOrder(base.options).map((option) => {
-        const rows = (eventVotes[option] || []).filter((id) => isRealVisibleMember(id)).map((id) => {
-          const member = memberFromId(id);
+        const rows = (eventVotes[option] || []).filter((id) => isGhostVoteMeta(eventId, id) || isRealVisibleMember(id)).map((id) => {
+          const member = voteMemberForAdmin(eventId, id);
           const meta = voteMeta[id] || {};
           const status = statusForAttendance(eventId, id, meta);
           const checked = isAttendanceChecked(eventId, id);
-          return { id, member, status, checked, createdAt: meta.createdAt || meta.created_at || "" };
+          return { id, member, status, checked, createdAt: meta.createdAt || meta.created_at || "", isGhost: Boolean(meta.isGhost) };
         }).filter(({ member, status }) => {
           if (selectedLevelFilter !== "all" && adminLevelFilterValue(option) !== selectedLevelFilter) return false;
           if (selectedStatusFilter !== "all" && adminStatusFilterValue(status) !== selectedStatusFilter) return false;
@@ -9633,11 +9924,11 @@ This account will be used continuously, so please enter the information correctl
           <div class="level-group">
             <div class="level-group-badge ${colorClass}">${escapeHtml(optionDisplayLabel(option))}<small>${rows.length}명</small></div>
             <div class="level-member-list">
-              ${rows.map(({ id, member, status, checked, createdAt }) => `
+              ${rows.map(({ id, member, status, checked, createdAt, isGhost }) => `
                 <label class="attendance-row">
-                  <input type="checkbox" data-attendance-event="${escapeHtml(eventId)}" data-attendance-member="${escapeHtml(id)}"${checked ? " checked" : ""}>
-                  <span><strong>${escapeHtml(member.name)}</strong><br><small>${escapeHtml(t(option))}</small><small class="member-info-line">${escapeHtml(memberProfileLine(member))}</small><small class="member-info-line">신청일: ${escapeHtml(formatAppliedDate(createdAt) || "-")}</small></span>
-                  <span class="attendance-status ${status.cls}">${escapeHtml(status.label)}</span>
+                  <input type="checkbox" data-attendance-event="${escapeHtml(eventId)}" data-attendance-member="${escapeHtml(id)}"${checked ? " checked" : ""}${isGhost ? " disabled" : ""}>
+                  <span><strong>${escapeHtml(member.name)}${isGhost ? " 👻" : ""}</strong><br><small>${escapeHtml(t(option))}</small><small class="member-info-line">${escapeHtml(isGhost ? "운영용 유령 인원" : memberProfileLine(member))}</small><small class="member-info-line">신청일: ${escapeHtml(formatAppliedDate(createdAt) || "-")}</small></span>
+                  <span class="attendance-status ${isGhost ? "" : status.cls}">${escapeHtml(isGhost ? "👻 유령 인원" : status.label)}</span>
                 </label>
               `).join("")}
             </div>
@@ -9647,10 +9938,11 @@ This account will be used continuously, so please enter the information correctl
       const sheetResult = getAttendanceSheetResults()[eventId] || "";
       const open = adminAuditOpenKeys.has(eventId);
       const deadline = schedule.deadline || new Date(new Date(schedule.start).getTime() - 4 * 60 * 60 * 1000).toISOString();
+      const counts = adminVoteCounts(eventVotes, eventId);
       return `
         <details class="closed-vote-card" data-audit-event="${escapeHtml(eventId)}"${open ? " open" : ""}>
           <summary>
-            <span class="closed-vote-title"><strong>${escapeHtml(formatDateLabel(schedule.start))}</strong> ${escapeHtml(t(base.title))} · ${escapeHtml(t("totalCount", { count: total }))}<span class="closed-vote-meta">투표 마감: ${escapeHtml(formatDateTime(deadline))}</span></span>
+            <span class="closed-vote-title"><strong>${escapeHtml(formatDateLabel(schedule.start))}</strong> ${escapeHtml(t(base.title))} · 전체 ${counts.total}명<span class="closed-vote-meta">실제 ${counts.real}명 · 유령 ${counts.ghost}명 · 투표 마감: ${escapeHtml(formatDateTime(deadline))}</span></span>
             <span class="closed-state-badge">종료</span>
             <span class="closed-toggle-mark">⌄</span>
           </summary>
@@ -9667,13 +9959,19 @@ This account will be used continuously, so please enter the information correctl
       if (!closedItems.length) return `<div>${escapeHtml(t("adminNoVotes"))}</div>`;
       const filtered = closedItems
         .filter((item) => adminClosedAuditFilter.language === "all" || item.base.category === adminClosedAuditFilter.language)
+        .filter(matchesClosedMonth)
         .sort((a, b) => adminEventSortTime(b) - adminEventSortTime(a) || adminEventCreatedTime(b) - adminEventCreatedTime(a));
+      const limited = filtered.slice(0, 30);
+      const monthLabel = Number(adminClosedMonth) ? `${adminClosedYear}년 ${adminClosedMonth}월` : `${adminClosedYear}년 전체`;
       return `
         ${renderClosedAuditControls()}
-        ${renderPersonSearchResult(filtered)}
+        <div class="audit-summary-grid">
+          <span class="audit-summary-pill">${escapeHtml(monthLabel)} 종료된 투표 · ${filtered.length}개${filtered.length > limited.length ? ` · 최신 ${limited.length}개 표시` : ""}</span>
+        </div>
+        ${renderPersonSearchResult(limited)}
         ${adminClosedAuditFilter.view === "list"
-          ? renderClosedListMode(filtered)
-          : `<div class="closed-vote-list">${filtered.map((item, index) => renderClosedVoteCard(item, index)).join("") || `<div>${escapeHtml(t("adminNoVotes"))}</div>`}</div>`}
+          ? renderClosedListMode(limited)
+          : `<div class="closed-vote-list">${limited.map((item, index) => renderClosedVoteCard(item, index)).join("") || `<div>${escapeHtml(t("adminNoVotes"))}</div>`}</div>`}
         <div class="audit-help-box">
           <strong>안내</strong>
           <div>- 종료된 투표는 투표 마감 시간이 지난 스터디입니다.</div>
@@ -9696,7 +9994,7 @@ This account will be used continuously, so please enter the information correctl
         if (!eventId || itemById.has(eventId)) return;
         const eventVotes = votes[eventId] || {};
         const schedule = getEvent(base);
-        const participantIds = realParticipantIds(eventVotes);
+        const participantIds = adminVisibleVoteIds(eventVotes, eventId);
         const total = participantIds.length;
         itemById.set(eventId, { eventId, eventVotes, voteMeta: voteMeta[eventId] || {}, base, schedule, participantIds, total });
       });
@@ -9705,7 +10003,7 @@ This account will be used continuously, so please enter the information correctl
         const base = resolveEventById(eventId);
         if (!base) return;
         const schedule = getEvent(base);
-        const participantIds = realParticipantIds(eventVotes);
+        const participantIds = adminVisibleVoteIds(eventVotes, eventId);
         const total = participantIds.length;
         itemById.set(eventId, { eventId, eventVotes, voteMeta: voteMeta[eventId] || {}, base, schedule, participantIds, total });
       });
@@ -9719,6 +10017,10 @@ This account will be used continuously, so please enter the information correctl
       });
       const hasAny = activeItems.length || closedItems.length;
       const tabs = `
+        <div class="attendance-toolbar">
+          <button type="button" class="btn primary" data-admin-ghost-action="add">👻 유령회원 추가</button>
+          <button type="button" class="btn danger" data-admin-ghost-action="remove">🗑 유령회원 제거</button>
+        </div>
         <div class="admin-vote-tabs" role="tablist" aria-label="투표 관리 탭">
           <button type="button" class="admin-vote-tab ${adminVoteTab === "active" ? "active" : ""}" data-admin-vote-tab="active">진행 중 투표 (${activeItems.length})</button>
           <button type="button" class="admin-vote-tab ${adminVoteTab === "closed" ? "active" : ""}" data-admin-vote-tab="closed">종료된 투표 (${closedItems.length})</button>
@@ -9735,6 +10037,46 @@ This account will be used continuously, so please enter the information correctl
         button.addEventListener("click", () => {
           adminVoteTab = button.dataset.adminVoteTab || "active";
           localStorage.setItem(ADMIN_VOTE_TAB_KEY, adminVoteTab);
+          renderAdminVoteAudit();
+        });
+      });
+      adminVoteAuditEl.querySelectorAll("[data-admin-ghost-action]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          button.disabled = true;
+          try {
+            if (button.dataset.adminGhostAction === "add") {
+              const result = await addGhostVotesToActivePolls();
+              if (!result.cancelled) messageEl.textContent = `유령회원 추가 완료: ${result.added}명${result.skipped ? ` · 이미 충분한 레벨 ${result.skipped}개` : ""}`;
+            } else {
+              const result = await removeGhostVotesFromActivePolls();
+              if (!result.cancelled) messageEl.textContent = `유령회원 제거 완료: ${result.removed}명`;
+            }
+            renderAdminVoteAudit();
+          } catch (error) {
+            console.error("ghost vote action failed", error);
+            messageEl.textContent = `유령회원 처리 실패: ${normalizeSupabaseError(error).message}`;
+          } finally {
+            button.disabled = false;
+          }
+        });
+      });
+      adminVoteAuditEl.querySelectorAll("[data-closed-month-filter]").forEach((control) => {
+        control.addEventListener("change", () => {
+          if (control.dataset.closedMonthFilter === "year") adminClosedYear = Number(control.value || adminClosedYear);
+          if (control.dataset.closedMonthFilter === "month") adminClosedMonth = Number(control.value || 0);
+          renderAdminVoteAudit();
+        });
+      });
+      adminVoteAuditEl.querySelectorAll("[data-closed-month-nav]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const action = button.dataset.closedMonthNav;
+          if (action === "this") {
+            const now = new Date();
+            adminClosedYear = now.getFullYear();
+            adminClosedMonth = now.getMonth() + 1;
+          } else {
+            moveClosedMonth(action === "prev" ? -1 : 1);
+          }
           renderAdminVoteAudit();
         });
       });
@@ -9796,6 +10138,7 @@ This account will be used continuously, so please enter the information correctl
           const checks = getAttendanceChecks();
           if (action === "select-all" && !window.confirm("이미 반영된 사람까지 모두 선택됩니다. 계속할까요?")) return;
           rows.forEach((row) => {
+            if (row.isGhost) return;
             const key = attendanceKey(row.eventId, row.id);
             if (action === "clear") {
               delete checks[key];
@@ -11594,7 +11937,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function getEarlyBonusLeft(eventVotes) {
-      return Math.max(0, EARLY_BONUS_LIMIT - getUniqueVoteCount(eventVotes));
+      return Math.max(0, EARLY_BONUS_LIMIT - realParticipantIds(eventVotes).length);
     }
 
     function getStudyThumb(event, schedule) {
@@ -11977,12 +12320,39 @@ This account will be used continuously, so please enter the information correctl
       const url = sheetWebhookInputEl.value.trim();
       if (url) {
         localStorage.setItem(SHEET_WEBHOOK_KEY, url);
+        localStorage.setItem(SHEET_WEBHOOK_SAVED_AT_KEY, new Date().toISOString());
       } else {
         localStorage.removeItem(SHEET_WEBHOOK_KEY);
+        localStorage.removeItem(SHEET_WEBHOOK_SAVED_AT_KEY);
       }
       setSheetStatus();
       syncQueuedSheetRecords();
       messageEl.textContent = t("sheetWebhookSaved");
+    }
+
+    async function testSheetWebhook() {
+      if (!adminUnlocked) return;
+      const url = sheetWebhookInputEl.value.trim() || getSheetWebhookUrl();
+      if (!url) {
+        messageEl.textContent = "Google Sheets Apps Script URL을 먼저 입력해주세요.";
+        return;
+      }
+      testSheetWebhookEl.disabled = true;
+      messageEl.textContent = "Google Sheets 연결 테스트 요청을 보내는 중입니다...";
+      try {
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "connection_test", timestamp: new Date().toISOString(), source: "language101-admin" })
+        });
+        messageEl.textContent = "Google Sheets 연결 테스트 요청을 보냈습니다.";
+      } catch (error) {
+        console.error("sheet webhook test failed", error);
+        messageEl.textContent = "Google Sheets 연결 테스트에 실패했습니다. URL을 확인해주세요.";
+      } finally {
+        testSheetWebhookEl.disabled = false;
+      }
     }
 
     async function setUploadTime() {
@@ -11991,9 +12361,9 @@ This account will be used continuously, so please enter the information correctl
       writeJson(AUTO_DONE_KEY, {});
       localStorage.setItem(AUTO_RUN_KEY, Date.now().toString(36).slice(-5));
       writeJson(AUTO_ROSTER_KEY, []);
-      if (!(await applyAutoVotes())) return;
-      const result = applyAutoVotes.lastResult || { added: 0, failed: 0 };
-      messageEl.textContent = `${t("autoUploadSaved")} 성공 ${result.added}명${result.failed ? ` · 실패 ${result.failed}명` : ""}`;
+      const result = await addGhostVotesToActivePolls();
+      if (result.cancelled) return;
+      messageEl.textContent = `운영용 유령회원 반영 완료: ${result.added}명${result.skipped ? ` · 이미 충분한 레벨 ${result.skipped}개` : ""}`;
       renderAdminStatus();
       render();
     }
@@ -12004,9 +12374,9 @@ This account will be used continuously, so please enter the information correctl
       localStorage.setItem(AUTO_RUN_KEY, Date.now().toString(36).slice(-5));
       writeJson(AUTO_ROSTER_KEY, []);
       localStorage.setItem(AUTO_UPLOAD_KEY, String(Date.now()));
-      if (!(await applyAutoVotes())) return;
-      const result = applyAutoVotes.lastResult || { added: 0, failed: 0 };
-      messageEl.textContent = `${t("autoApplied")} 성공 ${result.added}명${result.failed ? ` · 실패 ${result.failed}명` : ""}`;
+      const result = await addGhostVotesToActivePolls();
+      if (result.cancelled) return;
+      messageEl.textContent = `운영용 유령회원 반영 완료: ${result.added}명${result.skipped ? ` · 이미 충분한 레벨 ${result.skipped}개` : ""}`;
       renderAdminStatus();
       render();
     }
@@ -12260,6 +12630,7 @@ This account will be used continuously, so please enter the information correctl
       if (event.key === "Enter") unlockAdmin();
     });
     saveNoticeEl.addEventListener("click", saveNotice);
+    testSheetWebhookEl?.addEventListener("click", testSheetWebhook);
     adminEventManagerSelectEl?.addEventListener("change", () => {
       if (adminEventManagerSelectEl.value && adminEventManagerSelectEl.value !== "__new__") {
         selectAdminEventForEdit(adminEventManagerSelectEl.value);
