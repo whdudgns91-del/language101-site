@@ -689,6 +689,7 @@
     .admin-panel {
       display: grid;
       gap: 14px;
+      width: min(100%, 1400px);
       margin-bottom: 14px;
       padding: 16px;
       border-color: rgba(7, 146, 126, 0.28);
@@ -766,8 +767,12 @@
 
     .event-admin-shell {
       display: grid;
-      grid-template-columns: 184px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
       min-height: 620px;
+    }
+
+    .admin-event-dashboard .event-admin-shell > .event-admin-sidebar {
+      display: none;
     }
 
     .event-admin-sidebar {
@@ -794,11 +799,18 @@
 
     .admin-view-nav-inline {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       align-items: center;
+      gap: 8px;
+      overflow-x: auto;
       border-right: 0;
       padding: 12px;
       background: #f7f2ff;
+      scrollbar-width: none;
+    }
+
+    .admin-view-nav-inline::-webkit-scrollbar {
+      display: none;
     }
 
     .admin-view-nav-inline strong {
@@ -830,6 +842,7 @@
     .event-admin-main {
       display: grid;
       gap: 18px;
+      min-width: 0;
       padding: 20px;
     }
 
@@ -911,7 +924,7 @@
       position: sticky;
       right: 0;
       z-index: 2;
-      width: 92px;
+      width: 150px;
       background: #ffffff;
       box-shadow: -8px 0 16px rgba(91, 33, 182, 0.05);
     }
@@ -1005,20 +1018,23 @@
 
     .event-admin-actions {
       display: flex;
+      flex-wrap: wrap;
       gap: 7px;
       align-items: center;
     }
 
     .event-action-btn {
       display: inline-grid;
-      min-width: 36px;
+      min-width: 42px;
       min-height: 34px;
       place-items: center;
       border: 1px solid var(--paper-line);
       border-radius: 10px;
+      padding: 0 8px;
       background: #ffffff;
       color: var(--purple-deep);
       font-weight: 950;
+      font-size: 12px;
     }
 
     .event-action-btn.danger {
@@ -1066,7 +1082,7 @@
 
     .event-admin-workspace {
       display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+      grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr);
       gap: 16px;
       align-items: start;
     }
@@ -2989,24 +3005,49 @@
       gap: 8px;
     }
 
+    .admin-member-result-count {
+      color: var(--purple-deep);
+      font-size: 13px;
+      font-weight: 950;
+    }
+
     .admin-member-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) repeat(6, minmax(74px, 0.7fr));
-      gap: 8px;
-      align-items: center;
-      padding: 10px 12px;
+      display: block;
       border: 1px solid var(--paper-line);
       border-radius: 14px;
       background: rgba(255, 255, 255, 0.72);
       color: var(--ink);
       font-size: 12px;
       font-weight: 800;
+      overflow: hidden;
+    }
+
+    .admin-member-row summary {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 56px;
+      padding: 10px 12px;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .admin-member-row summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .admin-member-name-cell {
+      display: grid;
+      min-width: 0;
+      gap: 2px;
     }
 
     .admin-member-row strong {
       color: var(--ink);
       font-size: 13px;
       font-weight: 900;
+      white-space: normal;
       word-break: keep-all;
       overflow-wrap: anywhere;
     }
@@ -3016,6 +3057,125 @@
       color: var(--muted);
       font-size: 10.5px;
       font-weight: 800;
+    }
+
+    .admin-member-level-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: #ede9fe;
+      color: var(--purple-deep);
+      font-size: 11px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .admin-member-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      border-top: 1px solid #f0e8ff;
+      padding: 12px;
+      background: #fbf8ff;
+    }
+
+    .admin-member-detail-grid span {
+      display: grid;
+      gap: 2px;
+      border: 1px solid #f0e8ff;
+      border-radius: 12px;
+      padding: 8px;
+      background: #ffffff;
+      color: var(--subtle);
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .admin-member-detail-grid strong {
+      font-size: 12px;
+    }
+
+    .admin-stat-grid,
+    .admin-trend-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .admin-stat-card,
+    .admin-signup-row,
+    .admin-trend-row {
+      border: 1px solid var(--paper-line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    .admin-stat-card small,
+    .admin-signup-row small,
+    .admin-trend-row small {
+      color: var(--subtle);
+      font-weight: 850;
+    }
+
+    .admin-stat-card strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--purple-deep);
+      font-size: 20px;
+      font-weight: 950;
+    }
+
+    .admin-stat-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .admin-stat-toolbar .field {
+      min-width: 180px;
+    }
+
+    .admin-signup-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .admin-signup-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      text-align: left;
+    }
+
+    .admin-signup-row button {
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
+    .admin-trend-row {
+      display: grid;
+      gap: 7px;
+    }
+
+    .admin-trend-bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #ede9fe;
+      overflow: hidden;
+    }
+
+    .admin-trend-bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--purple-gradient);
     }
 
     .admin-search-row {
@@ -3498,8 +3658,16 @@
       .event-admin-sidebar {
         display: none;
       }
+      .admin-view-nav-inline {
+        display: flex;
+      }
       .event-admin-toolbar {
         grid-template-columns: 1fr 1fr;
+      }
+      .admin-member-detail-grid,
+      .admin-stat-grid,
+      .admin-trend-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
@@ -3513,11 +3681,17 @@
       .admin-member-controls {
         grid-template-columns: 1fr;
       }
-      .admin-member-row {
-        grid-template-columns: 1fr 1fr;
+      .admin-member-row summary {
+        grid-template-columns: auto minmax(0, 1fr);
       }
-      .admin-member-row > span:first-child {
-        grid-column: 1 / -1;
+      .admin-member-level-badge {
+        grid-column: 2;
+        justify-self: start;
+      }
+      .admin-member-detail-grid,
+      .admin-stat-grid,
+      .admin-trend-grid {
+        grid-template-columns: 1fr;
       }
       .grid.two { grid-template-columns: 1fr; }
       .hero {
@@ -4388,14 +4562,6 @@
 
         <section class="admin-card admin-event-dashboard" data-admin-section="events">
           <div class="event-admin-shell">
-            <aside class="event-admin-sidebar" aria-label="이벤트 관리 메뉴">
-              <strong>언어교환101</strong>
-              <button type="button" class="event-admin-nav active" data-admin-view="events">🎁 이벤트 관리</button>
-              <button type="button" class="event-admin-nav" data-admin-view="studies">🗓️ 스터디 관리</button>
-              <button type="button" class="event-admin-nav" data-admin-view="votes">📋 투표 관리</button>
-              <button type="button" class="event-admin-nav" data-admin-view="members">👥 회원 관리</button>
-              <button type="button" class="event-admin-nav" data-admin-view="statistics">📊 통계</button>
-            </aside>
             <div class="event-admin-main">
               <div class="event-admin-head">
                 <div>
@@ -4733,6 +4899,22 @@
           <h3 data-i18n="adminVoteAuditTitle">실시간 투표자 확인</h3>
           <p class="helper" data-i18n="adminVoteAuditHelp">일정별로 누가 어떤 레벨에 신청했는지 관리자만 확인할 수 있습니다.</p>
           <div class="small-note" id="adminVoteAudit"></div>
+        </section>
+
+        <section class="admin-card" data-admin-section="statistics">
+          <h3>신규 가입자 통계</h3>
+          <p class="helper">Asia/Seoul 기준으로 날짜별 신규 가입자와 오늘 가입한 회원을 확인합니다.</p>
+          <div class="admin-stat-toolbar">
+            <div class="field">
+              <label for="adminSignupDate">가입 날짜 선택</label>
+              <input id="adminSignupDate" type="date">
+            </div>
+            <button type="button" class="btn" data-admin-stat-range="today">오늘</button>
+            <button type="button" class="btn" data-admin-stat-range="yesterday">어제</button>
+            <button type="button" class="btn" data-admin-stat-range="7days">최근 7일</button>
+            <button type="button" class="btn" data-admin-stat-range="month">이번 달</button>
+          </div>
+          <div id="adminStatistics"></div>
         </section>
 
         <section class="admin-card" data-admin-section="statistics">
@@ -5207,6 +5389,8 @@ This account will be used continuously, so please enter the information correctl
     const adminVoteAuditEl = document.querySelector("#adminVoteAudit");
     const adminHeartAuditEl = document.querySelector("#adminHeartAudit");
     const adminViewPageTitleEl = document.querySelector("#adminViewPageTitle");
+    const adminStatisticsEl = document.querySelector("#adminStatistics");
+    const adminSignupDateEl = document.querySelector("#adminSignupDate");
     const adminMemberSearchEl = document.querySelector("#adminMemberSearch");
     const adminMemberGenderFilterEl = document.querySelector("#adminMemberGenderFilter");
     const adminMemberNationalityFilterEl = document.querySelector("#adminMemberNationalityFilter");
@@ -5268,6 +5452,9 @@ This account will be used continuously, so please enter the information correctl
     let adminVoteTab = ["active", "closed", "all"].includes(localStorage.getItem(ADMIN_VOTE_TAB_KEY)) ? localStorage.getItem(ADMIN_VOTE_TAB_KEY) : "active";
     const adminVoteStudyRefreshInFlight = new Set();
     const adminVoteStudyRefreshedAt = {};
+    let adminExpandedMemberId = "";
+    let adminMemberSearchTimer = null;
+    let adminStatisticsRange = "today";
     const adminClosedAuditFilter = {
       sort: "recent",
       level: "all",
@@ -9309,6 +9496,7 @@ This account will be used continuously, so please enter the information correctl
               checked: isAttendanceChecked(eventId, id),
               base,
               schedule,
+              createdAt: meta.createdAt || meta.created_at || "",
               level: adminLevelFilterValue(option),
               levelLabel: optionDisplayLabel(option),
               colorClass: optionColorClass(option),
@@ -9366,7 +9554,7 @@ This account will be used continuously, so please enter the information correctl
         const tableRows = levelRows.map((row) => `
           <tr>
             <td><input type="checkbox" data-attendance-event="${escapeHtml(row.eventId)}" data-attendance-member="${escapeHtml(row.id)}"${row.checked ? " checked" : ""}></td>
-            <td class="closed-list-name">${escapeHtml(row.member.name)}<small class="member-info-line">${escapeHtml(memberProfileLine(row.member))}</small></td>
+            <td class="closed-list-name">${escapeHtml(row.member.name)}<small class="member-info-line">${escapeHtml(memberProfileLine(row.member))}</small><small class="member-info-line">신청일: ${escapeHtml(formatAppliedDate(row.createdAt) || "-")}</small></td>
             <td>${escapeHtml(row.levelLabel)}</td>
             <td>${escapeHtml(t(row.base.title))}</td>
             <td>${escapeHtml(formatDateLabel(row.schedule.start))}</td>
@@ -9377,7 +9565,7 @@ This account will be used continuously, so please enter the information correctl
         const mobileRows = levelRows.map((row) => `
           <label class="closed-list-card">
             <input type="checkbox" data-attendance-event="${escapeHtml(row.eventId)}" data-attendance-member="${escapeHtml(row.id)}"${row.checked ? " checked" : ""}>
-            <span><strong class="closed-list-name">${escapeHtml(row.member.name)}</strong><br><small>${escapeHtml(row.levelLabel)} · ${escapeHtml(memberProfileLine(row.member))}</small><br><small>${escapeHtml(formatDateLabel(row.schedule.start))} ${escapeHtml(t(row.base.title))}</small><br><small>Google Sheets: ${row.status.cls === "synced" || row.status.cls === "duplicated" ? "반영 완료" : row.status.cls === "unmatched" ? "미분류" : "대기"}</small></span>
+            <span><strong class="closed-list-name">${escapeHtml(row.member.name)}</strong><br><small>${escapeHtml(row.levelLabel)} · ${escapeHtml(memberProfileLine(row.member))}</small><br><small>${escapeHtml(formatDateLabel(row.schedule.start))} ${escapeHtml(t(row.base.title))}</small><br><small>신청일: ${escapeHtml(formatAppliedDate(row.createdAt) || "-")}</small><br><small>Google Sheets: ${row.status.cls === "synced" || row.status.cls === "duplicated" ? "반영 완료" : row.status.cls === "unmatched" ? "미분류" : "대기"}</small></span>
             <span class="attendance-status ${row.status.cls}">${escapeHtml(row.status.label)}</span>
           </label>
         `).join("");
@@ -9432,7 +9620,7 @@ This account will be used continuously, so please enter the information correctl
           const meta = voteMeta[id] || {};
           const status = statusForAttendance(eventId, id, meta);
           const checked = isAttendanceChecked(eventId, id);
-          return { id, member, status, checked };
+          return { id, member, status, checked, createdAt: meta.createdAt || meta.created_at || "" };
         }).filter(({ member, status }) => {
           if (selectedLevelFilter !== "all" && adminLevelFilterValue(option) !== selectedLevelFilter) return false;
           if (selectedStatusFilter !== "all" && adminStatusFilterValue(status) !== selectedStatusFilter) return false;
@@ -9445,10 +9633,10 @@ This account will be used continuously, so please enter the information correctl
           <div class="level-group">
             <div class="level-group-badge ${colorClass}">${escapeHtml(optionDisplayLabel(option))}<small>${rows.length}명</small></div>
             <div class="level-member-list">
-              ${rows.map(({ id, member, status, checked }) => `
+              ${rows.map(({ id, member, status, checked, createdAt }) => `
                 <label class="attendance-row">
                   <input type="checkbox" data-attendance-event="${escapeHtml(eventId)}" data-attendance-member="${escapeHtml(id)}"${checked ? " checked" : ""}>
-                  <span><strong>${escapeHtml(member.name)}</strong><br><small>${escapeHtml(t(option))}</small><small class="member-info-line">${escapeHtml(memberProfileLine(member))}</small></span>
+                  <span><strong>${escapeHtml(member.name)}</strong><br><small>${escapeHtml(t(option))}</small><small class="member-info-line">${escapeHtml(memberProfileLine(member))}</small><small class="member-info-line">신청일: ${escapeHtml(formatAppliedDate(createdAt) || "-")}</small></span>
                   <span class="attendance-status ${status.cls}">${escapeHtml(status.label)}</span>
                 </label>
               `).join("")}
@@ -9457,7 +9645,7 @@ This account will be used continuously, so please enter the information correctl
         `;
       }).filter(Boolean).join("");
       const sheetResult = getAttendanceSheetResults()[eventId] || "";
-      const open = adminAuditOpenKeys.has(eventId) || (!adminAuditOpenKeys.size && index === 0);
+      const open = adminAuditOpenKeys.has(eventId);
       const deadline = schedule.deadline || new Date(new Date(schedule.start).getTime() - 4 * 60 * 60 * 1000).toISOString();
       return `
         <details class="closed-vote-card" data-audit-event="${escapeHtml(eventId)}"${open ? " open" : ""}>
@@ -9480,7 +9668,6 @@ This account will be used continuously, so please enter the information correctl
       const filtered = closedItems
         .filter((item) => adminClosedAuditFilter.language === "all" || item.base.category === adminClosedAuditFilter.language)
         .sort((a, b) => adminEventSortTime(b) - adminEventSortTime(a) || adminEventCreatedTime(b) - adminEventCreatedTime(a));
-      if (!adminAuditOpenKeys.size && filtered[0]) adminAuditOpenKeys.add(filtered[0].eventId);
       return `
         ${renderClosedAuditControls()}
         ${renderPersonSearchResult(filtered)}
@@ -9503,15 +9690,27 @@ This account will be used continuously, so please enter the information correctl
       const voteMeta = getVoteMeta();
       const activeItems = [];
       const closedItems = [];
+      const itemById = new Map();
+      [...templates, ...closedTemplates].forEach((base) => {
+        const eventId = base.id;
+        if (!eventId || itemById.has(eventId)) return;
+        const eventVotes = votes[eventId] || {};
+        const schedule = getEvent(base);
+        const participantIds = realParticipantIds(eventVotes);
+        const total = participantIds.length;
+        itemById.set(eventId, { eventId, eventVotes, voteMeta: voteMeta[eventId] || {}, base, schedule, participantIds, total });
+      });
       Object.entries(votes).forEach(([eventId, eventVotes]) => {
+        if (itemById.has(eventId)) return;
         const base = resolveEventById(eventId);
         if (!base) return;
         const schedule = getEvent(base);
         const participantIds = realParticipantIds(eventVotes);
         const total = participantIds.length;
-        if (!total) return;
-        const isClosed = isPollClosed(schedule);
-        const item = { eventId, eventVotes, voteMeta: voteMeta[eventId] || {}, base, schedule, participantIds, total };
+        itemById.set(eventId, { eventId, eventVotes, voteMeta: voteMeta[eventId] || {}, base, schedule, participantIds, total });
+      });
+      Array.from(itemById.values()).forEach((item) => {
+        const isClosed = isPollClosed(item.schedule);
         if (isClosed) {
           closedItems.push(item);
         } else {
@@ -9683,17 +9882,58 @@ This account will be used continuously, so please enter the information correctl
         .sort((a, b) => a.member.name.localeCompare(b.member.name, "ko"));
     }
 
-    function renderAdminMembers() {
-      if (!adminMemberListEl) return;
+    function memberJoinedAt(member) {
+      return member?.joinedAt || member?.joined_at || "";
+    }
+
+    function getKstDateKey(value = new Date()) {
+      const date = value instanceof Date ? value : new Date(value || Date.now());
+      if (Number.isNaN(date.getTime())) return "";
+      const parts = new Intl.DateTimeFormat("en", {
+        timeZone: "Asia/Seoul",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(date).reduce((acc, part) => {
+        acc[part.type] = part.value;
+        return acc;
+      }, {});
+      return `${parts.year}-${parts.month}-${parts.day}`;
+    }
+
+    function getKstTimeLabel(value) {
+      const date = new Date(value || Date.now());
+      if (Number.isNaN(date.getTime())) return "-";
+      return date.toLocaleTimeString("ko-KR", {
+        timeZone: "Asia/Seoul",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+    }
+
+    function addDaysToDateKey(dateKey, days) {
+      const [year, month, day] = String(dateKey || todayKey()).split("-").map(Number);
+      const date = new Date(Date.UTC(year || 1970, (month || 1) - 1, day || 1));
+      date.setUTCDate(date.getUTCDate() + days);
+      return `${date.getUTCFullYear()}-${padNumber(date.getUTCMonth() + 1)}-${padNumber(date.getUTCDate())}`;
+    }
+
+    function getMemberSearchText(member) {
+      const profile = normalizeMemberProfile(member);
+      return normalizeName(`${member.name} ${profile.myLevel} ${profile.targetLanguage} ${profile.gender} ${profile.nationality} ${profile.ageGroup}`);
+    }
+
+    function filteredAdminMemberRows() {
       const search = normalizeName(adminMemberSearchEl?.value || "");
       const gender = adminMemberGenderFilterEl?.value || "all";
       const nationality = adminMemberNationalityFilterEl?.value || "all";
       const ageGroup = adminMemberAgeFilterEl?.value || "all";
       const englishLevel = adminMemberLevelFilterEl?.value || "all";
       const targetLanguage = adminMemberLanguageFilterEl?.value || "all";
-      const rows = getAdminMemberRows().filter(({ member }) => {
+      return getAdminMemberRows().filter(({ member }) => {
         const profile = normalizeMemberProfile(member);
-        if (search && !normalizeName(member.name).includes(search)) return false;
+        if (search && !getMemberSearchText(member).includes(search)) return false;
         if (gender !== "all" && profileValue(profile.gender) !== gender) return false;
         if (nationality !== "all" && profileValue(profile.nationality) !== nationality) return false;
         if (ageGroup !== "all" && profileValue(profile.ageGroup) !== ageGroup) return false;
@@ -9702,20 +9942,124 @@ This account will be used continuously, so please enter the information correctl
         if (englishLevel !== "all" && levelValue !== englishLevel) return false;
         return true;
       });
-      adminMemberListEl.innerHTML = rows.length ? rows.map(({ member, stats }) => {
+    }
+
+    function renderAdminMembers() {
+      if (!adminMemberListEl) return;
+      const rows = filteredAdminMemberRows();
+      adminMemberListEl.innerHTML = `<div class="admin-member-result-count">검색 결과 ${rows.length}명</div>` + (rows.length ? rows.map(({ id, member, stats }) => {
         const profile = normalizeMemberProfile(member);
+        const joinedAt = memberJoinedAt(member);
+        const opened = adminExpandedMemberId === id;
         return `
-          <article class="admin-member-row">
-            <span><strong>${escapeHtml(member.name)}</strong><small>Joined: ${escapeHtml(member.joinedAt ? formatRecordDate(member.joinedAt) : "-")}</small></span>
-            <span>My Level<small>${escapeHtml(profile.myLevel)}</small></span>
-            <span>Language<small>${escapeHtml(profile.targetLanguage)}</small></span>
-            <span>Gender<small>${escapeHtml(profile.gender)}</small></span>
-            <span>Nationality<small>${escapeHtml(profile.nationality)}</small></span>
-            <span>Age<small>${escapeHtml(profile.ageGroup)}</small></span>
-            <span>Stats<small>${Number(stats.points || 0).toLocaleString()}P · ${Number(stats.attendance || 0)}회 · ${Number(stats.hearts || 0)}개</small></span>
-          </article>
+          <details class="admin-member-row" data-admin-member-id="${escapeHtml(id)}"${opened ? " open" : ""}>
+            <summary>
+              <span>${opened ? "▼" : "▶"}</span>
+              <span class="admin-member-name-cell">
+                <strong>${escapeHtml(member.name)}</strong>
+                <small>${escapeHtml(joinedAt ? `${getKstDateKey(joinedAt)} 가입` : "가입일 없음")}</small>
+              </span>
+              <span class="admin-member-level-badge">${escapeHtml(profile.myLevel)}</span>
+            </summary>
+            <div class="admin-member-detail-grid">
+              <span>생년월일<strong>${escapeHtml(member.birth || member.birthdate || "-")}</strong></span>
+              <span>배우고 싶은 언어<strong>${escapeHtml(profile.targetLanguage)}</strong></span>
+              <span>성별<strong>${escapeHtml(profile.gender)}</strong></span>
+              <span>국적<strong>${escapeHtml(profile.nationality)}</strong></span>
+              <span>나이대<strong>${escapeHtml(profile.ageGroup)}</strong></span>
+              <span>포인트<strong>${Number(stats.points || 0).toLocaleString()}P</strong></span>
+              <span>참석 횟수<strong>${Number(stats.attendance || 0)}회</strong></span>
+              <span>좋아요<strong>받은 ${Number(stats.hearts || 0)} · 보낸 ${Number(stats.sentHearts || 0)}</strong></span>
+              <span>가입일<strong>${escapeHtml(joinedAt ? `${getKstDateKey(joinedAt)} ${getKstTimeLabel(joinedAt)}` : "-")}</strong></span>
+              <span>최근 활동일<strong>${escapeHtml((getMemberRecords(member)[0]?.timestamp) ? formatRecordDate(getMemberRecords(member)[0].timestamp) : "-")}</strong></span>
+            </div>
+          </details>
         `;
-      }).join("") : `<p class="small-note">No members match the selected filters.</p>`;
+      }).join("") : `<p class="small-note">검색 조건에 맞는 회원이 없습니다.</p>`);
+      adminMemberListEl.querySelectorAll("[data-admin-member-id]").forEach((item) => {
+        item.addEventListener("toggle", () => {
+          if (item.open) {
+            adminExpandedMemberId = item.dataset.adminMemberId || "";
+            renderAdminMembers();
+          } else if (adminExpandedMemberId === item.dataset.adminMemberId) {
+            adminExpandedMemberId = "";
+          }
+        });
+      });
+    }
+
+    function setAdminMemberSearchDebounced() {
+      window.clearTimeout(adminMemberSearchTimer);
+      adminMemberSearchTimer = window.setTimeout(renderAdminMembers, 250);
+    }
+
+    function getAdminSignupRows() {
+      return getAdminMemberRows()
+        .map((row) => ({ ...row, joinedAt: memberJoinedAt(row.member), joinedKey: getKstDateKey(memberJoinedAt(row.member)) }))
+        .filter((row) => row.joinedAt && row.joinedKey);
+    }
+
+    function renderAdminStatistics() {
+      if (!adminStatisticsEl) return;
+      const today = todayKey();
+      if (adminSignupDateEl && !adminSignupDateEl.value) adminSignupDateEl.value = today;
+      const selectedDate = adminSignupDateEl?.value || today;
+      const rows = getAdminSignupRows();
+      const monthKey = today.slice(0, 7);
+      const sevenStart = addDaysToDateKey(today, -6);
+      const todayRows = rows.filter((row) => row.joinedKey === today);
+      const sevenRows = rows.filter((row) => row.joinedKey >= sevenStart && row.joinedKey <= today);
+      const monthRows = rows.filter((row) => row.joinedKey.startsWith(monthKey));
+      let listRows = rows.filter((row) => row.joinedKey === selectedDate);
+      let listTitle = `${selectedDate} 가입자`;
+      if (adminStatisticsRange === "yesterday") {
+        const target = addDaysToDateKey(today, -1);
+        listRows = rows.filter((row) => row.joinedKey === target);
+        listTitle = `${target} 가입자`;
+      } else if (adminStatisticsRange === "7days") {
+        listRows = sevenRows;
+        listTitle = `최근 7일 가입자`;
+      } else if (adminStatisticsRange === "month") {
+        listRows = monthRows;
+        listTitle = `이번 달 가입자`;
+      }
+      listRows.sort((a, b) => new Date(b.joinedAt) - new Date(a.joinedAt));
+      const trendKeys = Array.from({ length: 7 }, (_, index) => addDaysToDateKey(today, index - 6));
+      const maxTrend = Math.max(1, ...trendKeys.map((key) => rows.filter((row) => row.joinedKey === key).length));
+      adminStatisticsEl.innerHTML = `
+        <div class="admin-stat-grid">
+          <article class="admin-stat-card"><small>오늘 가입자</small><strong>${todayRows.length}명</strong></article>
+          <article class="admin-stat-card"><small>최근 7일</small><strong>${sevenRows.length}명</strong></article>
+          <article class="admin-stat-card"><small>이번 달</small><strong>${monthRows.length}명</strong></article>
+          <article class="admin-stat-card"><small>전체 회원</small><strong>${rows.length}명</strong></article>
+        </div>
+        <h4>${escapeHtml(listTitle)} · ${listRows.length}명</h4>
+        <div class="admin-signup-list">
+          ${listRows.length ? listRows.map(({ id, member }) => {
+            const profile = normalizeMemberProfile(member);
+            return `
+              <article class="admin-signup-row">
+                <span><strong>${escapeHtml(member.name)}</strong><small>${escapeHtml(profile.myLevel)} · ${escapeHtml(profile.targetLanguage)} · ${escapeHtml(profile.gender)} · ${escapeHtml(profile.nationality)} · ${escapeHtml(getKstTimeLabel(memberJoinedAt(member)))}</small></span>
+                <button type="button" class="btn" data-open-admin-member="${escapeHtml(id)}">상세</button>
+              </article>
+            `;
+          }).join("") : `<p class="small-note">해당 기간에 가입한 회원이 없습니다.</p>`}
+        </div>
+        <h4>최근 7일 가입 추이</h4>
+        <div class="admin-trend-grid">
+          ${trendKeys.map((key) => {
+            const count = rows.filter((row) => row.joinedKey === key).length;
+            const pct = Math.max(4, Math.round((count / maxTrend) * 100));
+            return `<article class="admin-trend-row"><small>${escapeHtml(key)}</small><strong>${count}명</strong><div class="admin-trend-bar"><span style="width:${pct}%"></span></div></article>`;
+          }).join("")}
+        </div>
+      `;
+      adminStatisticsEl.querySelectorAll("[data-open-admin-member]").forEach((button) => {
+        button.addEventListener("click", () => {
+          adminExpandedMemberId = button.dataset.openAdminMember || "";
+          setAdminView("members");
+        });
+      });
     }
 
     function renderAdminHeartAudit() {
@@ -9777,7 +10121,18 @@ This account will be used continuously, so please enter the information correctl
         return;
       }
       if (view === "statistics") {
-        renderAdminHeartAudit();
+        if (!membersLoadedFromSupabase) {
+          loadMembersFromSupabase().then(() => {
+            renderAdminStatistics();
+            renderAdminHeartAudit();
+          }).catch(() => {
+            renderAdminStatistics();
+            renderAdminHeartAudit();
+          });
+        } else {
+          renderAdminStatistics();
+          renderAdminHeartAudit();
+        }
       }
     }
 
@@ -10292,6 +10647,7 @@ This account will be used continuously, so please enter the information correctl
           <td><span class="event-link-state ${event.apply_url ? "yes" : "no"}">${event.apply_url ? "링크 있음" : "링크 없음"}</span></td>
           <td>
             <div class="event-admin-actions">
+              <button type="button" class="event-action-btn" data-admin-preview-event="${escapeHtml(event.id)}" aria-label="미리보기">보기</button>
               <button type="button" class="event-action-btn" data-admin-edit-event="${escapeHtml(event.id)}" aria-label="수정">수정</button>
               <button type="button" class="event-action-btn danger" data-admin-delete-event="${escapeHtml(event.id)}" aria-label="삭제">🗑</button>
             </div>
@@ -10314,6 +10670,7 @@ This account will be used continuously, so please enter the information correctl
                 <span class="event-link-state ${event.apply_url ? "yes" : "no"}">${event.apply_url ? "링크 있음" : "링크 없음"}</span>
               </div>
               <div class="event-admin-actions">
+                <button type="button" class="event-action-btn" data-admin-preview-event="${escapeHtml(event.id)}">보기</button>
                 <button type="button" class="event-action-btn" data-admin-edit-event="${escapeHtml(event.id)}">수정</button>
                 <button type="button" class="event-action-btn danger" data-admin-delete-event="${escapeHtml(event.id)}">삭제</button>
               </div>
@@ -10326,6 +10683,14 @@ This account will be used continuously, so please enter the information correctl
       document.querySelectorAll("[data-admin-edit-event]").forEach((button) => {
         button.addEventListener("click", () => {
           selectAdminEventForEdit(button.dataset.adminEditEvent);
+        });
+      });
+      document.querySelectorAll("[data-admin-preview-event]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const event = getAllEvents().find((item) => item.id === button.dataset.adminPreviewEvent);
+          if (!event) return;
+          renderAdminEventPreview(event);
+          document.querySelector(".event-admin-preview-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
         });
       });
       document.querySelectorAll("[data-admin-delete-event]").forEach((button) => {
@@ -11859,9 +12224,25 @@ This account will be used continuously, so please enter the information correctl
     dailyCheckinButtonEl?.addEventListener("click", handleDailyCheckin);
     pointPillEl.addEventListener("click", () => showProfileDetail("points"));
     sentHeartPillEl.addEventListener("click", () => showProfileDetail("sentHearts"));
-    [adminMemberSearchEl, adminMemberGenderFilterEl, adminMemberNationalityFilterEl, adminMemberAgeFilterEl, adminMemberLevelFilterEl, adminMemberLanguageFilterEl].forEach((control) => {
+    adminMemberSearchEl?.addEventListener("input", setAdminMemberSearchDebounced);
+    adminMemberSearchEl?.addEventListener("change", renderAdminMembers);
+    [adminMemberGenderFilterEl, adminMemberNationalityFilterEl, adminMemberAgeFilterEl, adminMemberLevelFilterEl, adminMemberLanguageFilterEl].forEach((control) => {
       control?.addEventListener("input", renderAdminMembers);
       control?.addEventListener("change", renderAdminMembers);
+    });
+    adminSignupDateEl?.addEventListener("change", () => {
+      adminStatisticsRange = "direct";
+      renderAdminStatistics();
+    });
+    document.querySelectorAll("[data-admin-stat-range]").forEach((button) => {
+      button.addEventListener("click", () => {
+        adminStatisticsRange = button.dataset.adminStatRange || "today";
+        const today = todayKey();
+        if (adminSignupDateEl) {
+          adminSignupDateEl.value = adminStatisticsRange === "yesterday" ? addDaysToDateKey(today, -1) : today;
+        }
+        renderAdminStatistics();
+      });
     });
     logoutButtonEl.addEventListener("click", logoutMember);
     backButtonEl.addEventListener("click", handleBack);
