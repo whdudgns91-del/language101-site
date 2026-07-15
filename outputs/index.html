@@ -7212,7 +7212,7 @@ This account will be used continuously, so please enter the information correctl
 
     const VOTE_BASE_SELECT_COLUMNS = "id,study_id,user_id,name,birth,level,vote_option,attended,synced_to_sheet,cancelled,created_at,updated_at";
     const VOTE_OPTIONAL_SELECT_COLUMNS = "is_ghost,ghost_batch_id,ghost_display_name";
-    let voteOptionalColumnsAvailable = true;
+    let voteOptionalColumnsAvailable = false;
     const GHOST_LEVEL_TARGETS = { beginner: 2, intermediate: 2, upperIntermediate: 1 };
     const GHOST_NAME_POOL = ["민준", "서준", "지훈", "현우", "도윤", "유진", "수민", "지우", "하윤", "소연", "Daniel", "Alex", "Chris", "Jamie", "Taylor", "Emma", "Sophia", "Olivia"];
 
@@ -7306,7 +7306,7 @@ This account will be used continuously, so please enter the information correctl
       const userId = String(normalizedMember?.id || normalizedMember?.user_id || "").trim();
       const name = String(normalizedMember?.name || "").trim();
       const level = String(option || "").trim();
-      const isGhost = Boolean(extra.isGhost || normalizedMember?.isGhost || isGhostId(userId));
+      const isGhost = Boolean(extra.isGhost || isGhostId(userId));
       const birth = isGhost ? "000000" : normalizeBirth(normalizedMember?.birth || normalizedMember?.birthdate || "");
       if (!birth) {
         const error = new Error("생년월일 정보가 없습니다.");
@@ -7336,7 +7336,7 @@ This account will be used continuously, so please enter the information correctl
         cancelled: false,
         updated_at: now
       };
-      if (isGhost) {
+      if (isGhost && extra.includeGhostColumns && voteOptionalColumnsAvailable) {
         payload.is_ghost = true;
         payload.ghost_batch_id = extra.ghostBatchId || member?.ghostBatchId || "";
         payload.ghost_display_name = extra.ghostDisplayName || member?.ghostDisplayName || name;
