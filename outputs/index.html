@@ -701,6 +701,52 @@
       gap: 16px;
     }
 
+    .admin-section-hidden {
+      display: none !important;
+    }
+
+    .admin-view-page-title {
+      grid-column: 1 / -1;
+      display: grid;
+      gap: 4px;
+      border: 1px solid var(--paper-line);
+      border-radius: 16px;
+      padding: 16px 18px;
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    .admin-view-page-title h3 {
+      margin: 0;
+      color: var(--purple-deep);
+      font-size: 20px;
+      font-weight: 950;
+    }
+
+    .admin-vote-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 14px;
+    }
+
+    .admin-vote-tab {
+      border: 1px solid var(--paper-line);
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: #ffffff;
+      color: var(--subtle);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .admin-vote-tab.active {
+      border-color: rgba(124, 58, 237, 0.45);
+      background: var(--purple-gradient);
+      color: #ffffff;
+      box-shadow: 0 10px 22px rgba(124, 58, 237, 0.2);
+    }
+
     .admin-card {
       display: grid;
       gap: 12px;
@@ -738,6 +784,26 @@
       color: var(--purple-deep);
       font-size: 16px;
       font-weight: 950;
+    }
+
+    .admin-view-nav-card {
+      grid-column: 1 / -1;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .admin-view-nav-inline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      border-right: 0;
+      padding: 12px;
+      background: #f7f2ff;
+    }
+
+    .admin-view-nav-inline strong {
+      flex: 1 0 160px;
+      margin: 0;
     }
 
     .event-admin-nav {
@@ -4299,7 +4365,19 @@
         <button type="button" class="btn" id="adminGoLogin" data-i18n="adminGoLogin">로그인 페이지로 이동</button>
       </div>
       <div class="admin-grid hidden" id="adminTools">
-        <section class="admin-card">
+        <section class="admin-card admin-view-nav-card">
+          <div class="event-admin-sidebar admin-view-nav-inline" aria-label="관리자 메뉴">
+            <strong>언어교환101 관리자</strong>
+            <button type="button" class="event-admin-nav active" data-admin-view="events">🎁 이벤트 관리</button>
+            <button type="button" class="event-admin-nav" data-admin-view="studies">🗓️ 스터디 관리</button>
+            <button type="button" class="event-admin-nav" data-admin-view="votes">📋 투표 관리</button>
+            <button type="button" class="event-admin-nav" data-admin-view="members">👥 회원 관리</button>
+            <button type="button" class="event-admin-nav" data-admin-view="statistics">📊 통계</button>
+          </div>
+        </section>
+        <section class="admin-view-page-title" id="adminViewPageTitle"></section>
+
+        <section class="admin-card" data-admin-section="studies">
           <h3 data-i18n="adminNoticeTitle">공지 수정</h3>
           <div class="field">
             <label for="adminNoticeInput" data-i18n="adminNoticeLabel">회원 화면 상단 공지</label>
@@ -4308,15 +4386,15 @@
           <button type="button" class="btn primary" id="saveNotice" data-i18n="adminSaveNotice">공지 저장</button>
         </section>
 
-        <section class="admin-card admin-event-dashboard">
+        <section class="admin-card admin-event-dashboard" data-admin-section="events">
           <div class="event-admin-shell">
             <aside class="event-admin-sidebar" aria-label="이벤트 관리 메뉴">
               <strong>언어교환101</strong>
-              <button type="button" class="event-admin-nav active">🎁 이벤트 관리</button>
-              <button type="button" class="event-admin-nav">🗓️ 스터디 관리</button>
-              <button type="button" class="event-admin-nav">📋 투표 관리</button>
-              <button type="button" class="event-admin-nav">👥 회원 관리</button>
-              <button type="button" class="event-admin-nav">📊 통계</button>
+              <button type="button" class="event-admin-nav active" data-admin-view="events">🎁 이벤트 관리</button>
+              <button type="button" class="event-admin-nav" data-admin-view="studies">🗓️ 스터디 관리</button>
+              <button type="button" class="event-admin-nav" data-admin-view="votes">📋 투표 관리</button>
+              <button type="button" class="event-admin-nav" data-admin-view="members">👥 회원 관리</button>
+              <button type="button" class="event-admin-nav" data-admin-view="statistics">📊 통계</button>
             </aside>
             <div class="event-admin-main">
               <div class="event-admin-head">
@@ -4499,7 +4577,7 @@
           </div>
         </section>
 
-        <section class="admin-card">
+        <section class="admin-card" data-admin-section="votes">
           <h3 data-i18n="adminManualTitle">투표 인원 추가</h3>
           <div class="field">
             <label for="adminEventSelect" data-i18n="adminEvent">일정</label>
@@ -4523,7 +4601,7 @@
           <button type="button" class="btn primary" id="adminAddVote" data-i18n="adminAdd">투표자 추가</button>
         </section>
 
-        <section class="admin-card">
+        <section class="admin-card" data-admin-section="votes">
           <h3 data-i18n="adminRealAddTitle">실제 회원 추가</h3>
           <p class="helper" data-i18n="adminRealAddHelp">투표 시간을 놓친 실제 회원만 이름이 기록에 있을 때 추가할 수 있습니다.</p>
           <div class="field">
@@ -4541,7 +4619,7 @@
           <button type="button" class="btn primary" id="adminAddRealVote" data-i18n="adminAddReal">실제 회원 추가</button>
         </section>
 
-        <section class="admin-card">
+        <section class="admin-card" data-admin-section="votes">
           <h3 data-i18n="sheetSyncTitle">구글시트 연결</h3>
           <p class="helper" data-i18n="sheetSyncHelp">Apps Script 웹앱 URL을 넣으면 로그인, 투표, 좋아요 기록이 로그인 로그 탭으로 전송됩니다.</p>
           <div class="field">
@@ -4552,7 +4630,7 @@
           <p class="small-note" id="sheetSyncStatus"></p>
         </section>
 
-        <section class="admin-card admin-member-card">
+        <section class="admin-card admin-member-card" data-admin-section="members">
           <h3>Member Management</h3>
           <p class="helper">Check each member's level, target language, demographics, and activity stats.</p>
           <div class="admin-member-controls">
@@ -4622,7 +4700,7 @@
           <div class="admin-member-list" id="adminMemberList"></div>
         </section>
 
-        <section class="admin-card">
+        <section class="admin-card" data-admin-section="studies">
           <h3 data-i18n="adminScheduleTitle">투표 일정 수정</h3>
           <div class="field">
             <label for="adminScheduleEventSelect" data-i18n="adminEvent">일정</label>
@@ -4643,7 +4721,7 @@
           <button type="button" class="btn primary" id="saveSchedule" data-i18n="saveSchedule">일정 저장</button>
         </section>
 
-        <section class="admin-card">
+        <section class="admin-card" data-admin-section="studies">
           <h3 data-i18n="adminAutoTitle">자동 샘플 투표</h3>
           <p class="helper" data-i18n="adminAutoHelp">버튼을 누르면 모든 투표에 자동 투표가 즉시 들어갑니다.</p>
           <button type="button" class="btn primary" id="setUploadTime" data-i18n="adminUploadNow">지금 업로드 시간으로 저장</button>
@@ -4651,13 +4729,13 @@
           <p class="small-note" id="adminAutoStatus"></p>
         </section>
 
-        <section class="admin-card">
+        <section class="admin-card" data-admin-section="votes">
           <h3 data-i18n="adminVoteAuditTitle">실시간 투표자 확인</h3>
           <p class="helper" data-i18n="adminVoteAuditHelp">일정별로 누가 어떤 레벨에 신청했는지 관리자만 확인할 수 있습니다.</p>
           <div class="small-note" id="adminVoteAudit"></div>
         </section>
 
-        <section class="admin-card">
+        <section class="admin-card" data-admin-section="statistics">
           <h3 data-i18n="adminHeartAuditTitle">좋아요 발송 기록</h3>
           <p class="helper" data-i18n="adminHeartAuditHelp">누가 누구에게 좋아요를 보냈는지 관리자만 확인할 수 있습니다.</p>
           <div class="small-note" id="adminHeartAudit"></div>
@@ -5128,6 +5206,7 @@ This account will be used continuously, so please enter the information correctl
     const sheetSyncStatusEl = document.querySelector("#sheetSyncStatus");
     const adminVoteAuditEl = document.querySelector("#adminVoteAudit");
     const adminHeartAuditEl = document.querySelector("#adminHeartAudit");
+    const adminViewPageTitleEl = document.querySelector("#adminViewPageTitle");
     const adminMemberSearchEl = document.querySelector("#adminMemberSearch");
     const adminMemberGenderFilterEl = document.querySelector("#adminMemberGenderFilter");
     const adminMemberNationalityFilterEl = document.querySelector("#adminMemberNationalityFilter");
@@ -5176,6 +5255,19 @@ This account will be used continuously, so please enter the information correctl
     let staticI18nElements = [];
     let lastClosedEmailCheckAt = 0;
     const adminAuditOpenKeys = new Set();
+    const ADMIN_VIEW_KEY = "language101-admin-view";
+    const ADMIN_VOTE_TAB_KEY = "language101-admin-vote-tab";
+    const adminViews = {
+      events: { title: "이벤트 관리", help: "이벤트 등록, 수정, 삭제 및 노출 관리를 한 화면에서 처리합니다." },
+      studies: { title: "스터디 관리", help: "회원 공지, 스터디 일정, 자동 샘플 투표 설정을 관리합니다." },
+      votes: { title: "투표 관리", help: "진행 중/종료된 투표와 참석 체크, Google Sheets 반영을 관리합니다." },
+      members: { title: "회원 관리", help: "회원 정보, 레벨, 언어, 성별, 국적, 나이대와 활동 통계를 확인합니다." },
+      statistics: { title: "통계", help: "좋아요 발송 기록 등 운영 지표를 확인합니다." }
+    };
+    let adminView = adminViews[localStorage.getItem(ADMIN_VIEW_KEY)] ? localStorage.getItem(ADMIN_VIEW_KEY) : "events";
+    let adminVoteTab = ["active", "closed", "all"].includes(localStorage.getItem(ADMIN_VOTE_TAB_KEY)) ? localStorage.getItem(ADMIN_VOTE_TAB_KEY) : "active";
+    const adminVoteStudyRefreshInFlight = new Set();
+    const adminVoteStudyRefreshedAt = {};
     const adminClosedAuditFilter = {
       sort: "recent",
       level: "all",
@@ -6413,13 +6505,23 @@ This account will be used continuously, so please enter the information correctl
       if (options.render !== false) renderVoteDependentSections();
     }
 
+    function replaceVotesForStudy(studyId, rows = []) {
+      const eventId = String(studyId || "").trim();
+      if (!eventId) return;
+      delete remoteVotesCache[eventId];
+      delete remoteVoteMetaCache[eventId];
+      rows.forEach((row) => applyRealtimeVoteRow(row, { render: false }));
+      templates = buildWeeklyTemplates();
+      closedTemplates = buildClosedTemplates();
+    }
+
     function renderVoteDependentSections() {
       if (activeView === "vote" || activeView === "home") {
         renderPolls();
         if (activeFilter === "materials") renderMaterials();
       }
       if (activeView === "admin" && adminUnlocked && isOperatorMember(getMember())) {
-        renderAdminVoteAudit();
+        renderAdminView();
       }
       if (activeView === "profile") {
         renderLevel();
@@ -6979,6 +7081,33 @@ This account will be used continuously, so please enter the information correctl
     async function selectVotesViaRest(extraRow = null) {
       const { internalIds } = getVoteQueryIds(extraRow);
       return fetchVotesByColumn("study_id", internalIds);
+    }
+
+    async function fetchVotesByStudyId(studyId) {
+      const id = String(studyId || "").trim();
+      if (!id || !isSupabaseConfigured()) return [];
+      try {
+        const rows = await fetchVotesByColumn("study_id", [id]);
+        return rows.filter((row) => String(row.study_id || "") === id && row.cancelled !== true);
+      } catch (error) {
+        console.error("fetch votes by study_id failed", { studyId: id, error });
+        return [];
+      }
+    }
+
+    async function refreshVotesForStudy(studyId) {
+      const id = String(studyId || "").trim();
+      if (!id || adminVoteStudyRefreshInFlight.has(id)) return false;
+      if (adminVoteStudyRefreshedAt[id] && Date.now() - adminVoteStudyRefreshedAt[id] < 15000) return false;
+      adminVoteStudyRefreshInFlight.add(id);
+      try {
+        const rows = await fetchVotesByStudyId(id);
+        replaceVotesForStudy(id, rows);
+        adminVoteStudyRefreshedAt[id] = Date.now();
+        return true;
+      } finally {
+        adminVoteStudyRefreshInFlight.delete(id);
+      }
     }
 
     function voteRowMatches(row, expectedRow) {
@@ -8277,14 +8406,10 @@ This account will be used continuously, so please enter the information correctl
         }
         adminPanelEl.classList.remove("hidden");
         loadEventsFromSupabase({ includeHidden: true }).catch(() => {});
-        loadMembersFromSupabase().then(() => renderAdminMembers()).catch(() => {});
-        renderAdminEventManager();
-        renderAdminEventOptions();
-        renderAdminRealEventOptions();
-        renderAdminStatus();
         if (adminUnlocked) {
           adminLockEl.classList.add("hidden");
           adminToolsEl.classList.remove("hidden");
+          renderAdminView();
         } else {
           adminLockEl.classList.remove("hidden");
           adminToolsEl.classList.add("hidden");
@@ -9394,15 +9519,35 @@ This account will be used continuously, so please enter the information correctl
         }
       });
       const hasAny = activeItems.length || closedItems.length;
+      const tabs = `
+        <div class="admin-vote-tabs" role="tablist" aria-label="투표 관리 탭">
+          <button type="button" class="admin-vote-tab ${adminVoteTab === "active" ? "active" : ""}" data-admin-vote-tab="active">진행 중 투표 (${activeItems.length})</button>
+          <button type="button" class="admin-vote-tab ${adminVoteTab === "closed" ? "active" : ""}" data-admin-vote-tab="closed">종료된 투표 (${closedItems.length})</button>
+          <button type="button" class="admin-vote-tab ${adminVoteTab === "all" ? "active" : ""}" data-admin-vote-tab="all">전체 투표 (${activeItems.length + closedItems.length})</button>
+        </div>
+      `;
+      const activeSection = `<section><strong class="admin-audit-section-title">진행 중 투표자 확인</strong>${renderAdminActiveVoteSection(activeItems)}</section>`;
+      const closedSection = `<section><strong class="admin-audit-section-title">종료된 투표자 확인</strong>${renderAdminClosedVoteSection(closedItems)}</section>`;
+      const selectedSections = adminVoteTab === "active" ? activeSection : adminVoteTab === "closed" ? closedSection : `${activeSection}${closedSection}`;
       adminVoteAuditEl.innerHTML = hasAny
-        ? `<div class="admin-audit-panel"><section><strong class="admin-audit-section-title">진행 중 투표자 확인</strong>${renderAdminActiveVoteSection(activeItems)}</section><section><strong class="admin-audit-section-title">종료된 투표자 확인</strong>${renderAdminClosedVoteSection(closedItems)}</section></div>`
-        : escapeHtml(t("adminNoVotes"));
+        ? `${tabs}<div class="admin-audit-panel">${selectedSections}</div>`
+        : `${tabs}${escapeHtml(t("adminNoVotes"))}`;
+      adminVoteAuditEl.querySelectorAll("[data-admin-vote-tab]").forEach((button) => {
+        button.addEventListener("click", () => {
+          adminVoteTab = button.dataset.adminVoteTab || "active";
+          localStorage.setItem(ADMIN_VOTE_TAB_KEY, adminVoteTab);
+          renderAdminVoteAudit();
+        });
+      });
       adminVoteAuditEl.querySelectorAll("details[data-audit-event]").forEach((item) => {
         item.addEventListener("toggle", () => {
           const key = item.dataset.auditEvent;
           if (!key) return;
           if (item.open) {
             adminAuditOpenKeys.add(key);
+            refreshVotesForStudy(key).then((changed) => {
+              if (changed && activeView === "admin" && adminUnlocked && adminView === "votes") renderAdminVoteAudit();
+            }).catch((error) => console.warn("admin study vote refresh failed", error?.message || error));
           } else {
             adminAuditOpenKeys.delete(key);
           }
@@ -9586,6 +9731,61 @@ This account will be used continuously, so please enter the information correctl
         const event = record.event ? recordEventLabel(record.event) : "";
         return `${formatRecordDate(record.timestamp)} · ${record.name} → ${record.detail.replace(/^보낸 사람:\\s*/, "")}${event ? ` · ${event}` : ""}`;
       }).join("\n");
+    }
+
+    function syncAdminNavState() {
+      document.querySelectorAll("[data-admin-view]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.adminView === adminView);
+      });
+    }
+
+    function renderAdminView() {
+      if (!adminToolsEl || !adminUnlocked) return;
+      const view = adminViews[adminView] ? adminView : "events";
+      adminView = view;
+      syncAdminNavState();
+      if (adminViewPageTitleEl) {
+        adminViewPageTitleEl.innerHTML = `<h3>${escapeHtml(adminViews[view].title)}</h3><p class="helper">${escapeHtml(adminViews[view].help)}</p>`;
+      }
+      adminToolsEl.querySelectorAll("[data-admin-section]").forEach((section) => {
+        section.classList.toggle("admin-section-hidden", section.dataset.adminSection !== view);
+      });
+      if (view === "events") {
+        renderAdminEventManager();
+        return;
+      }
+      if (view === "studies") {
+        renderAdminEventOptions();
+        renderAdminScheduleOptions();
+        renderAdminStatus();
+        return;
+      }
+      if (view === "votes") {
+        renderAdminEventOptions();
+        renderAdminRealEventOptions();
+        renderAdminStatus();
+        setSheetStatus();
+        renderAdminVoteAudit();
+        return;
+      }
+      if (view === "members") {
+        if (!membersLoadedFromSupabase) {
+          loadMembersFromSupabase().then(() => renderAdminMembers()).catch(() => renderAdminMembers());
+        } else {
+          renderAdminMembers();
+        }
+        return;
+      }
+      if (view === "statistics") {
+        renderAdminHeartAudit();
+      }
+    }
+
+    function setAdminView(view) {
+      if (!adminViews[view]) return;
+      adminView = view;
+      localStorage.setItem(ADMIN_VIEW_KEY, view);
+      renderAdminView();
     }
 
     function renderNotice() {
@@ -11293,12 +11493,10 @@ This account will be used continuously, so please enter the information correctl
           updateBackButton();
           return;
         }
-        renderAdminEventOptions();
-        renderAdminRealEventOptions();
-        renderAdminStatus();
         if (adminUnlocked) {
           adminLockEl.classList.add("hidden");
           adminToolsEl.classList.remove("hidden");
+          renderAdminView();
           adminToolsEl.scrollIntoView({ behavior: "smooth", block: "start" });
         } else {
           adminLockEl.classList.remove("hidden");
@@ -11326,13 +11524,8 @@ This account will be used continuously, so please enter the information correctl
       adminLockEl.classList.add("hidden");
       adminToolsEl.classList.remove("hidden");
       messageEl.textContent = t("adminUnlocked");
-      renderAdminEventOptions();
-      renderAdminRealEventOptions();
       loadEventsFromSupabase({ includeHidden: true }).catch(() => {});
-      renderAdminStatus();
-      renderAdminScheduleOptions();
-      renderAdminVoteAudit();
-      renderAdminHeartAudit();
+      renderAdminView();
       adminToolsEl.scrollIntoView({ behavior: "smooth", block: "start" });
       updateBackButton();
     }
@@ -11584,21 +11777,14 @@ This account will be used continuously, so please enter the information correctl
         renderLikeTargets();
       }
       if (activeView === "admin" && adminUnlocked && isOperatorMember(getMember())) {
-        renderAdminEventOptions();
-        renderAdminRealEventOptions();
-        renderAdminScheduleOptions();
-        renderAdminStatus();
-        renderAdminVoteAudit();
-        renderAdminHeartAudit();
-        renderAdminEventManager();
-        renderAdminMembers();
+        renderAdminView();
       }
       if (activeView === "event") renderEventPage();
       renderStudyNotifications({
         full: !notificationPanelEl.classList.contains("hidden"),
         profileReminder: activeView === "profile" && profileView === "main"
       });
-      if (activeView === "admin" && adminUnlocked && isOperatorMember(getMember())) setSheetStatus();
+      if (activeView === "admin" && adminUnlocked && isOperatorMember(getMember()) && adminView === "votes") setSheetStatus();
       updateContentMode();
       maybeShowLikePrompt();
     }
@@ -11686,6 +11872,9 @@ This account will be used continuously, so please enter the information correctl
     adminToggleEl.addEventListener("click", toggleAdminPanel);
     adminLoginEl.addEventListener("click", unlockAdmin);
     adminGoLoginEl.addEventListener("click", goLoginPage);
+    document.querySelectorAll("[data-admin-view]").forEach((button) => {
+      button.addEventListener("click", () => setAdminView(button.dataset.adminView));
+    });
     adminPasswordEl.addEventListener("keydown", (event) => {
       if (event.key === "Enter") unlockAdmin();
     });
