@@ -5447,6 +5447,7 @@ This account will be used continuously, so please enter the information correctl
     let votesRealtimeRefreshTimer = null;
     let votesRealtimeSubscribed = false;
     const VOTES_CACHE_TTL_MS = 12000;
+    const VOTES_VISIBILITY_REFRESH_MS = 30000;
     let eventsLastLoadedAt = 0;
     let eventsCacheMode = "";
     const EVENTS_CACHE_TTL_MS = 5 * 60 * 1000;
@@ -7512,7 +7513,7 @@ This account will be used continuously, so please enter the information correctl
     async function updateVoteViaRest(rowId, eventId, option, member) {
       const now = new Date().toISOString();
       const body = buildVotePayload(eventId, option, member, { now });
-      console.log("vote payload", body);
+      debugLog("vote payload", body);
       const response = await fetch(`${SUPABASE_URL}/rest/v1/votes?id=eq.${encodeURIComponent(rowId)}`, {
         method: "PATCH",
         headers: supabaseRestHeaders({
@@ -7530,7 +7531,7 @@ This account will be used continuously, so please enter the information correctl
       }
       const rows = await readSupabaseRows(response);
       const saved = Array.isArray(rows) ? rows[0] : rows;
-      console.log("vote save result", saved || { id: rowId, ...body }, null);
+      debugLog("vote save result", saved || { id: rowId, ...body }, null);
       return saved || { id: rowId, ...body, created_at: now };
     }
 
@@ -7541,7 +7542,7 @@ This account will be used continuously, so please enter the information correctl
         ...buildVotePayload(eventId, option, member, { now }),
         created_at: now,
       };
-      console.log("vote payload", body);
+      debugLog("vote payload", body);
       const postBody = async (payload) => fetch(`${SUPABASE_URL}/rest/v1/votes`, {
         method: "POST",
         headers: supabaseRestHeaders({
@@ -7556,12 +7557,12 @@ This account will be used continuously, so please enter the information correctl
         const error = makeSupabaseRestError(text, response.status);
         if (isLegacyVoteOptionRequiredError(error)) {
           const legacyBody = { ...body, vote_option: body.level };
-          console.log("vote payload", legacyBody);
+          debugLog("vote payload", legacyBody);
           response = await postBody(legacyBody);
           if (response.ok) {
             const rows = await readSupabaseRows(response);
             const saved = Array.isArray(rows) ? rows[0] : rows;
-            console.log("vote save result", saved || body, null);
+            debugLog("vote save result", saved || body, null);
             return saved || body;
           }
           const retryText = await response.text();
@@ -7576,7 +7577,7 @@ This account will be used continuously, so please enter the information correctl
       }
       const rows = await readSupabaseRows(response);
       const saved = Array.isArray(rows) ? rows[0] : rows;
-      console.log("vote save result", saved || body, null);
+      debugLog("vote save result", saved || body, null);
       return saved || body;
     }
 
@@ -7621,7 +7622,8 @@ This account will be used continuously, so please enter the information correctl
         latestAppliedVotesSerial = loadSerial;
         remoteVotesCache = buildVotesFromRows(data || []);
         votesLastLoadedAt = Date.now();
-        render();
+        if (options.partial) renderVoteDependentSections();
+        else render();
         return true;
       } catch (error) {
         console.error("load votes failed", error);
@@ -7707,24 +7709,29 @@ This account will be used continuously, so please enter the information correctl
         votesRealtimeRefreshTimer = window.setTimeout(() => {
           votesRealtimeRefreshTimer = null;
           votesLastLoadedAt = 0;
-          loadVotesFromSupabase({ silent: true, force: true }).catch((error) => {
+          loadVotesFromSupabase({ silent: true, force: true, partial: true }).catch((error) => {
             console.warn("votes realtime refresh failed", error?.message || error);
           });
-        }, 200);
+        }, 600);
       };
       const handleVoteRealtimeChange = (payload) => {
         if (autoVoteBatchInProgress) return;
-        console.log("votes realtime change", payload);
+        debugLog("votes realtime change", payload);
+        const row = payload?.new || payload?.old;
+        if (row?.study_id && row?.user_id && (row.level || row.vote_option)) {
+          applyRealtimeVoteRow(row, { render: true });
+          votesLastLoadedAt = Date.now();
+          return;
+        }
         refreshVotesDebounced();
       };
       realtimeChannel = supabaseClient
         .channel("votes-realtime")
         .on("postgres_changes", { event: "*", schema: "public", table: "votes" }, handleVoteRealtimeChange)
         .subscribe((status) => {
-          console.log("votes realtime status", status);
+          debugLog("votes realtime status", status);
           if (status === "SUBSCRIBED") {
             votesRealtimeSubscribed = true;
-            refreshVotesDebounced();
           }
           if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
             votesRealtimeSubscribed = false;
@@ -7744,8 +7751,8 @@ This account will be used continuously, so please enter the information correctl
 
     function refreshVotesWhenVisible() {
       if (document.visibilityState !== "visible") return;
-      votesLastLoadedAt = 0;
-      loadVotesFromSupabase({ silent: true, force: true }).catch((error) => {
+      if (votesLastLoadedAt && Date.now() - votesLastLoadedAt < VOTES_VISIBILITY_REFRESH_MS) return;
+      loadVotesFromSupabase({ silent: true, partial: true }).catch((error) => {
         console.warn("votes visibility refresh failed", error?.message || error);
       });
     }
@@ -7884,7 +7891,7 @@ This account will be used continuously, so please enter the information correctl
       if (votesPollTimer) window.clearInterval(votesPollTimer);
       votesPollTimer = window.setInterval(() => {
         if (!document.hidden && (activeView === "vote" || activeView === "home" || activeView === "admin")) {
-          loadVotesFromSupabase({ silent: true });
+          loadVotesFromSupabase({ silent: true, partial: true });
         }
       }, 120000);
     }
@@ -8778,6 +8785,10 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function setVoteFilter(filter) {
+      if (activeView === "vote" && activeFilter === filter) {
+        updateCategoryArrows();
+        return;
+      }
       activeView = "vote";
       activeFilter = filter;
       document.querySelectorAll(".tab").forEach((item) => {
@@ -8791,6 +8802,7 @@ This account will be used continuously, so please enter the information correctl
     }
 
     async function openEventPage() {
+      if (activeView === "event" && !selectedEventDetailId && eventsLoadedFromSupabase) return;
       selectedEventDetailId = "";
       setActiveView("event");
       if (eventContentEl) eventContentEl.innerHTML = `<p class="helper">이벤트를 불러오는 중입니다...</p>`;
@@ -11438,15 +11450,13 @@ This account will be used continuously, so please enter the information correctl
         if (!saved) return;
         if (saved.duplicateActive) {
           messageEl.textContent = t("alreadySelected");
-          await loadVotesFromSupabase({ silent: true, force: true });
-          render();
+          renderVoteDependentSections();
           return;
         }
 
         expandedPollId = "";
         messageEl.textContent = t("voted", { option: t(option), points: awardedPoints });
-        await loadVotesFromSupabase({ silent: true, force: true });
-        render();
+        renderVoteDependentSections();
       } finally {
         pendingVoteActions.delete(actionKey);
       }
@@ -12351,7 +12361,7 @@ This account will be used continuously, so please enter the information correctl
           return;
         }
         messageEl.textContent = t("adminAddedVote", { name: `${names.length}명`, option: t(option) });
-        render();
+        renderVoteDependentSections();
       } finally {
         adminAddVoteEl.disabled = false;
       }
@@ -12373,7 +12383,7 @@ This account will be used continuously, so please enter the information correctl
         if (!saved) return;
         adminRealNameInputEl.value = "";
         messageEl.textContent = t("adminRealAdded", { name: member.name, option: t(option) });
-        render();
+        renderVoteDependentSections();
       } finally {
         adminAddRealVoteEl.disabled = false;
       }
