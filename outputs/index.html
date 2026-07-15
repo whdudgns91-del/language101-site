@@ -5157,6 +5157,8 @@ This account will be used continuously, so please enter the information correctl
     let votesLoadSerial = 0;
     let latestAppliedVotesSerial = 0;
     let votesLastLoadedAt = 0;
+    let votesRealtimeRefreshTimer = null;
+    let votesRealtimeSubscribed = false;
     const VOTES_CACHE_TTL_MS = 12000;
     let eventsLastLoadedAt = 0;
     let eventsCacheMode = "";
@@ -7208,23 +7210,57 @@ This account will be used continuously, so please enter the information correctl
     }
 
     function subscribeVotesRealtime() {
-      if (!supabaseClient) return;
-      if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
+      if (!supabaseClient || votesRealtimeSubscribed) return;
+      if (realtimeChannel) {
+        supabaseClient.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+      }
+      const refreshVotesDebounced = () => {
+        if (votesRealtimeRefreshTimer) window.clearTimeout(votesRealtimeRefreshTimer);
+        votesRealtimeRefreshTimer = window.setTimeout(() => {
+          votesRealtimeRefreshTimer = null;
+          votesLastLoadedAt = 0;
+          loadVotesFromSupabase({ silent: true, force: true }).catch((error) => {
+            console.warn("votes realtime refresh failed", error?.message || error);
+          });
+        }, 200);
+      };
+      const handleVoteRealtimeChange = (payload) => {
+        if (autoVoteBatchInProgress) return;
+        console.log("votes realtime change", payload);
+        refreshVotesDebounced();
+      };
       realtimeChannel = supabaseClient
-        .channel(`votes-realtime-${Date.now()}`)
-        .on("postgres_changes", { event: "INSERT", schema: "public", table: "votes" }, (payload) => {
-          if (autoVoteBatchInProgress) return;
-          applyRealtimeVoteRow(payload.new);
+        .channel("votes-realtime")
+        .on("postgres_changes", { event: "*", schema: "public", table: "votes" }, handleVoteRealtimeChange)
+        .subscribe((status) => {
+          console.log("votes realtime status", status);
+          if (status === "SUBSCRIBED") {
+            votesRealtimeSubscribed = true;
+            refreshVotesDebounced();
+          }
+          if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+            votesRealtimeSubscribed = false;
+            refreshVotesDebounced();
+            window.setTimeout(() => {
+              if (!votesRealtimeSubscribed) {
+                if (realtimeChannel) {
+                  supabaseClient.removeChannel(realtimeChannel);
+                  realtimeChannel = null;
+                }
+                subscribeVotesRealtime();
+              }
+            }, 3000);
+          }
         })
-        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "votes" }, (payload) => {
-          if (autoVoteBatchInProgress) return;
-          applyRealtimeVoteRow(payload.new);
-        })
-        .on("postgres_changes", { event: "DELETE", schema: "public", table: "votes" }, () => {
-          if (autoVoteBatchInProgress) return;
-          loadVotesFromSupabase({ silent: true, force: true }).catch(() => {});
-        })
-        .subscribe();
+    }
+
+    function refreshVotesWhenVisible() {
+      if (document.visibilityState !== "visible") return;
+      votesLastLoadedAt = 0;
+      loadVotesFromSupabase({ silent: true, force: true }).catch((error) => {
+        console.warn("votes visibility refresh failed", error?.message || error);
+      });
     }
 
     function receivedLikeProcessKey(row, memberId) {
@@ -7376,6 +7412,8 @@ This account will be used continuously, so please enter the information correctl
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
       }
       await loadVotesFromSupabase();
+      subscribeVotesRealtime();
+      subscribePostStudyLikesRealtime();
     }
 
     function logMemberAction(type, memberOrId, details = {}) {
@@ -11759,6 +11797,7 @@ This account will be used continuously, so please enter the information correctl
     document.addEventListener("click", () => {
       languagePopoverEl.classList.add("hidden");
     });
+    document.addEventListener("visibilitychange", refreshVotesWhenVisible);
 
     messageEl.textContent = getMember() ? t("started", { name: getMember().name }) : t("selectName");
     setInterval(() => {
