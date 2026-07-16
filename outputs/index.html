@@ -12640,7 +12640,9 @@ This account will be used continuously, so please enter the information correctl
     profileOpenEl?.addEventListener("click", () => setActiveView("profile"));
     notificationOpenEl.addEventListener("click", toggleNotificationPanel);
     adminShortcutEl?.addEventListener("click", () => setActiveView("admin"));
-    bottomHomeEl.addEventListener("click", () => setVoteFilter("materials"));
+    bottomHomeEl.addEventListener("click", () => {
+      window.location.href = "https://language101-study-toolkit.vercel.app";
+    });
     bottomVoteEl.addEventListener("click", () => setVoteFilter("all"));
     bottomProfileEl.addEventListener("click", () => setActiveView("profile"));
     bottomEventEl.addEventListener("click", openEventPage);
